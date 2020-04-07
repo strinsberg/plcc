@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+plcc
+
+# flex and bison
+*.tab*
+*.yy*
+
+# text editors
+*~
+*.swp
+*.swo
