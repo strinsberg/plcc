@@ -1,0 +1,34 @@
+-- Should test most constructs in the language currently.
+-- Maybe not every possible combination, but the general useage for now.
+
+begin
+  -- Different kinds of definitions
+  int i, j;
+  float f;
+  char ch;
+  const int N := 10;
+  const bool T := true;
+  bool array[N] A;
+
+  -- Assignments
+  i, j := 0, 20;
+  f := 3.14;
+  ch := '%';
+
+  -- Loop and if statements
+  while i < N do
+    if i % 2 == 0 do
+      A[i] := T;
+    else if T do
+      A[i] := false;
+    end if;
+
+    i := i + 1;
+    j := j - 1;
+  end while;
+
+  -- Write out some different expressions
+  write j * i , f / 10.0, ch;
+  write 1 > 2, 10 <= 10, 10 >= 9, 20 ~= 20;
+  write not true, true and false, true or false;
+end .
