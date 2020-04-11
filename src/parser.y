@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include "Tokens.h"
+#include "AstNode.h"
 
 extern int line;
 extern char* yytext;
