@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string>
+#include <iostream>
 #include "Tokens.h"
 #include "AstNode.h"
 
@@ -35,6 +36,7 @@ block: BEG def_part stmt_part END { printf("block\n"); }
 
 /* Definitions */
 def_part: def_part def SEMI { printf("def_part\n"); }
+  | def_part error SEMI { yyerrok; }
   | /* epsilon */
   ;
 
@@ -56,6 +58,7 @@ v_prime: var_list { printf("v_prime -> var_list\n"); }
 
 /* Statements */
 stmt_part: stmt_part stmt SEMI { printf("stmt_part\n"); }
+  | stmt_part error SEMI { yyerrok; }
   | /* epsilon */
   ;
 
@@ -88,9 +91,11 @@ condition: expr DO stmt_part { printf("condition -> do\n"); }
 empty_stmt: SKIP { printf("empty_stmt\n"); }
   ;
 
+
 /* Expressions */
 expr_list: expr_list COMMA expr { printf("expr_list\n"); }
   | expr
+  | error { yyerrok; }
   ;
 
 expr: expr prim_op prime_expr { printf("expr\n\n"); }
@@ -196,5 +201,5 @@ int main() {
 }
 
 void yyerror(std::string s) {
-  fprintf(stderr, "error: %s\n", s.c_str());
+  std::cerr << "line " << line << ": " << s << " near -> " << yytext << std::endl << std::endl;
 }

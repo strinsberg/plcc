@@ -1,3 +1,5 @@
 begin
-  write 44 5.6, * 32 45;
+  if 3 + end do
+    skip;
+  end if;
 end.
