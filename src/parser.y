@@ -2,14 +2,18 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
-#include "Tokens.h"
-#include "AstNode.h"
+#include "Actions.h"
+
+#define yytkn yytokentype
+#define pushb push_back
+#define popb pop_back
 
 extern int line;
 extern char* yytext;
 extern "C" int yylex(void);
 
 void yyerror(std::string);
+Actions actions;
 %}
 
 
@@ -92,7 +96,7 @@ empty_stmt: SKIP { printf("empty_stmt\n"); }
   ;
 
 
-/* Expressions */
+/* Expressions - All are going to be passing out nodes */
 expr_list: expr_list COMMA expr { printf("expr_list\n"); }
   | expr
   | error { yyerrok; }
@@ -118,6 +122,7 @@ term: factor mult_op factor
   | factor { printf("term\n"); }
   ;
 
+/* factor should create or pass out a node */
 factor: number { printf("factor -> number\n"); }
   | char { printf("factor -> char\n"); }
   | bool_sym { printf("factor -> bool_sym\n"); }
@@ -136,7 +141,7 @@ var_access_list: var_access_list COMMA var_access { printf("var_access_list\n");
   | var_access
   ;
 
-var_access: name selector { printf("var_access\n"); }
+var_access: name selector { /* ID node var/array */ printf("var_access\n"); }
   ;
 
 selector: LHSQR constant RHSQR { printf("selector -> array access\n"); }
@@ -176,28 +181,32 @@ type_sym: INT { printf("INT\n"); }
 
 constant: number { printf("constant -> number\n"); }
   | bool_sym { printf("constant -> bool\n"); } 
-  | name { printf("constant -> name\n"); }
+  | name { /* some kind of node? */ printf("constant -> name\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
-char: CHARACTER { printf("CHARACTER -> '%c'\n", $1); }
+char: CHARACTER { actions.add_c($1); printf("CHARACTER -> '%c'\n", $1); }
   ;
 
-number: NUMBER DOT NUMBER {printf("number -> float: %d.%d\n", $1, $3); }
-  | NUMBER { printf("number -> int: %d\n", $1); }
+number: NUMBER DOT NUMBER { actions.add_f($1, $3); printf("number -> float: %d.%d\n", $1, $3); }
+  | NUMBER { actions.add_n($1); printf("number -> int: %d\n", $1); }
   ;
 
-bool_sym: TRUE { printf("FALSE\n"); }
-  | FALSE { printf("TRUE\n"); }
+bool_sym: TRUE { actions.add_t(yytkn::TRUE); printf("FALSE\n"); }
+  | FALSE { actions.add_t(yytkn::FALSE); printf("TRUE\n"); }
   ;
 
-name: NAME { printf("NAME -> %s\n", yytext); }
+name: NAME { actions.add_w(std::string(yytext)); printf("NAME -> %s\n", yytext);}
   ;
 %%
 
 
 int main() {
   yyparse();
+
+  // Print tokens to viusalize them
+  actions.print_tokens();
+  actions.print_nodes();
 }
 
 void yyerror(std::string s) {
