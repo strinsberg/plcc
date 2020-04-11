@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string>
+#include "Tokens.h"
 
 extern int line;
 extern char* yytext;

@@ -11,7 +11,7 @@ SRC=src
 plcc: $(SRC)
 	bison -d $(SRC)/parser.y
 	flex $(SRC)/scanner.l
-	$(CXX) $(FLAGS) -o $@ parser.tab.c lex.yy.c $(INCLUDE) $(LIBS)
+	$(CXX) $(FLAGS) -o $@ $(SRC)/*.cpp parser.tab.c lex.yy.c $(INCLUDE) $(LIBS)
 
 .PHONY: clean
 clean:
