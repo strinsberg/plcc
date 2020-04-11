@@ -1,10 +1,12 @@
 %{
 #include <stdio.h>
+#include <string>
 
 extern int line;
 extern char* yytext;
-int yylex();
-int yyerror(char*);
+extern "C" int yylex(void);
+
+void yyerror(std::string);
 %}
 
 
@@ -191,7 +193,6 @@ int main() {
   yyparse();
 }
 
-
-int yyerror(char *s) {
-  fprintf(stderr, "error: %s, %s\n", s, yytext);
+void yyerror(std::string s) {
+  fprintf(stderr, "error: %s\n", s.c_str());
 }

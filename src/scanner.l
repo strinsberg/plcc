@@ -1,9 +1,11 @@
 %{
 #include "parser.tab.h"
+#define YY_DECL extern "C" int yylex()
 
 int line = 1;
 %}
 
+%option nounput noyywrap
 
 letter [a-zA-Z]                                                                
 digit [0-9]                                                                    

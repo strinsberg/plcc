@@ -1,7 +1,17 @@
-plcc: scan.l parser.y
-	bison -d parser.y
-	flex scan.l
-	gcc -o $@ parser.tab.c lex.yy.c -lfl
+CXX=g++
+FLAGS=-std=c++11 -Wall
+LIBS=-lfl
+
+INCLUDE=-I include
+SRC=src
+
+%.o: %.cpp
+	$(CXX) $(FLAGS) -c $< -o $@
+
+plcc: $(SRC)
+	bison -d $(SRC)/parser.y
+	flex $(SRC)/scanner.l
+	$(CXX) $(FLAGS) -o $@ parser.tab.c lex.yy.c $(INCLUDE) $(LIBS)
 
 .PHONY: clean
 clean:
