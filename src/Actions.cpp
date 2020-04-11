@@ -13,6 +13,8 @@ Actions::~Actions() {
     delete n;
 }
 
+
+// Token addition /////////////////////////////////////////////////////
 void Actions::add_t(yytokentype t) {
   tokens.push_back(new Token(t));
 }
@@ -33,6 +35,15 @@ void Actions::add_c(char c) {
   tokens.push_back(new Char(c));
 }
 
+
+// AstNode addition ///////////////////////////////////////////////////
+// Or should there just be rule functions that take care of all the
+// work in an associated rule??? This could get really big if we do that
+// by the time the program grows. But otherwise all the logic will have to
+// go inside the action brackets in the rules and I would not like that.
+
+
+// Display methods ////////////////////////////////////////////////////
 void Actions::print_tokens() {
   cout << endl;
   cout << "=== Token Stack ===" << endl;

@@ -4,15 +4,14 @@
 #include <iostream>
 #include "Actions.h"
 
-#define yytkn yytokentype
-#define pushb push_back
-#define popb pop_back
-
 extern int line;
 extern char* yytext;
 extern "C" int yylex(void);
 
+typedef yytokentype yytkn;
+
 void yyerror(std::string);
+
 Actions actions;
 %}
 
@@ -150,33 +149,33 @@ selector: LHSQR constant RHSQR { printf("selector -> array access\n"); }
 
 
 /* Operators */
-prim_op: AND { printf("AND\n"); }
-  | OR { printf("OR\n"); }
+prim_op: AND { actions.add_t(yytkn::AND); printf("AND\n"); }
+  | OR { actions.add_t(yytkn::OR); printf("OR\n"); }
   ;
 
-rel_op: EQ { printf("EQUAL\n"); }
-  | NEQ { printf("NOT EQUAL\n"); }
-  | LESS { printf("LESS\n"); }
-  | GREATER { printf("GREATER\n"); } 
-  | LEQ { printf("LESS EQUAL\n"); }
-  | GEQ { printf("GREATER EQUAL\n"); }
+rel_op: EQ { actions.add_t(yytkn::EQ); printf("EQUAL\n"); }
+  | NEQ { actions.add_t(yytkn::NEQ); printf("NOT EQUAL\n"); }
+  | LESS { actions.add_t(yytkn::LESS); printf("LESS\n"); }
+  | GREATER { actions.add_t(yytkn::GREATER); printf("GREATER\n"); } 
+  | LEQ { actions.add_t(yytkn::LEQ); printf("LESS EQUAL\n"); }
+  | GEQ { actions.add_t(yytkn::GEQ); printf("GREATER EQUAL\n"); }
   ;
 
-add_op: PLUS { printf("PLUS\n"); }
-  | MINUS { printf("MINUS\n"); }
+add_op: PLUS { actions.add_t(yytkn::PLUS); printf("PLUS\n"); }
+  | MINUS { actions.add_t(yytkn::MINUS); printf("MINUS\n"); }
   ;
 
-mult_op: MULT { printf("MULT\n"); }
-  | DIV { printf("DIV\n"); }
-  | MOD { printf("MOD\n"); }
+mult_op: MULT { actions.add_t(yytkn::MULT); printf("MULT\n"); }
+  | DIV { actions.add_t(yytkn::DIV); printf("DIV\n"); }
+  | MOD { actions.add_t(yytkn::MOD); printf("MOD\n"); }
   ;
 
 
 /* Terminals */
-type_sym: INT { printf("INT\n"); }
-  | FLOAT { printf("FLOAT\n"); }
-  | BOOL { printf("BOOL\n"); }
-  | CHAR { printf("CHAR\n"); }
+type_sym: INT { actions.add_t(yytkn::INT); printf("INT\n"); }
+  | FLOAT { actions.add_t(yytkn::FLOAT); printf("FLOAT\n"); }
+  | BOOL { actions.add_t(yytkn::BOOL); printf("BOOL\n"); }
+  | CHAR { actions.add_t(yytkn::CHAR); printf("CHAR\n"); }
   ;
 
 constant: number { printf("constant -> number\n"); }

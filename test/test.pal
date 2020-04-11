@@ -1,4 +1,4 @@
 begin
-  write 1 + 2 * 2, 10 - 5, 10 / 5, 10 % 5;
-  write (1 + 2) * 2;
+  const int n := 10;
+  int a, b, c;
 end.

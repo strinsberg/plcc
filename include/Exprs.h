@@ -1,9 +1,18 @@
 #ifndef PLCC_EXPRESSIONS_H
 #define PLCC_EXPRESSIONS_H
 
+#include "AstNode.h"
+
 // classes needed:
 // expression
+class Expression : public AstNode {
+
+};
+
 // id
+class Id : public Expression {
+
+};
 // op, arith, unary
 // temp -- for the temporary identifier you emit?
 // relational
