@@ -8,6 +8,9 @@ SRC=src
 %.o: %.cpp
 	$(CXX) $(FLAGS) -c $< -o $@
 
+%.o: %.c
+	$(CXX) $(FLAGS) -c $< -o $@
+
 plcc: $(SRC)
 	bison -d $(SRC)/parser.y
 	flex $(SRC)/scanner.l
