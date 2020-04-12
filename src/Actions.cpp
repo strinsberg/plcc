@@ -42,9 +42,10 @@ void Actions::add_c(char c) {
 // Definitions ///////////////////////////////////////////////////
 
 // Doesn't do anything with the value
-// Also none of the definitions actually deal with the variable other than
-// buidling the nodes for the tree
+// Should be adding the nodes to the symbol table instead of pushing them as
+// expressions, though I don't think it will hurt for now.
 void Actions::const_def(int line) {
+  // Perhaps need a constant Id to store values in symtab
   Token* value = tokens.back();
   tokens.pop_back();
 
@@ -57,7 +58,7 @@ void Actions::const_def(int line) {
   Word* w = new Word(name->to_string());
   exprs.push_back( new Id(w, type->tag, line) );
 
-  //delete value;
+  delete value;
   delete name;
   delete type;
 }
@@ -71,6 +72,7 @@ void Actions::array_def(int vars, int line) {
     tokens.pop_back();
   }
 
+  // If size has tag==NAME then look up value in symtab for the size
   Token* size = tokens.back();
   tokens.pop_back();
 

@@ -6,8 +6,8 @@ begin
   int i, j;
   float f;
   char ch;
-  const int N := 10;
-  const bool T := true;
+  const int N = 10;
+  const bool T = true;
   bool array[N] A;
 
   -- Assignments

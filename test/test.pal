@@ -1,5 +1,5 @@
 begin
-  const bool T = true;
-  int a, b, c;
-  int array[10] A, B, C;
+  const int N = 10;
+  float a, b, c;
+  int array[N] A, B, C;
 end.

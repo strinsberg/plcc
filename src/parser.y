@@ -180,7 +180,7 @@ type_sym: INT { actions.add_t(yytkn::INT); printf("INT\n"); }
 
 constant: number { printf("constant -> number\n"); }
   | bool_sym { printf("constant -> bool\n"); } 
-  | name { /* some kind of node? */ printf("constant -> name\n"); }
+  | name { /* here need to add an Id node to symtab */ printf("constant -> name\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
