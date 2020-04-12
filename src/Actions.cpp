@@ -41,11 +41,8 @@ void Actions::add_c(char c) {
 
 // Definitions ///////////////////////////////////////////////////
 
-// Doesn't do anything with the value
-// Should be adding the nodes to the symbol table instead of pushing them as
-// expressions, though I don't think it will hurt for now.
 void Actions::const_def(int line) {
-  // Perhaps need a constant Id to store values in symtab
+  // Do we need to store this value anywhere? or create an Expr?
   Token* value = tokens.back();
   tokens.pop_back();
 
@@ -56,15 +53,13 @@ void Actions::const_def(int line) {
   tokens.pop_back();
   
   Word* w = new Word(name->to_string());
-  exprs.push_back( new Id(w, type->tag, line) );
+  table.put( name->to_string(), new Id(w, type->tag, line) );
 
   delete value;
   delete name;
   delete type;
 }
 
-// Has duplicate code and should have an array ID type?
-// Both still need some kind of error handling?
 void Actions::array_def(int vars, int line) {
   vector<Token*> names;
   for (int i = 0; i < vars; i++) {
@@ -72,7 +67,7 @@ void Actions::array_def(int vars, int line) {
     tokens.pop_back();
   }
 
-  // If size has tag==NAME then look up value in symtab for the size
+  // Not sure what to do with the size. Perhaps it needs an expression.
   Token* size = tokens.back();
   tokens.pop_back();
 
@@ -81,7 +76,7 @@ void Actions::array_def(int vars, int line) {
 
   for (int i = 0; i < vars; i++) {
     Word* w = new Word( names[i]->to_string() );
-    exprs.push_back( new Id(w, type->tag, line) );
+    table.put( names[i]->to_string(), new Id(w, type->tag, line) );
     delete names[i];
   }
 
@@ -101,7 +96,7 @@ void Actions::var_def(int vars, int line) {
 
   for (int i = 0; i < vars; i++) {
     Word* w = new Word( names[i]->to_string() );
-    exprs.push_back( new Id(w, type->tag, line) );
+    table.put( names[i]->to_string(), new Id(w, type->tag, line) );
     delete names[i];
   }
 
