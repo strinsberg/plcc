@@ -2,4 +2,6 @@ begin
   const int N = 10;
   float a, b, c;
   int array[N] A, B, C;
+
+  a, b, c := 4.0, 5.0, 6.0;
 end.

@@ -75,7 +75,7 @@ stmt: write_stmt { printf("stmt -> write\n\n"); }
 write_stmt: WRITE expr_list { printf("write_stmt\n"); }
   ;
 
-asn_stmt: var_access_list ASGN expr_list { printf("assignment_stmt\n"); }
+asn_stmt: var_access_list ASGN expr_list { actions.assign($1, $3, line); printf("assignment_stmt\n"); }
   ;
 
 if_stmt: IF conditions ENDIF { printf("if_stmt\n"); }
@@ -96,8 +96,8 @@ empty_stmt: SKIP { printf("empty_stmt\n"); }
 
 
 /* Expressions - All are going to be passing out nodes */
-expr_list: expr_list COMMA expr { printf("expr_list\n"); }
-  | expr
+expr_list: expr_list COMMA expr { $$ = $1 + 1; printf("expr_list\n"); }
+  | expr { $$ = 1; }
   | error { yyerrok; }
   ;
 
@@ -136,8 +136,8 @@ var_list: var_list COMMA name { $$ = $1 + 1; printf("var_list\n"); }
   | name { $$ = 1; printf("var_list -> name\n"); }
   ;
 
-var_access_list: var_access_list COMMA var_access { printf("var_access_list\n"); }
-  | var_access
+var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_access_list\n"); }
+  | var_access { $$ = 1; }
   ;
 
 var_access: name selector { /* ID node var/array */ printf("var_access\n"); }
@@ -180,19 +180,19 @@ type_sym: INT { actions.add_t(yytkn::INT); printf("INT\n"); }
 
 constant: number { printf("constant -> number\n"); }
   | bool_sym { printf("constant -> bool\n"); } 
-  | name { /* here need to add an Id node to symtab */ printf("constant -> name\n"); }
+  | name { actions.constant(line); printf("constant -> name\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
-char: CHARACTER { actions.add_c($1); printf("CHARACTER -> '%c'\n", $1); }
+char: CHARACTER { actions.add_c($1); actions.constant(line); printf("CHARACTER -> '%c'\n", $1); }
   ;
 
-number: NUMBER DOT NUMBER { actions.add_f($1, $3); printf("number -> float: %d.%d\n", $1, $3); }
-  | NUMBER { actions.add_n($1); printf("number -> int: %d\n", $1); }
+number: NUMBER DOT NUMBER { actions.add_f($1, $3); actions.constant(line); printf("number -> float: %d.%d\n", $1, $3); }
+  | NUMBER { actions.add_n($1); actions.constant(line); printf("number -> int: %d\n", $1); }
   ;
 
-bool_sym: TRUE { actions.add_t(yytkn::TRUE); printf("FALSE\n"); }
-  | FALSE { actions.add_t(yytkn::FALSE); printf("TRUE\n"); }
+bool_sym: TRUE { actions.add_t(yytkn::TRUE); actions.constant(line); printf("FALSE\n"); }
+  | FALSE { actions.add_t(yytkn::FALSE); actions.constant(line); printf("TRUE\n"); }
   ;
 
 name: NAME { actions.add_w(std::string(yytext)); printf("NAME -> %s\n", yytext);}

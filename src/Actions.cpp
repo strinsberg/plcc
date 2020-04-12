@@ -44,25 +44,20 @@ void Actions::add_c(char c) {
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::const_def(int line) {
-  Token* value = tokens.back();  // What are we doing with this
-  tokens.pop_back();
-
+  // token value is on expression stack if needed
   Token* type = *(tokens.rbegin() + 1);
   add_vars(type->tag, 1, line);
 
   tokens.pop_back();
-  delete value;
   delete type;
 }
 
 void Actions::array_def(int vars, int line) {
-  Token* type = *(tokens.rbegin() + vars + 1);
-  Token* size = *(tokens.rbegin() + vars);  // What are we doing with this?
+  // size is on expression stack
+  Token* type = *(tokens.rbegin() + vars);
   add_vars(type->tag, vars, line);
 
   tokens.pop_back();
-  tokens.pop_back();
-  delete size;
   delete type;
 }
 
@@ -88,6 +83,56 @@ void Actions::add_vars(yytokentype type, int vars, int line) {
     delete name;
   }
 }
+
+
+// Statement methods //////////////////////////////////////////////////
+
+void Actions::assign(int num_vars, int num_exprs, int line) {
+  if (num_vars != num_exprs) {
+    yyerror("number of variables does not match number of exressions", false);
+    // pop everything? or just leave it?
+    return;
+  }
+
+  Stmt* stmt = nullptr;
+  for (int i = 0; i < num_vars; i++) {
+    Token* name = tokens.back();
+    tokens.pop_back();
+    string lexeme = name->to_string();
+
+    Expr* expr = exprs.back();
+    exprs.pop_back();
+
+    Id* id = table.get(lexeme);
+    if (id != nullptr) {
+      Asgn* asgn = new Asgn(id, expr, line);
+
+      if (i == 0)
+        stmt = asgn;
+      else
+        stmt = new Seq(asgn, stmt, line);
+
+    } else {
+      yyerror("'" + lexeme + "' is undeclared");
+    }
+
+    delete name;
+  }
+
+  if (stmt != nullptr)
+    stmts.push_back(stmt);
+}
+
+
+// Expression methods /////////////////////////////////////////////////
+
+void Actions::constant(int line) {
+  Token* tok = tokens.back();
+  tokens.pop_back(); 
+
+  exprs.push_back( new Constant(tok, tok->tag, line) );
+}
+
 
 // Display methods ////////////////////////////////////////////////////
 void Actions::print_tokens() {

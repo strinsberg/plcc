@@ -23,7 +23,10 @@ class Id : public Expr {
   virtual ~Id() {}
 };
 
-
+class Constant : public Expr {
+ public:
+  Constant(Token* tok, yytokentype t, int line) : Expr(tok, t, line) {}
+};
 // classes needed:
 // op, arith, unary
 // temp -- for the temporary identifier you emit?

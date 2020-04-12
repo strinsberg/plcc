@@ -21,10 +21,16 @@ class Actions {
   void add_f(int n, int d);
   void add_c(char c);
 
-  // add ast nodes
+  // definition actions
   void const_def(int line);
   void var_def(int vars, int line);
   void array_def(int vars, int line);
+
+  // stmt actions
+  void assign(int vars, int exprs, int line);
+
+  // expr actions
+  void constant(int line);
 
   // helpers
   void print_tokens();
