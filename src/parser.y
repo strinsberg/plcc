@@ -206,6 +206,7 @@ int main() {
   // Print tokens to viusalize them
   actions.print_tokens();
   actions.print_nodes();
+  actions.print_table();
 }
 
 void yyerror(std::string s) {

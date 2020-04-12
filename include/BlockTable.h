@@ -1,8 +1,31 @@
 #ifndef PLCC_BLOCK_TABLE_H
 #define PLCC_BLOCK_TABLE_H
 
-// Need a hash table structure for holding local identifiers etc.
-// Must be a vector of them to maintain a higherarchy
+#include "Exprs.h"
+#include <string>
+#include <map>
+#include <vector>
+
+
+class BlockTable {
+ public:
+  BlockTable();
+  ~BlockTable();
+
+  bool put(std::string lexeme, Id* id);
+  Id* get(std::string lexeme);
+  void push_block();
+  void pop_block();
+  int get_level();
+
+  void print();
+
+ private:
+  std::vector<std::map<std::string, Id*>> blocks;
+  int level;
+
+  void del_block(std::map<std::string, Id*>& block);
+};
 
 #endif
 

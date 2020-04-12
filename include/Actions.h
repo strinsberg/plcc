@@ -4,6 +4,7 @@
 #include "Tokens.h"
 #include "Exprs.h"
 #include "Stmts.h"
+#include "BlockTable.h"
 #include "parser.tab.h"
 #include <vector>
 
@@ -28,12 +29,13 @@ class Actions {
   // helpers
   void print_tokens();
   void print_nodes();
+  void print_table();
 
  private:
   std::vector<Token*> tokens;
   std::vector<Expr*> exprs;
   std::vector<Stmt*> stmts;
-
+  BlockTable table;
 };
 
 #endif

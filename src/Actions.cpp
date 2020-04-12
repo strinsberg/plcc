@@ -132,3 +132,8 @@ void Actions::print_nodes() {
   }
 }
 
+void Actions::print_table() {
+  cout << endl;
+  cout << "=== BlockTable Nodes ===" << endl;
+  table.print();
+}
