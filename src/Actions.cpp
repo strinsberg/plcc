@@ -42,67 +42,48 @@ void Actions::add_c(char c) {
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::const_def(int line) {
-  // Do we need to store this value anywhere? or create an Expr?
-  Token* value = tokens.back();
+  Token* value = tokens.back();  // What are we doing with this
   tokens.pop_back();
 
-  Token* name = tokens.back();
-  tokens.pop_back();
+  Token* type = *(tokens.rbegin() + 1);
+  add_vars(type->tag, 1, line);
 
-  Token* type = tokens.back();
   tokens.pop_back();
-  
-  Word* w = new Word(name->to_string());
-  table.put( name->to_string(), new Id(w, type->tag, line) );
-
   delete value;
-  delete name;
   delete type;
 }
 
 void Actions::array_def(int vars, int line) {
-  vector<Token*> names;
-  for (int i = 0; i < vars; i++) {
-    names.push_back( tokens.back() );
-    tokens.pop_back();
-  }
+  Token* type = *(tokens.rbegin() + vars + 1);
+  Token* size = *(tokens.rbegin() + vars);  // What are we doing with this?
+  add_vars(type->tag, vars, line);
 
-  // Not sure what to do with the size. Perhaps it needs an expression.
-  Token* size = tokens.back();
   tokens.pop_back();
-
-  Token* type = tokens.back();
   tokens.pop_back();
-
-  for (int i = 0; i < vars; i++) {
-    Word* w = new Word( names[i]->to_string() );
-    table.put( names[i]->to_string(), new Id(w, type->tag, line) );
-    delete names[i];
-  }
-
   delete size;
   delete type;
 }
 
 void Actions::var_def(int vars, int line) {
-  vector<Token*> names;
-  for (int i = 0; i < vars; i++) {
-    names.push_back( tokens.back() );
-    tokens.pop_back();
-  }
+  Token* type = *(tokens.rbegin() + vars);
+  add_vars(type->tag, vars, line);
 
-  Token* type = tokens.back();
   tokens.pop_back();
-
-  for (int i = 0; i < vars; i++) {
-    Word* w = new Word( names[i]->to_string() );
-    table.put( names[i]->to_string(), new Id(w, type->tag, line) );
-    delete names[i];
-  }
-
   delete type;
 }
 
+void Actions::add_vars(yytokentype type, int vars, int line) {
+  for (int i = 0; i < vars; i++) {
+    Token* name = tokens.back();
+    string lexeme = name->to_string();
+    Word* w = new Word(lexeme);
+
+    table.put( lexeme, new Id(w, type, line) );
+
+    tokens.pop_back();
+    delete name;
+  }
+}
 
 // Display methods ////////////////////////////////////////////////////
 void Actions::print_tokens() {

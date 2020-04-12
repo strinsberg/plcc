@@ -36,6 +36,8 @@ class Actions {
   std::vector<Expr*> exprs;
   std::vector<Stmt*> stmts;
   BlockTable table;
+
+  void add_vars(yytokentype type, int vars, int line);
 };
 
 #endif
