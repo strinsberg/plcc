@@ -2,7 +2,8 @@
 #define PLCC_ACTIONS_H
 
 #include "Tokens.h"
-#include "AstNode.h"
+#include "Exprs.h"
+#include "Stmts.h"
 #include "parser.tab.h"
 #include <vector>
 
@@ -27,7 +28,8 @@ class Actions {
 
  private:
   std::vector<Token*> tokens;
-  std::vector<AstNode*> nodes;
+  std::vector<Expr*> exprs;
+  std::vector<Stmt*> stmts;
 
 };
 

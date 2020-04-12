@@ -9,8 +9,11 @@ Actions::~Actions() {
   for (auto & t : tokens)
     delete t;
 
-  for (auto & n : nodes)
-    delete n;
+  for (auto & e : exprs)
+    delete e;
+
+  for (auto & s : stmts)
+    delete s;
 }
 
 

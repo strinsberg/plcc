@@ -3,25 +3,27 @@
 
 #include "AstNode.h"
 
+class Expr : public AstNode {
+ public:
+  Expr(Token* tok, yytokentype t, int line) : AstNode(line), op(tok), type(t) {}
+  virtual ~Expr() { delete op; }
+
+  Token* op;
+  yytokentype type;
+};
+
+class Id : public Expr {
+ public:
+  Id(Word* w, yytokentype t, int line) : Expr(w, t, line) {}
+  virtual ~Id() {}
+};
+
+
 // classes needed:
-// expression
-class Expression : public AstNode {
-
-};
-
-// id
-class Id : public Expression {
-
-};
 // op, arith, unary
 // temp -- for the temporary identifier you emit?
 // relational
 // logical
 // array access
-// etc.?
-// It seems that I need a class for almost every rule that I have created
-// in order to pass around the necessary information with pointers
-// to it's subchildre. I might think about it for a while to see if
-// I can not have sooo many classes.
 
 #endif
