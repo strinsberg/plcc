@@ -30,7 +30,7 @@ class Actions {
   void assign(int vars, int exprs, int line);
 
   // expr actions
-  void constant(int line);
+  void constant(yytokentype t, int line);
 
   // helpers
   void print_tokens();

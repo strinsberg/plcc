@@ -92,34 +92,33 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
     return;
   }
 
-  vector<Expr*> rhs;
-  for (int i = 0; i < num_vars; i++) {
-    rhs.push_back( exprs.back() );
-    exprs.pop_back();
-  }
-
-  vector<Token*> lhs;
-  for (int i = 0; i < num_vars; i++) {
-    lhs.push_back( tokens.back() );
-    tokens.pop_back();
-  }
-
   Stmt* stmt = nullptr;
   for (int i = 0; i < num_vars; i++) {
-    string lexeme = lhs.at(i)->to_string();
+    Token* name = tokens.back();
+    Expr* expr = exprs.back();
+
+    string lexeme = name->to_string();
     Id* id = table.get(lexeme);
 
     if (id != nullptr) {
-      Asgn* asgn = new Asgn(id, rhs.at(i), line);
+      if (id->type == expr->type) {
+        Asgn* asgn = new Asgn(id, expr, line);
 
-      if (i == 0)
-        stmt = asgn;
-      else
-        stmt = new Seq(asgn, stmt, line);
-
+        if (stmt == nullptr)
+          stmt = asgn;
+        else
+          stmt = new Seq(asgn, stmt, line);
+      } else {
+        yyerror("type mismatch: " + id->to_string() + ", " + expr->to_string());
+        delete expr;
+      }
     } else {
       yyerror("'" + lexeme + "' is undeclared");
     }
+
+    tokens.pop_back();
+    exprs.pop_back();
+    delete name;
   }
 
   if (stmt != nullptr)
@@ -129,11 +128,11 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
 
 // Expression methods /////////////////////////////////////////////////
 
-void Actions::constant(int line) {
+void Actions::constant(yytokentype type, int line) {
   Token* tok = tokens.back();
   tokens.pop_back(); 
 
-  exprs.push_back( new Constant(tok, tok->tag, line) );
+  exprs.push_back( new Constant(tok, type, line) );
 }
 
 

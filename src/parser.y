@@ -180,19 +180,19 @@ type_sym: INT { actions.add_t(yytkn::INT); printf("INT\n"); }
 
 constant: number { printf("constant -> number\n"); }
   | bool_sym { printf("constant -> bool\n"); } 
-  | name { actions.constant(line); printf("constant -> name\n"); }
+  | name { actions.constant(yytkn::NAME, line); printf("constant -> name\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
-char: CHARACTER { actions.add_c($1); actions.constant(line); printf("CHARACTER -> '%c'\n", $1); }
+char: CHARACTER { actions.add_c($1); actions.constant(yytkn::CHAR, line); printf("CHARACTER -> '%c'\n", $1); }
   ;
 
-number: NUMBER DOT NUMBER { actions.add_f($1, $3); actions.constant(line); printf("number -> float: %d.%d\n", $1, $3); }
-  | NUMBER { actions.add_n($1); actions.constant(line); printf("number -> int: %d\n", $1); }
+number: NUMBER DOT NUMBER { actions.add_f($1, $3); actions.constant(yytkn::FLOAT, line); printf("number -> float: %d.%d\n", $1, $3); }
+  | NUMBER { actions.add_n($1); actions.constant(yytkn::INT, line); printf("number -> int: %d\n", $1); }
   ;
 
-bool_sym: TRUE { actions.add_t(yytkn::TRUE); actions.constant(line); printf("FALSE\n"); }
-  | FALSE { actions.add_t(yytkn::FALSE); actions.constant(line); printf("TRUE\n"); }
+bool_sym: TRUE { actions.add_t(yytkn::TRUE); actions.constant(yytkn::BOOL, line); printf("FALSE\n"); }
+  | FALSE { actions.add_t(yytkn::FALSE); actions.constant(yytkn::BOOL, line); printf("TRUE\n"); }
   ;
 
 name: NAME { actions.add_w(std::string(yytext)); printf("NAME -> %s\n", yytext);}

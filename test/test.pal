@@ -3,6 +3,5 @@ begin
   int a,b,c;
   int array[N] A, B, C;
 
-  a,b,c := 1,2,3;
-  A[0], A[1], A[2] := 4,5,6;
+  a,b,c := 1, 2, 3;
 end.
