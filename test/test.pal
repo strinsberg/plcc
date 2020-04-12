@@ -1,4 +1,5 @@
 begin
+  const bool T = true;
   int a, b, c;
   int array[10] A, B, C;
 end.

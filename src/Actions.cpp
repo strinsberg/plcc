@@ -39,13 +39,27 @@ void Actions::add_c(char c) {
 }
 
 
-// AstNode addition ///////////////////////////////////////////////////
-// Or should there just be rule functions that take care of all the
-// work in an associated rule??? This could get really big if we do that
-// by the time the program grows. But otherwise all the logic will have to
-// go inside the action brackets in the rules and I would not like that.
-void Actions::const_def() {
+// Definitions ///////////////////////////////////////////////////
+
+// Doesn't do anything with the value
+// Also none of the definitions actually deal with the variable other than
+// buidling the nodes for the tree
+void Actions::const_def(int line) {
+  Token* value = tokens.back();
+  tokens.pop_back();
+
+  Token* name = tokens.back();
+  tokens.pop_back();
+
+  Token* type = tokens.back();
+  tokens.pop_back();
   
+  Word* w = new Word(name->to_string());
+  exprs.push_back( new Id(w, type->tag, line) );
+
+  //delete value;
+  delete name;
+  delete type;
 }
 
 // Has duplicate code and should have an array ID type?
@@ -82,13 +96,14 @@ void Actions::var_def(int vars, int line) {
 
   Token* type = tokens.back();
   tokens.pop_back();
-  delete type;
 
   for (int i = 0; i < vars; i++) {
     Word* w = new Word( names[i]->to_string() );
     exprs.push_back( new Id(w, type->tag, line) );
     delete names[i];
   }
+
+  delete type;
 }
 
 
@@ -102,6 +117,16 @@ void Actions::print_tokens() {
 }
 
 void Actions::print_nodes() {
+  cout << endl;
+  cout << "=== Statment Nodes ===" << endl;
+  for (auto & s : stmts) {
+    cout << s->to_string() << endl;
+  }
 
+  cout << endl;
+  cout << "=== Expression Nodes ===" << endl;
+  for (auto & e : exprs) {
+    cout << e->to_string() << endl;
+  }
 }
 

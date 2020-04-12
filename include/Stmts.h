@@ -2,13 +2,14 @@
 #define PLCC_STATEMENTS_H
 
 #include "AstNode.h"
+#include <string>
 
-// classes needed:
-// stmt
+
 class Stmt : public AstNode {
  public:
   Stmt(int line) : AstNode(line) {}
   virtual ~Stmt() {}
+  virtual std::string to_string() { return "stmt: " + std::to_string(line_num); }
 };
 // if, loop, assign, write, skip
 // condition?

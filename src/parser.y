@@ -47,7 +47,7 @@ def: const_def { printf("def -> const_def\n\n"); }
   | var_def { printf("def -> var_def\n\n"); }
   ;
 
-const_def: CONST type_sym name ASGN constant { actions.const_def(); printf("const_def\n"); }
+const_def: CONST type_sym name INIT constant { actions.const_def(line); printf("const_def\n"); }
   ;
 
 var_def: type_sym v_prime { printf("var_def\n"); }
