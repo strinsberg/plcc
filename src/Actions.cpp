@@ -4,6 +4,8 @@
 
 using namespace std;
 
+extern void yyerror(string, bool is_near = true);
+
 
 Actions::~Actions() {
   for (auto & t : tokens)
@@ -78,7 +80,9 @@ void Actions::add_vars(yytokentype type, int vars, int line) {
     string lexeme = name->to_string();
     Word* w = new Word(lexeme);
 
-    table.put( lexeme, new Id(w, type, line) );
+    if ( !table.put( lexeme, new Id(w, type, line) ) ) {
+      yyerror("'" + lexeme + "' already declared", false);
+    }
 
     tokens.pop_back();
     delete name;

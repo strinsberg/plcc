@@ -10,7 +10,7 @@ extern "C" int yylex(void);
 
 typedef yytokentype yytkn;
 
-void yyerror(std::string);
+void yyerror(std::string, bool is_near = true);
 
 Actions actions;
 %}
@@ -209,6 +209,9 @@ int main() {
   actions.print_table();
 }
 
-void yyerror(std::string s) {
-  std::cerr << "line " << line << ": " << s << " near -> " << yytext << std::endl << std::endl;
+void yyerror(std::string s, bool is_near) {
+  std::cerr << "error on line " << line;
+  if (is_near)
+    std::cerr << " near '" << yytext << "'";
+  std::cerr << ": " << s << std::endl;
 }
