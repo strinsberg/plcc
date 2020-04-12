@@ -44,21 +44,19 @@ void Actions::add_c(char c) {
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::const_def(int line) {
-  // token value is on expression stack if needed
-  Token* type = *(tokens.rbegin() + 1);
-  add_vars(type->tag, 1, line);
+  Expr* value = exprs.back();
+  exprs.pop_back();
 
-  tokens.pop_back();
-  delete type;
+  var_def(1, line);
+  delete value;
 }
 
 void Actions::array_def(int vars, int line) {
-  // size is on expression stack
-  Token* type = *(tokens.rbegin() + vars);
-  add_vars(type->tag, vars, line);
+  Expr* size = exprs.back();
+  exprs.pop_back();
 
-  tokens.pop_back();
-  delete type;
+  var_def(vars, line);
+  delete size;
 }
 
 void Actions::var_def(int vars, int line) {
@@ -94,18 +92,25 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
     return;
   }
 
+  vector<Expr*> rhs;
+  for (int i = 0; i < num_vars; i++) {
+    rhs.push_back( exprs.back() );
+    exprs.pop_back();
+  }
+
+  vector<Token*> lhs;
+  for (int i = 0; i < num_vars; i++) {
+    lhs.push_back( tokens.back() );
+    tokens.pop_back();
+  }
+
   Stmt* stmt = nullptr;
   for (int i = 0; i < num_vars; i++) {
-    Token* name = tokens.back();
-    tokens.pop_back();
-    string lexeme = name->to_string();
-
-    Expr* expr = exprs.back();
-    exprs.pop_back();
-
+    string lexeme = lhs.at(i)->to_string();
     Id* id = table.get(lexeme);
+
     if (id != nullptr) {
-      Asgn* asgn = new Asgn(id, expr, line);
+      Asgn* asgn = new Asgn(id, rhs.at(i), line);
 
       if (i == 0)
         stmt = asgn;
@@ -115,8 +120,6 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
     } else {
       yyerror("'" + lexeme + "' is undeclared");
     }
-
-    delete name;
   }
 
   if (stmt != nullptr)
