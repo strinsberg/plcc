@@ -47,14 +47,14 @@ def: const_def { printf("def -> const_def\n\n"); }
   | var_def { printf("def -> var_def\n\n"); }
   ;
 
-const_def: CONST type_sym name ASGN constant { printf("const_def\n"); }
+const_def: CONST type_sym name ASGN constant { actions.const_def(); printf("const_def\n"); }
   ;
 
 var_def: type_sym v_prime { printf("var_def\n"); }
   ;
 
-v_prime: var_list { printf("v_prime -> var_list\n"); }
-  | ARRAY LHSQR constant RHSQR var_list { printf("v_prime -> array\n"); }
+v_prime: var_list { actions.var_def($$, line); printf("v_prime -> var_list\n"); }
+  | ARRAY LHSQR constant RHSQR var_list { actions.array_def($5, line); printf("v_prime -> array\n"); }
   ;
 
 
@@ -132,8 +132,8 @@ factor: number { printf("factor -> number\n"); }
 
 
 /* Variables */
-var_list: var_list COMMA name { printf("var_list\n"); }
-  | name
+var_list: var_list COMMA name { $$ = $1 + 1; printf("var_list\n"); }
+  | name { $$ = 1; printf("var_list -> name\n"); }
   ;
 
 var_access_list: var_access_list COMMA var_access { printf("var_access_list\n"); }

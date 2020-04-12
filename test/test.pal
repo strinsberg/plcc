@@ -1,4 +1,4 @@
 begin
-  const int n := 10;
   int a, b, c;
+  int array[10] A, B, C;
 end.

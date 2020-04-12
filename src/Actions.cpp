@@ -44,6 +44,52 @@ void Actions::add_c(char c) {
 // work in an associated rule??? This could get really big if we do that
 // by the time the program grows. But otherwise all the logic will have to
 // go inside the action brackets in the rules and I would not like that.
+void Actions::const_def() {
+  
+}
+
+// Has duplicate code and should have an array ID type?
+// Both still need some kind of error handling?
+void Actions::array_def(int vars, int line) {
+  vector<Token*> names;
+  for (int i = 0; i < vars; i++) {
+    names.push_back( tokens.back() );
+    tokens.pop_back();
+  }
+
+  Token* size = tokens.back();
+  tokens.pop_back();
+
+  Token* type = tokens.back();
+  tokens.pop_back();
+
+  for (int i = 0; i < vars; i++) {
+    Word* w = new Word( names[i]->to_string() );
+    exprs.push_back( new Id(w, type->tag, line) );
+    delete names[i];
+  }
+
+  delete size;
+  delete type;
+}
+
+void Actions::var_def(int vars, int line) {
+  vector<Token*> names;
+  for (int i = 0; i < vars; i++) {
+    names.push_back( tokens.back() );
+    tokens.pop_back();
+  }
+
+  Token* type = tokens.back();
+  tokens.pop_back();
+  delete type;
+
+  for (int i = 0; i < vars; i++) {
+    Word* w = new Word( names[i]->to_string() );
+    exprs.push_back( new Id(w, type->tag, line) );
+    delete names[i];
+  }
+}
 
 
 // Display methods ////////////////////////////////////////////////////

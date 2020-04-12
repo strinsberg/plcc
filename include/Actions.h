@@ -21,6 +21,9 @@ class Actions {
   void add_c(char c);
 
   // add ast nodes
+  void const_def();
+  void var_def(int vars, int line);
+  void array_def(int vars, int line);
 
   // helpers
   void print_tokens();
