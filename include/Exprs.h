@@ -10,7 +10,7 @@
 class Expr : public AstNode {
  public:
   Expr(Token* tok, yytokentype t, int line) : AstNode(line), op(tok), type(t) {}
-  virtual ~Expr() { delete op; }
+  virtual ~Expr() { }
   virtual std::string to_string() { return op->to_string() + "(" + tok_string.at(type) + ")"; }
 
   Token* op;
@@ -20,7 +20,7 @@ class Expr : public AstNode {
 class Id : public Expr {
  public:
   Id(Word* w, yytokentype t, yytokentype k, int line) : Expr(w, t, line), kind(k) {}
-  virtual ~Id() {}
+  virtual ~Id() { delete op; }
   virtual std::string to_string() { return op->to_string() + "(" + tok_string.at(type) + "," + tok_string.at(kind) + ")"; }
   yytokentype kind;
 };
@@ -28,8 +28,18 @@ class Id : public Expr {
 class Constant : public Expr {
  public:
   Constant(Token* tok, yytokentype t, int line) : Expr(tok, t, line) {}
+  ~Constant() { delete op; }
 };
-// classes needed:
+
+class Access : public Expr {
+ public:
+  Access(Id* i, Expr* e, int line) : Expr(i->op, i->type, line), id(i), expr(e) {}
+  ~Access() { if (expr != nullptr) delete expr; }
+  Id* id;
+  Expr* expr;
+};
+
+// possible classes needed:
 // op, arith, unary
 // temp -- for the temporary identifier you emit?
 // relational

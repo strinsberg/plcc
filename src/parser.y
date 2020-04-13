@@ -140,11 +140,11 @@ var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_acc
   | var_access { $$ = 1; }
   ;
 
-var_access: name selector { actions.access(line); printf("var_access\n"); }
+var_access: name selector { actions.access(line, (yytkn)$2); printf("var_access\n"); }
   ;
 
-selector: LHSQR expr RHSQR { printf("selector -> array access\n"); }
-  | /* epsilon */
+selector: LHSQR expr RHSQR { $$ = ARRAY; printf("selector -> array access\n"); }
+  | /* epsilon */ { $$ = SCALAR; }
   ;
 
 

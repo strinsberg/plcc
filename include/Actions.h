@@ -30,7 +30,7 @@ class Actions {
   void assign(int vars, int exprs, int line);
 
   // expr actions
-  void access(int line);
+  void access(int line, yytokentype type);
   void negate(int line);
   void constant(yytokentype t, int line);
 

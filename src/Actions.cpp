@@ -10,10 +10,10 @@ extern void yyerror(string, bool is_near = true);
 Actions::~Actions() {
   for (auto & t : tokens)
     delete t;
-
+///*
   for (auto & e : exprs)
     delete e;
-
+//*/
   for (auto & s : stmts)
     delete s;
 }
@@ -92,12 +92,9 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
     return;
   }
 
+  /*
   Stmt* stmt = nullptr;
   for (int i = 0; i < num_vars; i++) {
-    // need to do something to check what type is being accessed
-    // for now if it is an array, there will be an access expression on
-    // top of the stack that will need to be added to the expressions and
-    // do some kind of array access.
     Token* name = tokens.back();
     Expr* expr = exprs.back();
 
@@ -127,13 +124,38 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
 
   if (stmt != nullptr)
     stmts.push_back(stmt);
+  */
 }
 
 
 // Expression methods /////////////////////////////////////////////////
 
-void Actions::access(int line) {
+void Actions::access(int line, yytokentype type) {
+  Token* name = tokens.back();
+  string lexeme = name->to_string();
+  Id* id = table.get(lexeme);
 
+  if (id == nullptr) {
+    yyerror("'" + lexeme + "' is undeclared");
+    return;
+  }
+
+  Expr* rhs = nullptr;
+  if (type == ARRAY) {/*
+    rhs = exprs.back();
+    exprs.pop_back();
+
+    if (expr->type != INT) {
+      yyerror("array access must be INT, not " + tok_string.at(expr->type));
+      delete expr;
+    } else {
+      acs = new Access(id, expr, line);
+    }*/
+  }
+
+  exprs.push_back( new Access(id, rhs, line) );
+  tokens.pop_back();
+  delete name;
 }
 
 void Actions::negate(int line) {
