@@ -23,7 +23,7 @@ Actions actions;
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
-%token ARRAY PROC ENDPROC RECORD ENDREC TYPE
+%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
 
@@ -53,7 +53,7 @@ const_def: CONST type_sym name INIT constant { actions.const_def(line); printf("
 var_def: type_sym v_prime { printf("var_def\n"); }
   ;
 
-v_prime: var_list { actions.var_def($$, line); printf("v_prime -> var_list\n"); }
+v_prime: var_list { actions.var_def(SCALAR, $$, line); printf("v_prime -> var_list\n"); }
   | ARRAY LHSQR constant RHSQR var_list { actions.array_def($5, line); printf("v_prime -> array\n"); }
   ;
 
@@ -127,7 +127,7 @@ factor: number { printf("factor -> number\n"); }
   | bool_sym { printf("factor -> bool_sym\n"); }
   | var_access { printf("factor -> var_access\n"); }
   | LHRND expr RHRND { printf("factor -> ( expr )\n"); }
-  | NOT factor { printf("factor -> NOT\n"); }
+  | NOT factor { actions.negate(line); printf("factor -> NOT\n"); }
   ;
 
 
@@ -140,10 +140,10 @@ var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_acc
   | var_access { $$ = 1; }
   ;
 
-var_access: name selector { /* ID node var/array */ printf("var_access\n"); }
+var_access: name selector { actions.access(line); printf("var_access\n"); }
   ;
 
-selector: LHSQR constant RHSQR { printf("selector -> array access\n"); }
+selector: LHSQR expr RHSQR { printf("selector -> array access\n"); }
   | /* epsilon */
   ;
 

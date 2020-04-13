@@ -47,7 +47,7 @@ void Actions::const_def(int line) {
   Expr* value = exprs.back();
   exprs.pop_back();
 
-  var_def(1, line);
+  var_def(SCALAR, 1, line);
   delete value;
 }
 
@@ -55,25 +55,25 @@ void Actions::array_def(int vars, int line) {
   Expr* size = exprs.back();
   exprs.pop_back();
 
-  var_def(vars, line);
+  var_def(ARRAY, vars, line);
   delete size;
 }
 
-void Actions::var_def(int vars, int line) {
+void Actions::var_def(yytokentype kind, int vars, int line) {
   Token* type = *(tokens.rbegin() + vars);
-  add_vars(type->tag, vars, line);
+  add_vars(type->tag, kind, vars, line);
 
   tokens.pop_back();
   delete type;
 }
 
-void Actions::add_vars(yytokentype type, int vars, int line) {
+void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
   for (int i = 0; i < vars; i++) {
     Token* name = tokens.back();
     string lexeme = name->to_string();
     Word* w = new Word(lexeme);
 
-    if ( !table.put( lexeme, new Id(w, type, line) ) ) {
+    if ( !table.put( lexeme, new Id(w, type, kind, line) ) ) {
       yyerror("'" + lexeme + "' already declared", false);
     }
 
@@ -94,6 +94,10 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
 
   Stmt* stmt = nullptr;
   for (int i = 0; i < num_vars; i++) {
+    // need to do something to check what type is being accessed
+    // for now if it is an array, there will be an access expression on
+    // top of the stack that will need to be added to the expressions and
+    // do some kind of array access.
     Token* name = tokens.back();
     Expr* expr = exprs.back();
 
@@ -127,6 +131,14 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
 
 
 // Expression methods /////////////////////////////////////////////////
+
+void Actions::access(int line) {
+
+}
+
+void Actions::negate(int line) {
+
+}
 
 void Actions::constant(yytokentype type, int line) {
   Token* tok = tokens.back();

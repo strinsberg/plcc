@@ -23,13 +23,15 @@ class Actions {
 
   // definition actions
   void const_def(int line);
-  void var_def(int vars, int line);
+  void var_def(yytokentype kind, int vars, int line);
   void array_def(int vars, int line);
 
   // stmt actions
   void assign(int vars, int exprs, int line);
 
   // expr actions
+  void access(int line);
+  void negate(int line);
   void constant(yytokentype t, int line);
 
   // helpers
@@ -43,7 +45,7 @@ class Actions {
   std::vector<Stmt*> stmts;
   BlockTable table;
 
-  void add_vars(yytokentype type, int vars, int line);
+  void add_vars(yytokentype type, yytokentype kind, int vars, int line);
 };
 
 #endif

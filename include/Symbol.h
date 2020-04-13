@@ -40,6 +40,7 @@ const std::map<yytokentype,std::string> tok_string {
   {MULT, "MULT"},
   {DIV, "DIV"},
   {MOD, "MOD"},
+  {SCALAR, "SCALAR"},
   {ARRAY, "ARRAY"},
   {PROC, "PROC"},
   {ENDPROC, "ENDPROC"},

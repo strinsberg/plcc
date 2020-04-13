@@ -19,8 +19,10 @@ class Expr : public AstNode {
 
 class Id : public Expr {
  public:
-  Id(Word* w, yytokentype t, int line) : Expr(w, t, line) {}
+  Id(Word* w, yytokentype t, yytokentype k, int line) : Expr(w, t, line), kind(k) {}
   virtual ~Id() {}
+  virtual std::string to_string() { return op->to_string() + "(" + tok_string.at(type) + "," + tok_string.at(kind) + ")"; }
+  yytokentype kind;
 };
 
 class Constant : public Expr {
