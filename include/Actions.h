@@ -27,7 +27,6 @@ class Actions {
   void array_def(int vars, int line);
 
   // stmt actions
-  void prog();
   void block(int line);
   void assign(int vars, int exprs, int line);
 

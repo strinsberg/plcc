@@ -10,10 +10,10 @@ extern void yyerror(string, bool is_near = true);
 Actions::~Actions() {
   for (auto & t : tokens)
     delete t;
-///*
+
   for (auto & e : exprs)
     delete e;
-//*/
+
   for (auto & s : stmts)
     delete s;
 }
@@ -44,16 +44,14 @@ void Actions::add_c(char c) {
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::const_def(int line) {
-  Expr* value = exprs.back();
-  exprs.pop_back();
+  Expr* value = next_expr();
 
   var_def(SCALAR, 1, line);
   delete value;
 }
 
 void Actions::array_def(int vars, int line) {
-  Expr* size = exprs.back();
-  exprs.pop_back();
+  Expr* size = next_expr();
 
   var_def(ARRAY, vars, line);
   delete size;
@@ -69,7 +67,7 @@ void Actions::var_def(yytokentype kind, int vars, int line) {
 
 void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
   for (int i = 0; i < vars; i++) {
-    Token* name = tokens.back();
+    Token* name = next_token();
     string lexeme = name->to_string();
     Word* w = new Word(lexeme);
 
@@ -77,15 +75,12 @@ void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
       yyerror("'" + lexeme + "' already declared", false);
     }
 
-    tokens.pop_back();
     delete name;
   }
 }
 
 
 // Statement methods //////////////////////////////////////////////////
-
-void Actions::prog() {}
 
 void Actions::block(int line) {
 
@@ -97,6 +92,7 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
     // pop everything? or just leave it?
     return;
   }
+
 
   /*
   Stmt* stmt = nullptr;
@@ -137,7 +133,7 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
 // Expression methods /////////////////////////////////////////////////
 
 void Actions::access(int line, yytokentype type) {
-  Token* name = tokens.back();
+  Token* name = next_token();
   string lexeme = name->to_string();
   Id* id = table.get(lexeme);
 
@@ -146,21 +142,21 @@ void Actions::access(int line, yytokentype type) {
     return;
   }
 
-  Expr* rhs = nullptr;
-  if (type == ARRAY) {/*
-    rhs = exprs.back();
-    exprs.pop_back();
+  Access* acs = nullptr;
+  if (type == ARRAY) {
+    Expr* idx = next_expr();
 
-    if (expr->type != INT) {
-      yyerror("array access must be INT, not " + tok_string.at(expr->type));
-      delete expr;
+    if (idx->type != INT) {
+      yyerror("array access must be INT, not " + tok_string.at(idx->type));
+      delete idx;
     } else {
-      acs = new Access(id, expr, line);
-    }*/
+      acs = new ArrayAccess(id, idx, line);
+    }
+  } else {
+    acs = new Access(id, line);
   }
 
-  exprs.push_back( new Access(id, rhs, line) );
-  tokens.pop_back();
+  exprs.push_back(acs);
   delete name;
 }
 
@@ -179,9 +175,13 @@ void Actions::unary(yytokentype t, int line) {
   exprs.push_back( new Unary(op, expr, line) );
 }
 
+// could eliminate type or use it to create a token expect if NAME
+// eliminating the need for 2 function calls in each constant rule
 void Actions::constant(yytokentype type, int line) {
   Token* tok = next_token();
 
+  // May need to do something different with names
+  // Unless setting the type of the identifier is done elsewhere
   exprs.push_back( new Constant(tok, type, line) );
 }
 

@@ -21,7 +21,7 @@ class Id : public Expr {
  public:
   Id(Word* w, yytokentype t, yytokentype k, int line) : Expr(w, t, line), kind(k) {}
   virtual ~Id() { delete op; }
-  virtual std::string to_string() { return op->to_string() + "(" + tok_string.at(type) + "," + tok_string.at(kind) + ")"; }
+  virtual std::string to_string() { return Expr::to_string() + "(" + tok_string.at(kind) + ")"; }
   yytokentype kind;
 };
 
@@ -33,10 +33,19 @@ class Constant : public Expr {
 
 class Access : public Expr {
  public:
-  Access(Id* i, Expr* e, int line) : Expr(i->op, i->type, line), id(i), expr(e) {}
-  ~Access() { if (expr != nullptr) delete expr; }
+  Access(Id* i, int line) : Expr(i->op, i->type, line), id(i) {}
+  ~Access() { }
+  virtual std::string to_string() { return Expr::to_string() + "(Access)"; }
   Id* id;
-  Expr* expr;
+};
+
+class ArrayAccess : public Access {
+ public:
+  ArrayAccess(Id* i, Expr* idx, int line) : Access(i, line), index(idx) {} 
+  ~ArrayAccess() { delete index; }
+  virtual std::string to_string() { return Access::to_string() + "[" + index->to_string() + "]"; }
+
+  Expr* index;
 };
 
 class Binary : public Expr {

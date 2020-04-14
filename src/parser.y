@@ -30,7 +30,7 @@ Actions actions;
 
 %%
 program:  /* nothing */
-  | block DOT { actions.prog(); printf("program\n\nTotal Lines: %d\n", line); }
+  | block DOT { printf("program\n\nTotal Lines: %d\n", line); }
   ;
 
 block: BEG def_part stmt_part END { actions.block(line); printf("block\n"); }
