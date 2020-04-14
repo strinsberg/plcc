@@ -1,7 +1,4 @@
 begin
-  const int N = 10;
-  int a,b,c;
-  int array[N] A, B, C;
-
-  a,b,c := 1, 2, 3;
+  a := (4 + 10) * (7 - 5);
+  a := -4;
 end.

@@ -39,6 +39,22 @@ class Access : public Expr {
   Expr* expr;
 };
 
+class Binary : public Expr {
+ public:
+  Binary(Token* op, Expr* l, Expr* r, int line) : Expr(op, l->type, line), lhs(l), rhs(r) {}
+  ~Binary() { delete lhs; delete rhs; }
+
+  Expr* lhs;
+  Expr* rhs;
+};
+
+class Unary : public Expr {
+ public:
+  Unary(Token* op, Expr* e, int line) : Expr(op, e->type, line), expr(e) {}
+  ~Unary() { delete expr; }
+
+  Expr* expr;
+};
 // possible classes needed:
 // op, arith, unary
 // temp -- for the temporary identifier you emit?

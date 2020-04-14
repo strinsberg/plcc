@@ -85,6 +85,12 @@ void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
 
 // Statement methods //////////////////////////////////////////////////
 
+void Actions::prog() {}
+
+void Actions::block(int line) {
+
+}
+
 void Actions::assign(int num_vars, int num_exprs, int line) {
   if (num_vars != num_exprs) {
     yyerror("number of variables does not match number of exressions", false);
@@ -158,13 +164,23 @@ void Actions::access(int line, yytokentype type) {
   delete name;
 }
 
-void Actions::negate(int line) {
+void Actions::binary(int line) {
+  Token* op = next_token();
+  Expr* lhs = next_expr();
+  Expr* rhs = next_expr();
 
+  exprs.push_back( new Binary(op, lhs, rhs, line) ); 
+}
+
+void Actions::unary(yytokentype t, int line) {
+  Token* op = new Token(t);
+  Expr* expr = next_expr();
+
+  exprs.push_back( new Unary(op, expr, line) );
 }
 
 void Actions::constant(yytokentype type, int line) {
-  Token* tok = tokens.back();
-  tokens.pop_back(); 
+  Token* tok = next_token();
 
   exprs.push_back( new Constant(tok, type, line) );
 }
@@ -197,4 +213,25 @@ void Actions::print_table() {
   cout << endl;
   cout << "=== BlockTable Nodes ===" << endl;
   table.print();
+}
+
+
+// Helpers ////////////////////////////////////////////////////////////
+
+Token* Actions::next_token() {
+  Token* next = tokens.back();
+  tokens.pop_back();
+  return next;
+}
+
+Expr* Actions::next_expr() {
+  Expr* next = exprs.back();
+  exprs.pop_back();
+  return next;
+}
+
+Stmt* Actions::next_stmt() {
+  Stmt* next = stmts.back();
+  stmts.pop_back();
+  return next;
 }

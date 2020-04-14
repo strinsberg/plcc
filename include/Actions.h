@@ -27,11 +27,14 @@ class Actions {
   void array_def(int vars, int line);
 
   // stmt actions
+  void prog();
+  void block(int line);
   void assign(int vars, int exprs, int line);
 
   // expr actions
   void access(int line, yytokentype type);
-  void negate(int line);
+  void binary(int line);
+  void unary(yytokentype t, int line);
   void constant(yytokentype t, int line);
 
   // helpers
@@ -46,6 +49,9 @@ class Actions {
   BlockTable table;
 
   void add_vars(yytokentype type, yytokentype kind, int vars, int line);
+  Token* next_token();
+  Expr* next_expr();
+  Stmt* next_stmt();
 };
 
 #endif

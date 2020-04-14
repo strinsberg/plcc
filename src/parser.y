@@ -30,17 +30,17 @@ Actions actions;
 
 %%
 program:  /* nothing */
-  | block DOT { printf("program\n\nTotal Lines: %d\n", line); }
+  | block DOT { actions.prog(); printf("program\n\nTotal Lines: %d\n", line); }
   ;
 
-block: BEG def_part stmt_part END { printf("block\n"); }
+block: BEG def_part stmt_part END { actions.block(line); printf("block\n"); }
   ;
 
 
 /* Definitions */
-def_part: def_part def SEMI { printf("def_part\n"); }
-  | def_part error SEMI { yyerrok; }
-  | /* epsilon */
+def_part: def_part def SEMI { $$ = $1 + 1; printf("def_part\n"); }
+  | def_part error SEMI { $$ = $1; yyerrok; }
+  | /* epsilon */ { $$ = 0; }
   ;
 
 def: const_def { printf("def -> const_def\n\n"); }
@@ -60,9 +60,9 @@ v_prime: var_list { actions.var_def(SCALAR, $$, line); printf("v_prime -> var_li
 
 
 /* Statements */
-stmt_part: stmt_part stmt SEMI { printf("stmt_part\n"); }
-  | stmt_part error SEMI { yyerrok; }
-  | /* epsilon */
+stmt_part: stmt_part stmt SEMI { $$ = $1 + 1; printf("stmt_part\n"); }
+  | stmt_part error SEMI { $$ = $1; yyerrok; }
+  | /* epsilon */ { $$ = 0; }
   ;
 
 stmt: write_stmt { printf("stmt -> write\n\n"); }
@@ -70,6 +70,7 @@ stmt: write_stmt { printf("stmt -> write\n\n"); }
   | if_stmt { printf("stmt -> if\n\n"); }
   | loop_stmt { printf("stmt -> loop\n\n"); }
   | empty_stmt { printf("stmt -> empty\n\n"); }
+  | block_stmt { printf("stmt -> block\n\n"); }
   ;
 
 write_stmt: WRITE expr_list { printf("write_stmt\n"); }
@@ -94,6 +95,8 @@ condition: expr DO stmt_part { printf("condition -> do\n"); }
 empty_stmt: SKIP { printf("empty_stmt\n"); }
   ;
 
+block_stmt: block { printf("block_stmt\n"); }
+
 
 /* Expressions - All are going to be passing out nodes */
 expr_list: expr_list COMMA expr { $$ = $1 + 1; printf("expr_list\n"); }
@@ -101,33 +104,36 @@ expr_list: expr_list COMMA expr { $$ = $1 + 1; printf("expr_list\n"); }
   | error { yyerrok; }
   ;
 
-expr: expr prim_op prime_expr { printf("expr\n\n"); }
+/* Should all be nothing if only 1 and run a binary expr function if op expr */
+expr: expr prim_op prime_expr { actions.binary(line); printf("expr\n\n"); }
   | prime_expr
   ;
 
-prime_expr: prime_expr rel_op simple_expr { printf("prim_expr\n"); }
+prime_expr: prime_expr rel_op simple_expr { actions.binary(line); printf("prim_expr\n"); }
   | simple_expr
   ;
 
-simple_expr: simple_expr add_op t_prime { printf("simple_expr\n"); }
+simple_expr: simple_expr add_op t_prime { actions.binary(line); printf("simple_expr\n"); }
   | t_prime
   ;
 
-t_prime: MINUS term { printf("t_prime -> MINUS\n"); }
+/* pop top and return unary with minus if first rule */
+t_prime: MINUS term { actions.unary(yytkn::MINUS, line); printf("t_prime -> MINUS\n"); }
   | term { printf("t_prime -> term\n"); }
   ;
 
-term: factor mult_op factor
+/* Like expr for adding a binary expr if an op is found */
+term: factor mult_op factor { actions.binary(line); }
   | factor { printf("term\n"); }
   ;
 
-/* factor should create or pass out a node */
+/* All can just leave the expression on the stack. except not needs to put in unary */
 factor: number { printf("factor -> number\n"); }
   | char { printf("factor -> char\n"); }
   | bool_sym { printf("factor -> bool_sym\n"); }
   | var_access { printf("factor -> var_access\n"); }
   | LHRND expr RHRND { printf("factor -> ( expr )\n"); }
-  | NOT factor { actions.negate(line); printf("factor -> NOT\n"); }
+  | NOT factor { actions.unary(yytkn::NOT, line); printf("factor -> NOT\n"); }
   ;
 
 
