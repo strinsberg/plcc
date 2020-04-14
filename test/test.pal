@@ -1,7 +1,7 @@
 begin
-  int a;
-  int array[5] B;
+  int a, b, c;
+  int array[3] B;
 
-  a := 2 + 3;
-  B[0] := 4;
+  a, b, c := 2 + 3, 4* 5, -7;
+  B[0], B[1], B[2] := 4, 5, 6;
 end.

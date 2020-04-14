@@ -45,14 +45,12 @@ void Actions::add_c(char c) {
 
 void Actions::const_def(int line) {
   Expr* value = next_expr();
-
   var_def(SCALAR, 1, line);
   delete value;
 }
 
 void Actions::array_def(int vars, int line) {
   Expr* size = next_expr();
-
   var_def(ARRAY, vars, line);
   delete size;
 }
@@ -60,7 +58,6 @@ void Actions::array_def(int vars, int line) {
 void Actions::var_def(yytokentype kind, int vars, int line) {
   Token* type = *(tokens.rbegin() + vars);
   add_vars(type->tag, kind, vars, line);
-
   tokens.pop_back();
   delete type;
 }
@@ -93,40 +90,31 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
     return;
   }
 
+  // get all the expressions
+  vector<Expr*> rhs(num_vars);
+  for (auto & e : rhs) e = next_expr();
 
-  /*
+  vector<Expr*> lhs(num_vars);
+  for (auto & e : lhs) e = next_expr();
+
+  // pair each access with it's value
   Stmt* stmt = nullptr;
   for (int i = 0; i < num_vars; i++) {
-    Token* name = tokens.back();
-    Expr* expr = exprs.back();
+    Expr* acs = lhs.at(i);
+    Expr* expr = rhs.at(i);
 
-    string lexeme = name->to_string();
-    Id* id = table.get(lexeme);
-
-    if (id != nullptr) {
-      if (id->type == expr->type) {
-        Asgn* asgn = new Asgn(id, expr, line);
-
-        if (stmt == nullptr)
-          stmt = asgn;
-        else
-          stmt = new Seq(asgn, stmt, line);
-      } else {
-        yyerror("type mismatch: " + id->to_string() + ", " + expr->to_string());
-        delete expr;
-      }
-    } else {
-      yyerror("'" + lexeme + "' is undeclared");
-    }
-
-    tokens.pop_back();
-    exprs.pop_back();
-    delete name;
+    Asgn* asgn = new Asgn(acs, expr, line);  // will do type checking
+    if (stmt == nullptr)
+      stmt = asgn;
+    else
+      stmt = new Seq(asgn, stmt, line);  // will do type checking
   }
 
-  if (stmt != nullptr)
+  if (stmt != nullptr) {
     stmts.push_back(stmt);
-  */
+  } else {
+    yyerror("nothing was assigned");
+  }
 }
 
 
@@ -145,13 +133,7 @@ void Actions::access(int line, yytokentype type) {
   Access* acs = nullptr;
   if (type == ARRAY) {
     Expr* idx = next_expr();
-
-    if (idx->type != INT) {
-      yyerror("array access must be INT, not " + tok_string.at(idx->type));
-      delete idx;
-    } else {
-      acs = new ArrayAccess(id, idx, line);
-    }
+    acs = new ArrayAccess(id, idx, line);  // Can do type check on index
   } else {
     acs = new Access(id, line);
   }
@@ -175,13 +157,8 @@ void Actions::unary(yytokentype t, int line) {
   exprs.push_back( new Unary(op, expr, line) );
 }
 
-// could eliminate type or use it to create a token expect if NAME
-// eliminating the need for 2 function calls in each constant rule
 void Actions::constant(yytokentype type, int line) {
   Token* tok = next_token();
-
-  // May need to do something different with names
-  // Unless setting the type of the identifier is done elsewhere
   exprs.push_back( new Constant(tok, type, line) );
 }
 

@@ -24,21 +24,11 @@ class Seq : public Stmt {
 
 class Asgn : public Stmt {
  public:
-  Asgn(Id* i, Expr* e, int line) : Stmt(line), id(i), expr(e) {}
-  ~Asgn() { if (expr != nullptr) delete expr; } 
-  std::string to_string() { return "assignment: " + id->op->to_string() + " := " + expr->op->to_string(); }
-  Id* id;
+  Asgn(Expr* a, Expr* e, int line) : Stmt(line), acs(a), expr(e) {}
+  ~Asgn() { delete acs; delete expr; } 
+  std::string to_string() { return "assignment: " + acs->to_string() + " := " + expr->op->to_string(); }
+  Expr* acs;
   Expr* expr;
-};
-
-class ArrayAsgn : public Stmt {
- public:
-  ArrayAsgn(Id* i, Expr* e, Expr* idx, int line) : Stmt(line), id(i), expr(e) {}
-  ~ArrayAsgn() { if (expr != nullptr) delete expr; } 
-  std::string to_string() { return "array assign: " + id->op->to_string() + " := " + expr->op->to_string(); }
-  Id* id;
-  Expr* expr;
-  Expr* idx;
 };
 
 // if, loop, assign, write, skip
