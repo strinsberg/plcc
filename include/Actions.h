@@ -4,6 +4,7 @@
 #include "Tokens.h"
 #include "Exprs.h"
 #include "Stmts.h"
+#include "Defs.h"
 #include "BlockTable.h"
 #include "parser.tab.h"
 #include <vector>
@@ -47,12 +48,14 @@ class Actions {
   std::vector<Token*> tokens;
   std::vector<Expr*> exprs;
   std::vector<Stmt*> stmts;
+  std::vector<Def*> defs;
   BlockTable table;
 
   void add_vars(yytokentype type, yytokentype kind, int vars, int line);
   Token* next_token();
   Expr* next_expr();
   Stmt* next_stmt();
+  Def* next_def();
 };
 
 #endif

@@ -44,7 +44,11 @@ void Actions::add_c(char c) {
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::def_part(int num_defs, int line) {
-  cout << "=============== defs: " << num_defs << endl;
+  Def* def = next_def();
+  for (int i = 0; i < num_defs - 1; i++ ) {
+    def = new DefSeq( next_def(), def, line);
+  }
+  defs.push_back(def);
 }
 
 void Actions::const_def(int line) {
@@ -67,17 +71,30 @@ void Actions::var_def(yytokentype kind, int vars, int line) {
 }
 
 void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
+  Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     Token* name = next_token();
     string lexeme = name->to_string();
     Word* w = new Word(lexeme);
 
-    if ( !table.put( lexeme, new Id(w, type, kind, line) ) ) {
+    Id* id = new Id(w, type, kind, line);
+    bool added = table.put(lexeme, id);
+
+    if (!added) {
       yyerror("'" + lexeme + "' already declared", false);
+      delete id;
+    } else {
+      Def* var = new VarDef(id, line);
+      if (def == nullptr)
+        def = var;
+      else
+        def = new DefSeq( var, def, line );
     }
 
     delete name;
   }
+
+  defs.push_back(def);
 }
 
 
@@ -186,6 +203,12 @@ void Actions::print_tokens() {
 
 void Actions::print_nodes() {
   cout << endl;
+  cout << "=== Definition Nodes ===" << endl;
+  for (auto & d : defs) {
+    cout << d->to_string() << endl;
+  }
+
+  cout << endl;
   cout << "=== Statment Nodes ===" << endl;
   for (auto & s : stmts) {
     cout << s->to_string() << endl;
@@ -222,5 +245,11 @@ Expr* Actions::next_expr() {
 Stmt* Actions::next_stmt() {
   Stmt* next = stmts.back();
   stmts.pop_back();
+  return next;
+}
+
+Def* Actions::next_def() {
+  Def* next = defs.back();
+  defs.pop_back();
   return next;
 }
