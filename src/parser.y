@@ -33,7 +33,7 @@ program:  /* nothing */
   | block DOT { printf("program\n\nTotal Lines: %d\n", line); }
   ;
 
-block: BEG def_part stmt_part END { actions.block(line); printf("block\n"); }
+block: BEG def_part stmt_part END { actions.def_part($2, line); actions.stmt_part($3, line); printf("block\n"); }
   ;
 
 

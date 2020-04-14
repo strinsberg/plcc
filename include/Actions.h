@@ -25,9 +25,11 @@ class Actions {
   void const_def(int line);
   void var_def(yytokentype kind, int vars, int line);
   void array_def(int vars, int line);
+  void def_part(int num_defs, int line);
 
   // stmt actions
   void block(int line);
+  void stmt_part(int num_stmts, int line);
   void assign(int vars, int exprs, int line);
 
   // expr actions

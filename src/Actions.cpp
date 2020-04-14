@@ -43,6 +43,10 @@ void Actions::add_c(char c) {
 
 // Definitions ///////////////////////////////////////////////////
 
+void Actions::def_part(int num_defs, int line) {
+  cout << "=============== defs: " << num_defs << endl;
+}
+
 void Actions::const_def(int line) {
   Expr* value = next_expr();
   var_def(SCALAR, 1, line);
@@ -81,6 +85,14 @@ void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
 
 void Actions::block(int line) {
 
+}
+
+void Actions::stmt_part(int num_stmts, int line) {
+  Stmt* stmt = next_stmt();
+  for (int i = 0; i < num_stmts - 1; i++) {
+    stmt = new Seq( next_stmt(), stmt, line ); 
+  }
+  stmts.push_back(stmt);
 }
 
 void Actions::assign(int num_vars, int num_exprs, int line) {
