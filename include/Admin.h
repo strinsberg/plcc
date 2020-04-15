@@ -1,19 +1,24 @@
 #ifndef PLCC_ADMIN_H
 #define PLCC_ADMIN_H
 
-#include "AstNode.h"
-#include "Actions.h"
-
+#include <string>
 
 class Admin {
  public:
-  Admin();
+  Admin(bool d);
   ~Admin();
 
-  AstNode* parse();
+  void debug(std::string text);
+  void error(std::string text, std::string lexeme="");
+  void newline();
+  int get_line();
+  int get_errors();
 
  private:
-  Actions* act;
+  int line;
+  int errors;
+  bool line_error;
+  bool is_debug;
 };
 
 #endif

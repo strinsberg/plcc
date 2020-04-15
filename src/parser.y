@@ -205,5 +205,5 @@ name: NAME { actions->new_token(tag::NAME, std::string(yytext)); printf("NAME ->
 
 
 void yyerror(std::string s) {
-  actions->error(s, yytext);
+  actions->get_admin()->error(s, yytext);
 }

@@ -1,20 +1,39 @@
 #include "Admin.h"
-#include "AstNode.h"
-#include "parser.tab.h"
+#include <iostream>
+#include <string>
+using namespace std;
 
-// Bridges the parsers need for a global Actions object to call in the rules
-extern Actions* actions;
 
-Admin::Admin() : act( new Actions() ) {
-  actions = act;
+Admin::Admin(bool d) : line(1), errors(0), line_error(false),  is_debug(d) {};
+Admin::~Admin() {};
+
+void Admin::debug(std::string text) {
+  if (is_debug)
+    cout << text << endl;
 }
 
-Admin::~Admin() {
-  delete act;
+void Admin::error(std::string text, std::string lexeme) {
+  if (!line_error) {
+    line_error = true;
+    
+    cerr << "error on line " << line;
+    if (lexeme != "")
+      cerr << " near '" << lexeme << "'";
+    cerr << ": " << text << endl;
+  }
+  errors++;
 }
 
-AstNode* Admin::parse() {
-  yyparse();
-  act->display();
-  return act->ast(); 
-};
+void Admin::newline() {
+  line++;
+  line_error = false;
+}
+
+int Admin::get_line() {
+  return line;
+}
+
+int Admin::get_errors() {
+  return errors;
+}
+

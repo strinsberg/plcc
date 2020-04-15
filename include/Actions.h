@@ -1,6 +1,7 @@
 #ifndef PLCC_ACTIONS_H
 #define PLCC_ACTIONS_H
 
+#include "Admin.h"
 #include "AstNode.h"
 #include "AstStacks.h"
 #include "BlockTable.h"
@@ -10,10 +11,11 @@
 
 class Actions {
  public:
-  Actions();
+  Actions(Admin* admin);
   ~Actions();
 
   AstNode* ast() { return stacks.pop_stmt(); }
+  Admin* get_admin() {return admin; }
 
   // definition actions
   void new_token(tag::Tag tag, std::string lexeme="");
@@ -41,7 +43,6 @@ class Actions {
   // helpers
   void display();
   void new_block() { table.push_block(); }
-  void error(std::string text, std::string lexeme="");
   void newline() { line_num++; }
   int line() { return line_num; }
 
@@ -49,6 +50,7 @@ class Actions {
  private:
   AstStacks stacks;
   BlockTable table;
+  Admin* admin;
 
   int line_num;
   bool has_errors;

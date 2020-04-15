@@ -1,4 +1,5 @@
 #include "Actions.h"
+#include "Admin.h"
 #include "AstStacks.h"
 #include "Symbol.h"
 #include <string>
@@ -6,20 +7,10 @@
 
 using namespace std;
 
-Actions::Actions() : line_num(1), has_errors(false) {};
+Actions::Actions(Admin* a) : admin(a), line_num(1), has_errors(false) {};
 
 Actions::~Actions() {
 }
-
-
-void Actions::error(string text, string lexeme) {
-  cerr << "error on line " << line_num;
-  if (lexeme != "")
-    cerr << " near '" << lexeme << "'";
-  cerr << ": " << text << endl;
-}
-
-
 
 
 // Definitions ///////////////////////////////////////////////////
@@ -69,7 +60,7 @@ void Actions::add_vars(tag::Tag type, tag::Tag kind, int vars) {
     bool added = table.put(lexeme, id);
 
     if (!added) {
-      error("'" + lexeme + "' already declared");
+      admin->error("'" + lexeme + "' already declared");
       delete id;
     } else {
       Def* var = new VarDef(id, line_num);
@@ -115,7 +106,7 @@ void Actions::write(int num_expr) {
 
 void Actions::assign(int num_vars, int num_exprs) {
   if (num_vars != num_exprs) {
-    error("number of variables does not match number of exressions");
+    admin->error("number of variables does not match number of exressions");
     stacks.push_stmt(new Stmt(line_num) );
     return;
   }
@@ -175,7 +166,7 @@ void Actions::access(tag::Tag type) {
   Id* id = table.get(lexeme);
 
   if (id == nullptr) {
-    error("'" + lexeme + "' is undeclared");
+    admin->error("'" + lexeme + "' is undeclared");
     stacks.push_stmt( new Stmt(line_num) );
     return;
   }
