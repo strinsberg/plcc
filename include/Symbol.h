@@ -57,6 +57,7 @@ const std::map<yytokentype,std::string> tok_string {
   {FALSE, "FALSE"},
   {NAME, "NAME"}, 
   {CHARACTER, "CHARACTER"},
+  {EMPTY, "EMPTY"},
 };
 
 

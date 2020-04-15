@@ -1,4 +1,3 @@
 begin
-  int a, b, c;
-  int array[3] A, B, C;
+  int y;
 end.

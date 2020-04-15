@@ -94,8 +94,8 @@ void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
     delete name;
   }
 
-  if (def != nullptr)
-    def = new Def(line);
+  if (def == nullptr)
+    def = new Def(6000);
   defs.push_back(def);
 }
 
@@ -152,7 +152,7 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
       stmt = new Seq(asgn, stmt, line);  // will do type checking
   }
 
-  if (stmt != nullptr)
+  if (stmt == nullptr)
     stmt = new Stmt(line);
   stmts.push_back(stmt);
 }
