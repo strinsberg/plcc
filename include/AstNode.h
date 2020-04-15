@@ -12,7 +12,6 @@ class AstNode {
  public:
   AstNode();
   virtual ~AstNode();
-
   virtual void visit(CodeGen* generator);
   friend std::ostream& operator<< (std::ostream& out, const AstNode& node);
 };
@@ -24,6 +23,7 @@ class Expr : public AstNode {
   Expr(Token* token, symbol::Tag type);
   virtual ~Expr();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Expr& node);
 
  protected:
   Token* token;
@@ -36,6 +36,7 @@ class Def : public AstNode {
   Def();
   virtual ~Def();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Def& node);
 };
 
 
@@ -44,6 +45,7 @@ class Stmt : public AstNode {
   Stmt();
   virtual ~Stmt();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Stmt& node);
 };
 
 #endif
