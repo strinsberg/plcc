@@ -27,7 +27,7 @@ class Block : public Stmt {
  public:
   Block(Def* d, Stmt* s, int line) : Stmt(line), defs(d), stmts(s) {}
   ~Block() { if (defs != nullptr) delete defs; if (stmts != nullptr) delete stmts; }
-  std::string to_string() { return "\nBlock (" + std::to_string(line_num) + "):\n--Defs--\n" + defs->to_string() + "\n--Stmts--\n" + stmts->to_string() + "\n"; }
+  std::string to_string() { return "\nBlock:\n--Defs--\n" + defs->to_string() + "\n--Stmts--\n" + stmts->to_string() + "\nENDBLOCK (" + std::to_string(line_num) + ")\n"; }
 
   Def* defs;
   Stmt* stmts;
@@ -48,6 +48,34 @@ class Write : public Stmt {
   ~Write() { delete expr; } 
   std::string to_string() { return "write: " + expr->to_string(); }
   Expr* expr;
+};
+
+class Cond : public Stmt {
+ public:
+  Cond(Expr* c, Stmt* s, int line) : Stmt(line), cond(c), stmts(s) {}
+  ~Cond() { delete cond; delete stmts; }
+  std::string to_string() { return "Cond:\n" + cond->to_string() + "\n" + stmts->to_string() + "\nENDCOND"; }
+
+  Expr* cond;
+  Stmt* stmts;
+};
+
+class Loop : public Stmt {
+ public:
+  Loop(Stmt* c, int line) : Stmt(line), cond(c) {}
+  ~Loop() { delete cond; }
+  std::string to_string() { return "Loop:\n" + cond->to_string() + "\nENDLOOP"; }
+
+  Stmt* cond;
+};
+
+class IfStmt : public Stmt {
+ public:
+  IfStmt(Stmt* c, int line) : Stmt(line), cond(c) {}
+  ~IfStmt() { delete cond; }
+  std::string to_string() { return "If:\n" + cond->to_string() + "\nENDIF"; }
+
+  Stmt* cond;
 };
 // if, loop, assign, write, skip
 // condition?

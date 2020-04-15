@@ -34,7 +34,7 @@ class Constant : public Expr {
 class Access : public Expr {
  public:
   Access(Id* i, int line) : Expr(i->op, i->type, line), id(i) {}
-  ~Access() { }
+  ~Access() { }  // Who owns the ID? I think it will be a def node, but need to be sure!
   virtual std::string to_string() { return Expr::to_string() + "(Access)"; }
   Id* id;
 };

@@ -33,6 +33,10 @@ class Actions {
   void stmt_part(int num_stmts, int line);
   void write(int num_expr, int line);
   void assign(int vars, int exprs, int line);
+  void if_stmt(int num_cond, int line);
+  void loop(int line);
+  void empty(int line);
+  void condition(int num_stmts, int line);
 
   // expr actions
   void access(int line, yytokentype type);

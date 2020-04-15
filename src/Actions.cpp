@@ -157,6 +157,27 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
   }
 }
 
+void Actions::if_stmt(int num_cond, int line) {
+  Stmt* cond = next_stmt();
+  for (int i = 0; i < num_cond - 1; i++)
+    cond = new Seq(next_stmt(), cond, line);
+  stmts.push_back( new IfStmt(cond , line) );
+}
+
+void Actions::loop(int line) {
+  stmts.push_back( new Loop(next_stmt(), line) ); 
+}
+
+void Actions::empty(int line) {
+
+}
+
+void Actions::condition(int num_stmts, int line) {
+  Expr* cond = next_expr();
+  stmt_part(num_stmts, line);
+  Stmt* stmt = next_stmt();
+  stmts.push_back( new Cond(cond, stmt, line) );
+}
 
 // Expression methods /////////////////////////////////////////////////
 

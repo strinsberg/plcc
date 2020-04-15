@@ -79,17 +79,17 @@ write_stmt: WRITE expr_list { actions.write($2, line); printf("write_stmt\n"); }
 asn_stmt: var_access_list ASGN expr_list { actions.assign($1, $3, line); printf("assignment_stmt\n"); }
   ;
 
-if_stmt: IF conditions ENDIF { printf("if_stmt\n"); }
+if_stmt: IF conditions ENDIF { actions.if_stmt($2, line); printf("if_stmt\n"); }
   ;
 
-loop_stmt: LOOP condition ENDLOOP { printf("loop_stmt\n"); }
+loop_stmt: LOOP condition ENDLOOP { actions.loop(line); printf("loop_stmt\n"); }
   ;
 
-conditions: conditions ELIF condition { printf("conditions\n"); }
-  | condition
+conditions: conditions ELIF condition { $$ = $1 + 1; printf("conditions\n"); }
+  | condition { $$ = 1; }
   ;
 
-condition: expr DO stmt_part { printf("condition -> do\n"); }
+condition: expr DO stmt_part { actions.condition($3, line); printf("condition -> do\n"); }
   ;
 
 empty_stmt: SKIP { printf("empty_stmt\n"); }

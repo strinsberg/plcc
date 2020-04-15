@@ -27,6 +27,13 @@ begin
     j := j - 1;
   end while;
 
+  -- Test block stmt
+  begin
+    int inside;
+    inside := A[0];
+    write inside;
+  end;
+
   -- Write out some different expressions
   write j * i , f / 10.0, ch;
   write 1 > 2, 10 <= 10, 10 >= 9, 20 ~= 20;
