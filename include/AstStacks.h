@@ -16,7 +16,7 @@ class AstStacks {
   ~AstStacks();
 
   // Add Nodes
-  void push_token(tag::Tag t);
+  void push_token(symbol::Tag t);
   void push_word(std::string lexeme);
   void push_def(Def* d) { defs.push_back(d); }
   void push_expr(Expr* d) { exprs.push_back(d); }

@@ -74,7 +74,7 @@ false     { return FALSE; }
 {number}  { yylval = atoi(yytext); return NUMBER; }
 '.'        { yylval = yytext[1]; return CHARACTER; }
 
-\n        { actions->newline(); actions->get_admin()->newline(); }
+\n        { actions->get_admin()->newline(); }
 [ \t]     { /*Ignore Whitespace*/ }
 <<EOF>>   { return 0; }
 

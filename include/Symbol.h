@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 
-namespace tag {
+namespace symbol {
 
 enum Tag {
   BEG = 256, END,
@@ -21,7 +21,7 @@ enum Tag {
 };
 
 
-const std::map<Tag,std::string> to_string {
+const std::map<Tag, std::string> to_string {
   {BEG, "BEGIN"},
   {END, "END"},
   {COMMA, "COMMA"},

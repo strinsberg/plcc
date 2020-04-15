@@ -28,7 +28,7 @@ Actions* actions;
 
 %%
 program:  /* nothing */
-  | block DOT { printf("program\n\nTotal Lines: %d\n", actions->line()); }
+  | block DOT { printf("program\n\nTotal Lines: %d\n", actions->get_admin()->get_line()); }
   ;
 
 block: BEG def_part stmt_part END { actions->block($2, $3); printf("block\n"); }
@@ -51,7 +51,7 @@ const_def: CONST type_sym name INIT constant { actions->const_def(); printf("con
 var_def: type_sym v_prime { printf("var_def\n"); }
   ;
 
-v_prime: var_list { actions->var_def(tag::SCALAR, $$); printf("v_prime -> var_list\n"); }
+v_prime: var_list { actions->var_def(symbol::SCALAR, $$); printf("v_prime -> var_list\n"); }
   | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); printf("v_prime -> array\n"); }
   ;
 
@@ -116,7 +116,7 @@ simple_expr: simple_expr add_op t_prime { actions->binary(); printf("simple_expr
   ;
 
 /* pop top and return unary with minus if first rule */
-t_prime: MINUS term { actions->unary(tag::MINUS); printf("t_prime -> MINUS\n"); }
+t_prime: MINUS term { actions->unary(symbol::MINUS); printf("t_prime -> MINUS\n"); }
   | term { printf("t_prime -> term\n"); }
   ;
 
@@ -131,7 +131,7 @@ factor: number { printf("factor -> number\n"); }
   | bool_sym { printf("factor -> bool_sym\n"); }
   | var_access { printf("factor -> var_access\n"); }
   | LHRND expr RHRND { printf("factor -> ( expr )\n"); }
-  | NOT factor { actions->unary(tag::NOT); printf("factor -> NOT\n"); }
+  | NOT factor { actions->unary(symbol::NOT); printf("factor -> NOT\n"); }
   ;
 
 
@@ -144,62 +144,62 @@ var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_acc
   | var_access { $$ = 1; }
   ;
 
-var_access: name selector { actions->access((tag::Tag)$2); printf("var_access\n"); }
+var_access: name selector { actions->access((symbol::Tag)$2); printf("var_access\n"); }
   ;
 
-selector: LHSQR expr RHSQR { $$ = (int)tag::ARRAY; printf("selector -> array access\n"); }
-  | /* epsilon */ { $$ = int(tag::SCALAR); }
+selector: LHSQR expr RHSQR { $$ = (int)symbol::ARRAY; printf("selector -> array access\n"); }
+  | /* epsilon */ { $$ = int(symbol::SCALAR); }
   ;
 
 
 /* Operators */
-prim_op: AND { actions->new_token(tag::AND); printf("AND\n"); }
-  | OR { actions->new_token(tag::OR); printf("OR\n"); }
+prim_op: AND { actions->new_token(symbol::AND); printf("AND\n"); }
+  | OR { actions->new_token(symbol::OR); printf("OR\n"); }
   ;
 
-rel_op: EQ { actions->new_token(tag::EQ); printf("EQUAL\n"); }
-  | NEQ { actions->new_token(tag::NEQ); printf("NOT EQUAL\n"); }
-  | LESS { actions->new_token(tag::LESS); printf("LESS\n"); }
-  | GREATER { actions->new_token(tag::GREATER); printf("GREATER\n"); } 
-  | LEQ { actions->new_token(tag::LEQ); printf("LESS EQUAL\n"); }
-  | GEQ { actions->new_token(tag::GEQ); printf("GREATER EQUAL\n"); }
+rel_op: EQ { actions->new_token(symbol::EQ); printf("EQUAL\n"); }
+  | NEQ { actions->new_token(symbol::NEQ); printf("NOT EQUAL\n"); }
+  | LESS { actions->new_token(symbol::LESS); printf("LESS\n"); }
+  | GREATER { actions->new_token(symbol::GREATER); printf("GREATER\n"); } 
+  | LEQ { actions->new_token(symbol::LEQ); printf("LESS EQUAL\n"); }
+  | GEQ { actions->new_token(symbol::GEQ); printf("GREATER EQUAL\n"); }
   ;
 
-add_op: PLUS { actions->new_token(tag::PLUS); printf("PLUS\n"); }
-  | MINUS { actions->new_token(tag::MINUS); printf("MINUS\n"); }
+add_op: PLUS { actions->new_token(symbol::PLUS); printf("PLUS\n"); }
+  | MINUS { actions->new_token(symbol::MINUS); printf("MINUS\n"); }
   ;
 
-mult_op: MULT { actions->new_token(tag::MULT); printf("MULT\n"); }
-  | DIV { actions->new_token(tag::DIV); printf("DIV\n"); }
-  | MOD { actions->new_token(tag::MOD); printf("MOD\n"); }
+mult_op: MULT { actions->new_token(symbol::MULT); printf("MULT\n"); }
+  | DIV { actions->new_token(symbol::DIV); printf("DIV\n"); }
+  | MOD { actions->new_token(symbol::MOD); printf("MOD\n"); }
   ;
 
 
 /* Terminals */
-type_sym: INT { actions->new_token(tag::INT); printf("INT\n"); }
-  | FLOAT { actions->new_token(tag::FLOAT); printf("FLOAT\n"); }
-  | BOOL { actions->new_token(tag::BOOL); printf("BOOL\n"); }
-  | CHAR { actions->new_token(tag::CHAR); printf("CHAR\n"); }
+type_sym: INT { actions->new_token(symbol::INT); printf("INT\n"); }
+  | FLOAT { actions->new_token(symbol::FLOAT); printf("FLOAT\n"); }
+  | BOOL { actions->new_token(symbol::BOOL); printf("BOOL\n"); }
+  | CHAR { actions->new_token(symbol::CHAR); printf("CHAR\n"); }
   ;
 
 constant: number { printf("constant -> number\n"); }
   | bool_sym { printf("constant -> bool\n"); } 
-  | name { actions->constant(tag::NAME); printf("constant -> name\n"); }
+  | name { actions->constant(symbol::NAME); printf("constant -> name\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
-char: CHARACTER { actions->constant(tag::CHAR, $1); printf("CHARACTER -> '%c'\n", $1); }
+char: CHARACTER { actions->constant(symbol::CHAR, $1); printf("CHARACTER -> '%c'\n", $1); }
   ;
 
-number: NUMBER DOT NUMBER { actions->constant(tag::FLOAT, $1, $3); printf("number -> float: %d.%d\n", $1, $3); }
-  | NUMBER { actions->constant(tag::INT, $1); printf("number -> int: %d\n", $1); }
+number: NUMBER DOT NUMBER { actions->constant(symbol::FLOAT, $1, $3); printf("number -> float: %d.%d\n", $1, $3); }
+  | NUMBER { actions->constant(symbol::INT, $1); printf("number -> int: %d\n", $1); }
   ;
 
-bool_sym: TRUE { actions->constant(tag::TRUE); printf("FALSE\n"); }
-  | FALSE { actions->constant(tag::FALSE); printf("TRUE\n"); }
+bool_sym: TRUE { actions->constant(symbol::TRUE); printf("FALSE\n"); }
+  | FALSE { actions->constant(symbol::FALSE); printf("TRUE\n"); }
   ;
 
-name: NAME { actions->new_token(tag::NAME, std::string(yytext)); printf("NAME -> %s\n", yytext);}
+name: NAME { actions->new_token(symbol::NAME, std::string(yytext)); printf("NAME -> %s\n", yytext);}
   ;
 %%
 

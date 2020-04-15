@@ -2,74 +2,73 @@
 #define PLCC_EXPRESSIONS_H
 
 #include "AstNode.h"
+#include "CodeGen.h"
 #include "Symbol.h"
 #include "Tokens.h"
 #include <string>
 
-// Consider making the base class take nothing but a line
-// so that it can be the explicitly empty expr
-class Expr : public AstNode {
- public:
-  Expr(Token* tok, tag::Tag t, int line) : AstNode(line), op(tok), type(t) {}
-  virtual ~Expr() { }
-  virtual std::string to_string() { return op->to_string() + "(" + tag::to_string.at(type) + ")"; }
-
-  Token* op;
-  tag::Tag type;
-};
-
-class Id : public Expr {
- public:
-  Id(Word* w, tag::Tag t, tag::Tag k, int line) : Expr(w, t, line), kind(k) {}
-  virtual ~Id() { delete op; }
-  virtual std::string to_string() { return Expr::to_string() + "(" + tag::to_string.at(kind) + ")"; }
-  tag::Tag kind;
-};
 
 class Constant : public Expr {
  public:
-  Constant(Token* tok, tag::Tag t, int line) : Expr(tok, t, line) {}
-  ~Constant() { delete op; }
+  Constant(Token* token, symbol::Tag type);
+  virtual ~Constant();
+  virtual void visit(CodeGen* generator);
 };
+
+
+class Id : public Expr {
+ public:
+  Id(Word* word, symbol::Tag type, symbol::Tag kind);
+  virtual ~Id();
+  virtual void visit(CodeGen* generator);
+
+ protected:
+  symbol::Tag kind;
+};
+
 
 class Access : public Expr {
  public:
-  Access(Id* i, int line) : Expr(i->op, i->type, line), id(i) {}
-  ~Access() { }  // Who owns the ID? I think it will be a def node, but need to be sure!
-  virtual std::string to_string() { return Expr::to_string() + "(Access)"; }
+  Access(Id* id);
+  virtual ~Access();
+  virtual void visit(CodeGen* generator);
+
+ protected:
   Id* id;
 };
 
+
 class ArrayAccess : public Access {
  public:
-  ArrayAccess(Id* i, Expr* idx, int line) : Access(i, line), index(idx) {} 
-  ~ArrayAccess() { delete index; }
-  virtual std::string to_string() { return Access::to_string() + "[" + index->to_string() + "]"; }
+  ArrayAccess(Id* id, Expr* index);
+  virtual ~ArrayAccess();
+  virtual void visit(CodeGen* generator);
 
+ protected:
   Expr* index;
 };
 
+
 class Binary : public Expr {
  public:
-  Binary(Token* op, Expr* l, Expr* r, int line) : Expr(op, l->type, line), lhs(l), rhs(r) {}
-  ~Binary() { delete lhs; delete rhs; }
+  Binary(Token* op, Expr* lhs, Expr* rhs);
+  virtual ~Binary();
+  virtual void visit(CodeGen* generator);
 
+ protected:
   Expr* lhs;
   Expr* rhs;
 };
 
+
 class Unary : public Expr {
  public:
-  Unary(Token* op, Expr* e, int line) : Expr(op, e->type, line), expr(e) {}
-  ~Unary() { delete expr; }
+  Unary(Token* op, Expr* e);
+  virtual ~Unary();
+  virtual void visit(CodeGen* generator);
 
+ protected:
   Expr* expr;
 };
-// possible classes needed:
-// op, arith, unary
-// temp -- for the temporary identifier you emit?
-// relational
-// logical
-// array access
 
 #endif

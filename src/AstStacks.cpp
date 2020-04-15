@@ -20,7 +20,7 @@ AstStacks::~AstStacks() {
 }
 
 // Token addition /////////////////////////////////////////////////////
-void AstStacks::push_token(tag::Tag t) {
+void AstStacks::push_token(symbol::Tag t) {
   tokens.push_back(new Token(t));
 }
 
@@ -44,7 +44,7 @@ Token* AstStacks::pop_token() {
     tokens.pop_back();
     return next;
   }
-  return new Token(tag::EMPTY);
+  return new Token(symbol::EMPTY);
 }
 
 Expr* AstStacks::pop_expr() {
@@ -53,7 +53,7 @@ Expr* AstStacks::pop_expr() {
     exprs.pop_back();
     return next;
   }
-  return new Expr( new Token(tag::EMPTY), tag::EMPTY, -1 );
+  return new Expr();
 }
 
 Stmt* AstStacks::pop_stmt() {
@@ -62,7 +62,7 @@ Stmt* AstStacks::pop_stmt() {
     stmts.pop_back();
     return next;
   }
-  return new Stmt(-1);
+  return new Stmt();
 }
 
 Def* AstStacks::pop_def() {
@@ -71,7 +71,7 @@ Def* AstStacks::pop_def() {
     defs.pop_back();
     return next;
   }
-  return new Def(-1);
+  return new Def();
 }
 
 
@@ -89,18 +89,18 @@ void AstStacks::print_nodes() {
   cout << endl;
   cout << "=== Definition Nodes: " << defs.size() << " ===" << endl;
   for (auto & d : defs) {
-    cout << d->to_string() << endl;
+    cout << d << endl;
   }
 
   cout << endl;
   cout << "=== Statment Nodes: "<< stmts.size() << " ===" << endl;
   for (auto & s : stmts) {
-    cout << s->to_string() << endl;
+    cout << s << endl;
   }
 
   cout << endl;
   cout << "=== Expression Nodes: " << exprs.size() << " ===" << endl;
   for (auto & e : exprs) {
-    cout << e->to_string() << endl;
+    cout << e << endl;
   }
 }

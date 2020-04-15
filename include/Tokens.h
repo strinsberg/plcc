@@ -7,16 +7,16 @@
 
 class Token {
  public:
-  Token(tag::Tag t) : tag(t) {}
+  Token(symbol::Tag t) : tag(t) {}
   virtual ~Token() {}
-  virtual std::string to_string() { return tag::to_string.at(tag); }
-  tag::Tag tag;
+  virtual std::string to_string() { return symbol::to_string.at(tag); }
+  symbol::Tag tag;
 };
 
 
 class Number : public Token {
  public:
-  Number(int v) : Token(tag::INT), value(v) {}
+  Number(int v) : Token(symbol::INT), value(v) {}
   virtual ~Number() {}
   virtual std::string to_string() { return std::to_string(value); }
   int value;
@@ -25,7 +25,7 @@ class Number : public Token {
 
 class Word : public Token {
  public:
-  Word(const std::string s) : Token(tag::NAME), lexeme(s) {}
+  Word(const std::string s) : Token(symbol::NAME), lexeme(s) {}
   virtual ~Word() {}
   virtual std::string to_string() { return lexeme; }
   std::string lexeme;
@@ -34,7 +34,7 @@ class Word : public Token {
 
 class Float : public Token {
  public:
-  Float(int v, int d) : Token(tag::FLOAT), value(v), decimal(d) {}
+  Float(int v, int d) : Token(symbol::FLOAT), value(v), decimal(d) {}
   virtual ~Float() {}
   virtual std::string to_string() {
     return std::to_string(value) + "." + std::to_string(decimal); }
@@ -44,7 +44,7 @@ class Float : public Token {
 
 class Char : public Token {
  public:
-  Char(char v) : Token(tag::CHAR), value(v) {}
+  Char(char v) : Token(symbol::CHAR), value(v) {}
   virtual ~Char() {}
   virtual std::string to_string() { return std::string(1, value); }
   char value;
