@@ -43,6 +43,7 @@ class Actions {
   void print_tokens();
   void print_nodes();
   void print_table();
+  void new_block() { table.push_block(); }
 
  private:
   std::vector<Token*> tokens;

@@ -40,7 +40,7 @@ block: BEG def_part stmt_part END { actions.block($2, $3, line); printf("block\n
 /* Definitions */
 def_part: def_part def SEMI { $$ = $1 + 1; printf("def_part\n\n"); }
   | def_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = 0; }
+  | /* epsilon */ { $$ = 0; actions.new_block(); }
   ;
 
 def: const_def { printf("def -> const_def\n"); }

@@ -8,9 +8,7 @@
 using namespace std;
 
 
-BlockTable::BlockTable() : level(0) {
-  push_block();
-}
+BlockTable::BlockTable() : level(0) {}
 
 BlockTable::~BlockTable() {
   for (auto & blk : blocks)
@@ -27,9 +25,11 @@ bool BlockTable::put(string lexeme, Id* id) {
 }
 
 Id* BlockTable::get(std::string lexeme) {
-  auto it = blocks.back().find(lexeme);
-  if ( it != blocks.back().end() )
-    return it->second;
+  for (auto it = blocks.rbegin(); it != blocks.rend(); ++it) {
+    auto item = it->find(lexeme);
+    if ( item != it->end() )
+      return item->second;
+  }
   return nullptr;
 }
 
