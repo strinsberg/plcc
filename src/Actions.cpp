@@ -94,6 +94,8 @@ void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
     delete name;
   }
 
+  if (def != nullptr)
+    def = new Def(line);
   defs.push_back(def);
 }
 
@@ -126,7 +128,7 @@ void Actions::write(int num_expr, int line) {
 void Actions::assign(int num_vars, int num_exprs, int line) {
   if (num_vars != num_exprs) {
     yyerror("number of variables does not match number of exressions", false);
-    // pop everything? or just leave it?
+    stmts.push_back(new Stmt(line) );
     return;
   }
 
@@ -150,11 +152,9 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
       stmt = new Seq(asgn, stmt, line);  // will do type checking
   }
 
-  if (stmt != nullptr) {
-    stmts.push_back(stmt);
-  } else {
-    yyerror("nothing was assigned");
-  }
+  if (stmt != nullptr)
+    stmt = new Stmt(line);
+  stmts.push_back(stmt);
 }
 
 void Actions::if_stmt(int num_cond, int line) {
@@ -188,6 +188,7 @@ void Actions::access(int line, yytokentype type) {
 
   if (id == nullptr) {
     yyerror("'" + lexeme + "' is undeclared");
+    stmts.push_back( new Stmt(line) );
     return;
   }
 
@@ -263,25 +264,37 @@ void Actions::print_table() {
 // Helpers ////////////////////////////////////////////////////////////
 // These could return empty objects if the stack is empty
 Token* Actions::next_token() {
-  Token* next = tokens.back();
-  tokens.pop_back();
-  return next;
+  if (tokens.size() > 0) {
+    Token* next = tokens.back();
+    tokens.pop_back();
+    return next;
+  }
+  return new Token(EMPTY);
 }
 
 Expr* Actions::next_expr() {
-  Expr* next = exprs.back();
-  exprs.pop_back();
-  return next;
+  if (exprs.size() > 0) {
+    Expr* next = exprs.back();
+    exprs.pop_back();
+    return next;
+  }
+  return new Expr( new Token(EMPTY), EMPTY, -1 );
 }
 
 Stmt* Actions::next_stmt() {
-  Stmt* next = stmts.back();
-  stmts.pop_back();
-  return next;
+  if (stmts.size() > 0) {
+    Stmt* next = stmts.back();
+    stmts.pop_back();
+    return next;
+  }
+  return new Stmt(-1);
 }
 
 Def* Actions::next_def() {
-  Def* next = defs.back();
-  defs.pop_back();
-  return next;
+  if (defs.size() > 0) {
+    Def* next = defs.back();
+    defs.pop_back();
+    return next;
+  }
+  return new Def(-1);
 }
