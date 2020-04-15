@@ -53,7 +53,6 @@ class Actions {
   Admin* admin;
 
   int line_num;
-  bool has_errors;
 
   void add_vars(tag::Tag type, tag::Tag kind, int vars);
 };

@@ -1,21 +1,41 @@
 #ifndef PLCC_AST_NODE_H
 #define PLCC_AST_NODE_H
 
+#include "Symbol.h"
+#include "CodeGen.h"
 #include <string>
+#include <iostream>
 
 
 class AstNode {
  public:
-  AstNode(int line);
+  AstNode();
   virtual ~AstNode();
 
-  virtual int new_label();
-  virtual void emit_label(int i);
-  virtual void emit(std::string s);
-  void error(std::string s);
+  virtual visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const AstNode& node);
+};
 
-  static int label;
-  int line_num;
+
+class Expr : public AstNode {
+ public:
+  Expr();
+  virtual ~Expr();
+  symbol::Tag type;
+};
+
+
+class Def : public AstNode {
+ public:
+  Def();
+  virtual ~Def();
+};
+
+
+class Stmt : public AstNode {
+ public:
+  Stmt();
+  virtual ~Stmt();
 };
 
 #endif
