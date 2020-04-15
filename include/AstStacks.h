@@ -15,7 +15,8 @@ class AstStacks {
   AstStacks();
   ~AstStacks();
 
-  // Add tokens
+  // Add tokens -- could update this to just be push token and create them before
+  // passing the token isntead.
   void push_token(tag::Tag t);
   void push_word(std::string s);
   void push_num(int n);

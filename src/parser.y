@@ -196,15 +196,15 @@ constant: number { printf("constant -> number\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
-char: CHARACTER { actions->stacks.push_char($1); actions->constant(tag::CHAR, line); printf("CHARACTER -> '%c'\n", $1); }
+char: CHARACTER { actions->constant(tag::CHAR, line, $1); printf("CHARACTER -> '%c'\n", $1); }
   ;
 
-number: NUMBER DOT NUMBER { actions->stacks.push_float($1, $3); actions->constant(tag::FLOAT, line); printf("number -> float: %d.%d\n", $1, $3); }
-  | NUMBER { actions->stacks.push_num($1); actions->constant(tag::INT, line); printf("number -> int: %d\n", $1); }
+number: NUMBER DOT NUMBER { actions->constant(tag::FLOAT, line, $1, $3); printf("number -> float: %d.%d\n", $1, $3); }
+  | NUMBER { actions->constant(tag::INT, line, $1); printf("number -> int: %d\n", $1); }
   ;
 
-bool_sym: TRUE { actions->stacks.push_token(tag::TRUE); actions->constant(tag::BOOL, line); printf("FALSE\n"); }
-  | FALSE { actions->stacks.push_token(tag::FALSE); actions->constant(tag::BOOL, line); printf("TRUE\n"); }
+bool_sym: TRUE { actions->constant(tag::TRUE, line); printf("FALSE\n"); }
+  | FALSE { actions->constant(tag::FALSE, line); printf("TRUE\n"); }
   ;
 
 name: NAME { actions->stacks.push_word(std::string(yytext)); printf("NAME -> %s\n", yytext);}

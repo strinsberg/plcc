@@ -35,7 +35,7 @@ class Actions {
   void access(int line, tag::Tag type);
   void binary(int line);
   void unary(tag::Tag t, int line);
-  void constant(tag::Tag t, int line);
+  void constant(tag::Tag t, int line, int val = 0, int dec = 0);
 
   // helpers
   void print_table();

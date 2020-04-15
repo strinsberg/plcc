@@ -200,8 +200,27 @@ void Actions::unary(tag::Tag t, int line) {
   stacks.push_expr( new Unary(op, expr, line) );
 }
 
-void Actions::constant(tag::Tag type, int line) {
-  Token* tok = stacks.pop_token();
+void Actions::constant(tag::Tag tag, int line, int val, int dec) {
+  Token* tok;
+  tag::Tag type;
+
+  if (tag == tag::TRUE or tag == tag::FALSE) {
+    tok = new Token(tag);
+    type = tag::BOOL;
+  } else if (tag == tag::INT) {
+    tok = new Number(val);
+    type = tag::INT;
+  } else if (tag == tag::FLOAT) {
+    tok = new Float(val, dec);
+    type = tag::FLOAT;
+  } else if (tag == tag::CHAR) {
+    tok = new Char(val);
+    type = tag::CHAR;
+  } else {
+    tok = stacks.pop_token();
+    type = tag::NAME;
+  }
+
   stacks.push_expr( new Constant(tok, type, line) );
 }
 
