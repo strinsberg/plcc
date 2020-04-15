@@ -2,6 +2,7 @@
 #define PLCC_ACTIONS_H
 
 #include "Tokens.h"
+#include "AstNode.h"
 #include "Exprs.h"
 #include "Stmts.h"
 #include "Defs.h"
@@ -14,6 +15,8 @@ class Actions {
  public:
   Actions() {}
   ~Actions();
+
+  AstNode* ast() { return next_stmt(); }
 
   // Add tokens
   void add_t(tag::Tag t);
