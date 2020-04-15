@@ -1,12 +1,27 @@
 #ifndef PLCC_SYMBOL_H
 #define PLCC_SYMBOL_H
 
-#include "parser.tab.h"
 #include <string>
 #include <map>
 
+namespace tag {
 
-const std::map<yytokentype,std::string> tok_string {
+enum Tag {
+  BEG = 256, END,
+  COMMA, DOT, SEMI,
+  LHRND, RHRND, LHSQR, RHSQR,
+  WRITE, ASGN, IF, DO, ELIF, ENDIF, LOOP, ENDLOOP, SKIP,
+  AND, OR, NOT,
+  INIT, EQ, NEQ, LESS, GREATER, LEQ, GEQ,
+  PLUS, MINUS, MULT, DIV, MOD,
+  ARRAY, PROC, ENDPROC, RECORD, ENDREC, TYPE, SCALAR,
+  INT, BOOL, FLOAT, CHAR, CONST,
+  NUMBER, TRUE, FALSE, NAME, CHARACTER,
+  EMPTY,
+};
+
+
+const std::map<Tag,std::string> to_string {
   {BEG, "BEGIN"},
   {END, "END"},
   {COMMA, "COMMA"},
@@ -60,5 +75,5 @@ const std::map<yytokentype,std::string> tok_string {
   {EMPTY, "EMPTY"},
 };
 
-
+}
 #endif

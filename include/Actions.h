@@ -6,7 +6,7 @@
 #include "Stmts.h"
 #include "Defs.h"
 #include "BlockTable.h"
-#include "parser.tab.h"
+#include "Symbol.h"
 #include <vector>
 
 
@@ -16,7 +16,7 @@ class Actions {
   ~Actions();
 
   // Add tokens
-  void add_t(yytokentype t);
+  void add_t(tag::Tag t);
   void add_w(std::string s);
   void add_n(int n);
   void add_f(int n, int d);
@@ -24,7 +24,7 @@ class Actions {
 
   // definition actions
   void const_def(int line);
-  void var_def(yytokentype kind, int vars, int line);
+  void var_def(tag::Tag kind, int vars, int line);
   void array_def(int vars, int line);
   void def_part(int num_defs, int line);
 
@@ -39,10 +39,10 @@ class Actions {
   void condition(int num_stmts, int line);
 
   // expr actions
-  void access(int line, yytokentype type);
+  void access(int line, tag::Tag type);
   void binary(int line);
-  void unary(yytokentype t, int line);
-  void constant(yytokentype t, int line);
+  void unary(tag::Tag t, int line);
+  void constant(tag::Tag t, int line);
 
   // helpers
   void print_tokens();
@@ -57,7 +57,7 @@ class Actions {
   std::vector<Def*> defs;
   BlockTable table;
 
-  void add_vars(yytokentype type, yytokentype kind, int vars, int line);
+  void add_vars(tag::Tag type, tag::Tag kind, int vars, int line);
   Token* next_token();
   Expr* next_expr();
   Stmt* next_stmt();

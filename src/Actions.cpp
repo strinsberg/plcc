@@ -1,4 +1,5 @@
 #include "Actions.h"
+#include "Symbol.h"
 #include <string>
 #include <iostream>
 
@@ -20,7 +21,7 @@ Actions::~Actions() {
 
 
 // Token addition /////////////////////////////////////////////////////
-void Actions::add_t(yytokentype t) {
+void Actions::add_t(tag::Tag t) {
   tokens.push_back(new Token(t));
 }
 
@@ -53,24 +54,24 @@ void Actions::def_part(int num_defs, int line) {
 
 void Actions::const_def(int line) {
   Expr* value = next_expr();
-  var_def(SCALAR, 1, line);
+  var_def(tag::SCALAR, 1, line);
   delete value;
 }
 
 void Actions::array_def(int vars, int line) {
   Expr* size = next_expr();
-  var_def(ARRAY, vars, line);
+  var_def(tag::ARRAY, vars, line);
   delete size;
 }
 
-void Actions::var_def(yytokentype kind, int vars, int line) {
+void Actions::var_def(tag::Tag kind, int vars, int line) {
   Token* type = *(tokens.rbegin() + vars);
   add_vars(type->tag, kind, vars, line);
   tokens.pop_back();
   delete type;
 }
 
-void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
+void Actions::add_vars(tag::Tag type, tag::Tag kind, int vars, int line) {
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     Token* name = next_token();
@@ -181,7 +182,7 @@ void Actions::condition(int num_stmts, int line) {
 
 // Expression methods /////////////////////////////////////////////////
 
-void Actions::access(int line, yytokentype type) {
+void Actions::access(int line, tag::Tag type) {
   Token* name = next_token();
   string lexeme = name->to_string();
   Id* id = table.get(lexeme);
@@ -193,7 +194,7 @@ void Actions::access(int line, yytokentype type) {
   }
 
   Access* acs = nullptr;
-  if (type == ARRAY) {
+  if (type == tag::ARRAY) {
     Expr* idx = next_expr();
     acs = new ArrayAccess(id, idx, line);  // Can do type check on index
   } else {
@@ -212,14 +213,14 @@ void Actions::binary(int line) {
   exprs.push_back( new Binary(op, lhs, rhs, line) ); 
 }
 
-void Actions::unary(yytokentype t, int line) {
+void Actions::unary(tag::Tag t, int line) {
   Token* op = new Token(t);
   Expr* expr = next_expr();
 
   exprs.push_back( new Unary(op, expr, line) );
 }
 
-void Actions::constant(yytokentype type, int line) {
+void Actions::constant(tag::Tag type, int line) {
   Token* tok = next_token();
   exprs.push_back( new Constant(tok, type, line) );
 }
@@ -269,7 +270,7 @@ Token* Actions::next_token() {
     tokens.pop_back();
     return next;
   }
-  return new Token(EMPTY);
+  return new Token(tag::EMPTY);
 }
 
 Expr* Actions::next_expr() {
@@ -278,7 +279,7 @@ Expr* Actions::next_expr() {
     exprs.pop_back();
     return next;
   }
-  return new Expr( new Token(EMPTY), EMPTY, -1 );
+  return new Expr( new Token(tag::EMPTY), tag::EMPTY, -1 );
 }
 
 Stmt* Actions::next_stmt() {

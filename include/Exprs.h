@@ -10,25 +10,25 @@
 // so that it can be the explicitly empty expr
 class Expr : public AstNode {
  public:
-  Expr(Token* tok, yytokentype t, int line) : AstNode(line), op(tok), type(t) {}
+  Expr(Token* tok, tag::Tag t, int line) : AstNode(line), op(tok), type(t) {}
   virtual ~Expr() { }
-  virtual std::string to_string() { return op->to_string() + "(" + tok_string.at(type) + ")"; }
+  virtual std::string to_string() { return op->to_string() + "(" + tag::to_string.at(type) + ")"; }
 
   Token* op;
-  yytokentype type;
+  tag::Tag type;
 };
 
 class Id : public Expr {
  public:
-  Id(Word* w, yytokentype t, yytokentype k, int line) : Expr(w, t, line), kind(k) {}
+  Id(Word* w, tag::Tag t, tag::Tag k, int line) : Expr(w, t, line), kind(k) {}
   virtual ~Id() { delete op; }
-  virtual std::string to_string() { return Expr::to_string() + "(" + tok_string.at(kind) + ")"; }
-  yytokentype kind;
+  virtual std::string to_string() { return Expr::to_string() + "(" + tag::to_string.at(kind) + ")"; }
+  tag::Tag kind;
 };
 
 class Constant : public Expr {
  public:
-  Constant(Token* tok, yytokentype t, int line) : Expr(tok, t, line) {}
+  Constant(Token* tok, tag::Tag t, int line) : Expr(tok, t, line) {}
   ~Constant() { delete op; }
 };
 

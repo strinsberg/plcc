@@ -3,15 +3,20 @@
 #include <string>
 #include <iostream>
 #include "Actions.h"
+#include "Symbol.h"
 
-extern int line;
+extern int line; // Change to returning newline and parsing it?
 extern char* yytext;
 extern "C" int yylex(void);
 
-typedef yytokentype yytkn;
-
+// Create an error function and call it with this so that this stays out of the
+// C++ parts of the code.
 void yyerror(std::string, bool is_near = true);
 
+// Make sure that the parser stays separate from the other parts since it is
+// Still using C code. In the future maybe expose these through another
+// object that can bridge between them. Unless that bridge is already the action
+// class, It will have the AST in it when things are done.
 Actions actions;
 %}
 
@@ -54,7 +59,7 @@ const_def: CONST type_sym name INIT constant { actions.const_def(line); printf("
 var_def: type_sym v_prime { printf("var_def\n"); }
   ;
 
-v_prime: var_list { actions.var_def(SCALAR, $$, line); printf("v_prime -> var_list\n"); }
+v_prime: var_list { actions.var_def(tag::SCALAR, $$, line); printf("v_prime -> var_list\n"); }
   | ARRAY LHSQR constant RHSQR var_list { actions.array_def($5, line); printf("v_prime -> array\n"); }
   ;
 
@@ -119,7 +124,7 @@ simple_expr: simple_expr add_op t_prime { actions.binary(line); printf("simple_e
   ;
 
 /* pop top and return unary with minus if first rule */
-t_prime: MINUS term { actions.unary(yytkn::MINUS, line); printf("t_prime -> MINUS\n"); }
+t_prime: MINUS term { actions.unary(tag::MINUS, line); printf("t_prime -> MINUS\n"); }
   | term { printf("t_prime -> term\n"); }
   ;
 
@@ -134,7 +139,7 @@ factor: number { printf("factor -> number\n"); }
   | bool_sym { printf("factor -> bool_sym\n"); }
   | var_access { printf("factor -> var_access\n"); }
   | LHRND expr RHRND { printf("factor -> ( expr )\n"); }
-  | NOT factor { actions.unary(yytkn::NOT, line); printf("factor -> NOT\n"); }
+  | NOT factor { actions.unary(tag::NOT, line); printf("factor -> NOT\n"); }
   ;
 
 
@@ -147,7 +152,7 @@ var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_acc
   | var_access { $$ = 1; }
   ;
 
-var_access: name selector { actions.access(line, (yytkn)$2); printf("var_access\n"); }
+var_access: name selector { actions.access(line, (tag::Tag)$2); printf("var_access\n"); }
   ;
 
 selector: LHSQR expr RHSQR { $$ = ARRAY; printf("selector -> array access\n"); }
@@ -156,50 +161,50 @@ selector: LHSQR expr RHSQR { $$ = ARRAY; printf("selector -> array access\n"); }
 
 
 /* Operators */
-prim_op: AND { actions.add_t(yytkn::AND); printf("AND\n"); }
-  | OR { actions.add_t(yytkn::OR); printf("OR\n"); }
+prim_op: AND { actions.add_t(tag::AND); printf("AND\n"); }
+  | OR { actions.add_t(tag::OR); printf("OR\n"); }
   ;
 
-rel_op: EQ { actions.add_t(yytkn::EQ); printf("EQUAL\n"); }
-  | NEQ { actions.add_t(yytkn::NEQ); printf("NOT EQUAL\n"); }
-  | LESS { actions.add_t(yytkn::LESS); printf("LESS\n"); }
-  | GREATER { actions.add_t(yytkn::GREATER); printf("GREATER\n"); } 
-  | LEQ { actions.add_t(yytkn::LEQ); printf("LESS EQUAL\n"); }
-  | GEQ { actions.add_t(yytkn::GEQ); printf("GREATER EQUAL\n"); }
+rel_op: EQ { actions.add_t(tag::EQ); printf("EQUAL\n"); }
+  | NEQ { actions.add_t(tag::NEQ); printf("NOT EQUAL\n"); }
+  | LESS { actions.add_t(tag::LESS); printf("LESS\n"); }
+  | GREATER { actions.add_t(tag::GREATER); printf("GREATER\n"); } 
+  | LEQ { actions.add_t(tag::LEQ); printf("LESS EQUAL\n"); }
+  | GEQ { actions.add_t(tag::GEQ); printf("GREATER EQUAL\n"); }
   ;
 
-add_op: PLUS { actions.add_t(yytkn::PLUS); printf("PLUS\n"); }
-  | MINUS { actions.add_t(yytkn::MINUS); printf("MINUS\n"); }
+add_op: PLUS { actions.add_t(tag::PLUS); printf("PLUS\n"); }
+  | MINUS { actions.add_t(tag::MINUS); printf("MINUS\n"); }
   ;
 
-mult_op: MULT { actions.add_t(yytkn::MULT); printf("MULT\n"); }
-  | DIV { actions.add_t(yytkn::DIV); printf("DIV\n"); }
-  | MOD { actions.add_t(yytkn::MOD); printf("MOD\n"); }
+mult_op: MULT { actions.add_t(tag::MULT); printf("MULT\n"); }
+  | DIV { actions.add_t(tag::DIV); printf("DIV\n"); }
+  | MOD { actions.add_t(tag::MOD); printf("MOD\n"); }
   ;
 
 
 /* Terminals */
-type_sym: INT { actions.add_t(yytkn::INT); printf("INT\n"); }
-  | FLOAT { actions.add_t(yytkn::FLOAT); printf("FLOAT\n"); }
-  | BOOL { actions.add_t(yytkn::BOOL); printf("BOOL\n"); }
-  | CHAR { actions.add_t(yytkn::CHAR); printf("CHAR\n"); }
+type_sym: INT { actions.add_t(tag::INT); printf("INT\n"); }
+  | FLOAT { actions.add_t(tag::FLOAT); printf("FLOAT\n"); }
+  | BOOL { actions.add_t(tag::BOOL); printf("BOOL\n"); }
+  | CHAR { actions.add_t(tag::CHAR); printf("CHAR\n"); }
   ;
 
 constant: number { printf("constant -> number\n"); }
   | bool_sym { printf("constant -> bool\n"); } 
-  | name { actions.constant(yytkn::NAME, line); printf("constant -> name\n"); }
+  | name { actions.constant(tag::NAME, line); printf("constant -> name\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
-char: CHARACTER { actions.add_c($1); actions.constant(yytkn::CHAR, line); printf("CHARACTER -> '%c'\n", $1); }
+char: CHARACTER { actions.add_c($1); actions.constant(tag::CHAR, line); printf("CHARACTER -> '%c'\n", $1); }
   ;
 
-number: NUMBER DOT NUMBER { actions.add_f($1, $3); actions.constant(yytkn::FLOAT, line); printf("number -> float: %d.%d\n", $1, $3); }
-  | NUMBER { actions.add_n($1); actions.constant(yytkn::INT, line); printf("number -> int: %d\n", $1); }
+number: NUMBER DOT NUMBER { actions.add_f($1, $3); actions.constant(tag::FLOAT, line); printf("number -> float: %d.%d\n", $1, $3); }
+  | NUMBER { actions.add_n($1); actions.constant(tag::INT, line); printf("number -> int: %d\n", $1); }
   ;
 
-bool_sym: TRUE { actions.add_t(yytkn::TRUE); actions.constant(yytkn::BOOL, line); printf("FALSE\n"); }
-  | FALSE { actions.add_t(yytkn::FALSE); actions.constant(yytkn::BOOL, line); printf("TRUE\n"); }
+bool_sym: TRUE { actions.add_t(tag::TRUE); actions.constant(tag::BOOL, line); printf("FALSE\n"); }
+  | FALSE { actions.add_t(tag::FALSE); actions.constant(tag::BOOL, line); printf("TRUE\n"); }
   ;
 
 name: NAME { actions.add_w(std::string(yytext)); printf("NAME -> %s\n", yytext);}
