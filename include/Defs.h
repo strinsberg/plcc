@@ -2,6 +2,8 @@
 #define PLCC_DEFS_H
 
 #include "AstNode.h"
+#include "Exprs.h"
+#include <iostream>
 #include <string>
 
 
@@ -10,16 +12,19 @@ class VarDef : public Def {
   VarDef(Id* i);
   virtual ~VarDef();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const VarDef& node);
 
- private:
+ protected:
   Id* id;
 };
 
+
 class DefSeq : public Def {
  public:
-  DefSeq(Def* f, Def* r);
+  DefSeq(Def* first, Def* rest);
   virtual ~DefSeq();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const DefSeq& node);
 
  protected:
   Def* first;

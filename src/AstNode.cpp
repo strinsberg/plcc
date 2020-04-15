@@ -32,7 +32,7 @@ void Expr::visit(CodeGen* generator) {
 
 std::ostream& operator<< (std::ostream& out, const Expr& node) {
   out << node.token->to_string() << " (" << symbol::to_string.at(node.type);
-  out << ")" << endl;
+  out << ")";
   return out;
 }
 
@@ -47,7 +47,7 @@ void Def::visit(CodeGen* generator) {
 }
 
 std::ostream& operator<< (std::ostream& out, const Def& node) {
-  out << "Def Node" << endl;
+  out << "Def Node";
   return out;
 }
 
@@ -61,6 +61,6 @@ void Stmt::visit(CodeGen* generator) {
 }
 
 std::ostream& operator<< (std::ostream& out, const Stmt& node) {
-  out << "Stmt Node" << endl;
+  out << "Stmt Node";
   return out;
 }
