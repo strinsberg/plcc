@@ -11,7 +11,7 @@ extern "C" int yylex(void);
 
 // Create an error function and call it with this so that this stays out of the
 // C++ parts of the code.
-void yyerror(std::string, bool is_near = true);
+void yyerror(std::string);
 
 // Make sure that the parser stays separate from the other parts since it is
 // Still using C code. In the future maybe expose these through another
@@ -107,7 +107,7 @@ block_stmt: block { printf("block_stmt\n"); }
 /* Expressions - All are going to be passing out nodes */
 expr_list: expr_list COMMA expr { $$ = $1 + 1; printf("expr_list\n"); }
   | expr { $$ = 1; }
-  | error { yyerrok; }
+  | error { $$ = 0; yyerrok; }
   ;
 
 /* Should all be nothing if only 1 and run a binary expr function if op expr */
@@ -221,9 +221,6 @@ int main() {
   actions.print_table();
 }
 
-void yyerror(std::string s, bool is_near) {
-  std::cerr << "error on line " << line;
-  if (is_near)
-    std::cerr << " near '" << yytext << "'";
-  std::cerr << ": " << s << std::endl;
+void yyerror(std::string s) {
+  actions.error(s, line, yytext);
 }

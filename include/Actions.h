@@ -49,6 +49,7 @@ class Actions {
   void print_nodes();
   void print_table();
   void new_block() { table.push_block(); }
+  void error(std::string text, int line, std::string lexeme="");
 
  private:
   std::vector<Token*> tokens;

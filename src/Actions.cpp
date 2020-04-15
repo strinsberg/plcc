@@ -5,8 +5,6 @@
 
 using namespace std;
 
-extern void yyerror(string, bool is_near = true);
-
 
 Actions::~Actions() {
   for (auto & t : tokens)
@@ -17,6 +15,14 @@ Actions::~Actions() {
 
   for (auto & s : stmts)
     delete s;
+}
+
+
+void Actions::error(string text, int line, string lexeme) {
+  cerr << "error on line " << line;
+  if (lexeme != "")
+    cerr << " near '" << lexeme << "'";
+  cerr << ": " << text << endl;
 }
 
 
@@ -82,7 +88,7 @@ void Actions::add_vars(tag::Tag type, tag::Tag kind, int vars, int line) {
     bool added = table.put(lexeme, id);
 
     if (!added) {
-      yyerror("'" + lexeme + "' already declared", false);
+      error("'" + lexeme + "' already declared", line);
       delete id;
     } else {
       Def* var = new VarDef(id, line);
@@ -128,7 +134,7 @@ void Actions::write(int num_expr, int line) {
 
 void Actions::assign(int num_vars, int num_exprs, int line) {
   if (num_vars != num_exprs) {
-    yyerror("number of variables does not match number of exressions", false);
+    error("number of variables does not match number of exressions", line);
     stmts.push_back(new Stmt(line) );
     return;
   }
@@ -188,7 +194,7 @@ void Actions::access(int line, tag::Tag type) {
   Id* id = table.get(lexeme);
 
   if (id == nullptr) {
-    yyerror("'" + lexeme + "' is undeclared");
+    error("'" + lexeme + "' is undeclared", line);
     stmts.push_back( new Stmt(line) );
     return;
   }
