@@ -161,33 +161,33 @@ selector: LHSQR expr RHSQR { $$ = (int)tag::ARRAY; printf("selector -> array acc
 
 
 /* Operators */
-prim_op: AND { actions->stacks.push_token(tag::AND); printf("AND\n"); }
-  | OR { actions->stacks.push_token(tag::OR); printf("OR\n"); }
+prim_op: AND { actions->new_token(tag::AND); printf("AND\n"); }
+  | OR { actions->new_token(tag::OR); printf("OR\n"); }
   ;
 
-rel_op: EQ { actions->stacks.push_token(tag::EQ); printf("EQUAL\n"); }
-  | NEQ { actions->stacks.push_token(tag::NEQ); printf("NOT EQUAL\n"); }
-  | LESS { actions->stacks.push_token(tag::LESS); printf("LESS\n"); }
-  | GREATER { actions->stacks.push_token(tag::GREATER); printf("GREATER\n"); } 
-  | LEQ { actions->stacks.push_token(tag::LEQ); printf("LESS EQUAL\n"); }
-  | GEQ { actions->stacks.push_token(tag::GEQ); printf("GREATER EQUAL\n"); }
+rel_op: EQ { actions->new_token(tag::EQ); printf("EQUAL\n"); }
+  | NEQ { actions->new_token(tag::NEQ); printf("NOT EQUAL\n"); }
+  | LESS { actions->new_token(tag::LESS); printf("LESS\n"); }
+  | GREATER { actions->new_token(tag::GREATER); printf("GREATER\n"); } 
+  | LEQ { actions->new_token(tag::LEQ); printf("LESS EQUAL\n"); }
+  | GEQ { actions->new_token(tag::GEQ); printf("GREATER EQUAL\n"); }
   ;
 
-add_op: PLUS { actions->stacks.push_token(tag::PLUS); printf("PLUS\n"); }
-  | MINUS { actions->stacks.push_token(tag::MINUS); printf("MINUS\n"); }
+add_op: PLUS { actions->new_token(tag::PLUS); printf("PLUS\n"); }
+  | MINUS { actions->new_token(tag::MINUS); printf("MINUS\n"); }
   ;
 
-mult_op: MULT { actions->stacks.push_token(tag::MULT); printf("MULT\n"); }
-  | DIV { actions->stacks.push_token(tag::DIV); printf("DIV\n"); }
-  | MOD { actions->stacks.push_token(tag::MOD); printf("MOD\n"); }
+mult_op: MULT { actions->new_token(tag::MULT); printf("MULT\n"); }
+  | DIV { actions->new_token(tag::DIV); printf("DIV\n"); }
+  | MOD { actions->new_token(tag::MOD); printf("MOD\n"); }
   ;
 
 
 /* Terminals */
-type_sym: INT { actions->stacks.push_token(tag::INT); printf("INT\n"); }
-  | FLOAT { actions->stacks.push_token(tag::FLOAT); printf("FLOAT\n"); }
-  | BOOL { actions->stacks.push_token(tag::BOOL); printf("BOOL\n"); }
-  | CHAR { actions->stacks.push_token(tag::CHAR); printf("CHAR\n"); }
+type_sym: INT { actions->new_token(tag::INT); printf("INT\n"); }
+  | FLOAT { actions->new_token(tag::FLOAT); printf("FLOAT\n"); }
+  | BOOL { actions->new_token(tag::BOOL); printf("BOOL\n"); }
+  | CHAR { actions->new_token(tag::CHAR); printf("CHAR\n"); }
   ;
 
 constant: number { printf("constant -> number\n"); }
@@ -207,7 +207,7 @@ bool_sym: TRUE { actions->constant(tag::TRUE, line); printf("FALSE\n"); }
   | FALSE { actions->constant(tag::FALSE, line); printf("TRUE\n"); }
   ;
 
-name: NAME { actions->stacks.push_word(std::string(yytext)); printf("NAME -> %s\n", yytext);}
+name: NAME { actions->new_token(tag::NAME, std::string(yytext)); printf("NAME -> %s\n", yytext);}
   ;
 %%
 

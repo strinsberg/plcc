@@ -16,6 +16,7 @@ class Actions {
   AstNode* ast() { return stacks.pop_stmt(); }
 
   // definition actions
+  void new_token(tag::Tag tag, std::string lexeme="");
   void const_def(int line);
   void var_def(tag::Tag kind, int vars, int line);
   void array_def(int vars, int line);

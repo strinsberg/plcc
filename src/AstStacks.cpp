@@ -24,21 +24,10 @@ void AstStacks::push_token(tag::Tag t) {
   tokens.push_back(new Token(t));
 }
 
-void AstStacks::push_word(std::string s) {
-  tokens.push_back(new Word(s));
+void AstStacks::push_word(std::string lexeme) {
+  tokens.push_back(new Word(lexeme));
 }
 
-void AstStacks::push_num(int n) {
-  tokens.push_back(new Number(n));
-}
-
-void AstStacks::push_float(int n, int d) {
-  tokens.push_back(new Float(n, d));
-}
-
-void AstStacks::push_char(char c) {
-  tokens.push_back(new Char(c));
-}
 
 // Pop Nodes /////////////////////////////////////////////////////////
 

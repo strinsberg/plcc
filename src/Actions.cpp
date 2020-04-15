@@ -24,6 +24,13 @@ void Actions::error(string text, int line, string lexeme) {
 
 // Definitions ///////////////////////////////////////////////////
 
+void Actions::new_token(tag::Tag tag, string lexeme) {
+  if (tag != tag::NAME)
+    stacks.push_token(tag);
+  else
+    stacks.push_word(lexeme);
+}
+
 void Actions::def_part(int num_defs, int line) {
   Def* def = stacks.pop_def();
   for (int i = 0; i < num_defs - 1; i++ ) {
