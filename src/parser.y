@@ -5,18 +5,10 @@
 #include "Actions.h"
 #include "Symbol.h"
 
-extern int line; // Change to returning newline and parsing it?
 extern char* yytext;
 extern "C" int yylex(void);
 
-// Create an error function and call it with this so that this stays out of the
-// C++ parts of the code.
 void yyerror(std::string);
-
-// Make sure that the parser stays separate from the other parts since it is
-// Still using C code. In the future maybe expose these through another
-// object that can bridge between them. Unless that bridge is already the action
-// class, It will have the AST in it when things are done.
 Actions* actions;
 %}
 
@@ -31,15 +23,15 @@ Actions* actions;
 %token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
-%token EMPTY
+%token EMPTY NEWLINE
 
 
 %%
 program:  /* nothing */
-  | block DOT { printf("program\n\nTotal Lines: %d\n", line); }
+  | block DOT { printf("program\n\nTotal Lines: %d\n", actions->line()); }
   ;
 
-block: BEG def_part stmt_part END { actions->block($2, $3, line); printf("block\n"); }
+block: BEG def_part stmt_part END { actions->block($2, $3); printf("block\n"); }
   ;
 
 
@@ -53,14 +45,14 @@ def: const_def { printf("def -> const_def\n"); }
   | var_def { printf("def -> var_def\n"); }
   ;
 
-const_def: CONST type_sym name INIT constant { actions->const_def(line); printf("const_def\n"); }
+const_def: CONST type_sym name INIT constant { actions->const_def(); printf("const_def\n"); }
   ;
 
 var_def: type_sym v_prime { printf("var_def\n"); }
   ;
 
-v_prime: var_list { actions->var_def(tag::SCALAR, $$, line); printf("v_prime -> var_list\n"); }
-  | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5, line); printf("v_prime -> array\n"); }
+v_prime: var_list { actions->var_def(tag::SCALAR, $$); printf("v_prime -> var_list\n"); }
+  | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); printf("v_prime -> array\n"); }
   ;
 
 
@@ -79,26 +71,26 @@ stmt: write_stmt { printf("stmt -> write\n"); }
   | block_stmt { printf("stmt -> block\n"); }
   ;
 
-write_stmt: WRITE expr_list { actions->write($2, line); printf("write_stmt\n"); }
+write_stmt: WRITE expr_list { actions->write($2); printf("write_stmt\n"); }
   ;
 
-asn_stmt: var_access_list ASGN expr_list { actions->assign($1, $3, line); printf("assignment_stmt\n"); }
+asn_stmt: var_access_list ASGN expr_list { actions->assign($1, $3); printf("assignment_stmt\n"); }
   ;
 
-if_stmt: IF conditions ENDIF { actions->if_stmt($2, line); printf("if_stmt\n"); }
+if_stmt: IF conditions ENDIF { actions->if_stmt($2); printf("if_stmt\n"); }
   ;
 
-loop_stmt: LOOP condition ENDLOOP { actions->loop(line); printf("loop_stmt\n"); }
+loop_stmt: LOOP condition ENDLOOP { actions->loop(); printf("loop_stmt\n"); }
   ;
 
 conditions: conditions ELIF condition { $$ = $1 + 1; printf("conditions\n"); }
   | condition { $$ = 1; }
   ;
 
-condition: expr DO stmt_part { actions->condition($3, line); printf("condition -> do\n"); }
+condition: expr DO stmt_part { actions->condition($3); printf("condition -> do\n"); }
   ;
 
-empty_stmt: SKIP { actions->empty(line); printf("empty_stmt\n"); }
+empty_stmt: SKIP { actions->empty(); printf("empty_stmt\n"); }
   ;
 
 block_stmt: block { printf("block_stmt\n"); }
@@ -111,25 +103,25 @@ expr_list: expr_list COMMA expr { $$ = $1 + 1; printf("expr_list\n"); }
   ;
 
 /* Should all be nothing if only 1 and run a binary expr function if op expr */
-expr: expr prim_op prime_expr { actions->binary(line); printf("expr\n\n"); }
+expr: expr prim_op prime_expr { actions->binary(); printf("expr\n\n"); }
   | prime_expr
   ;
 
-prime_expr: prime_expr rel_op simple_expr { actions->binary(line); printf("prim_expr\n"); }
+prime_expr: prime_expr rel_op simple_expr { actions->binary(); printf("prim_expr\n"); }
   | simple_expr
   ;
 
-simple_expr: simple_expr add_op t_prime { actions->binary(line); printf("simple_expr\n"); }
+simple_expr: simple_expr add_op t_prime { actions->binary(); printf("simple_expr\n"); }
   | t_prime
   ;
 
 /* pop top and return unary with minus if first rule */
-t_prime: MINUS term { actions->unary(tag::MINUS, line); printf("t_prime -> MINUS\n"); }
+t_prime: MINUS term { actions->unary(tag::MINUS); printf("t_prime -> MINUS\n"); }
   | term { printf("t_prime -> term\n"); }
   ;
 
 /* Like expr for adding a binary expr if an op is found */
-term: factor mult_op factor { actions->binary(line); }
+term: factor mult_op factor { actions->binary(); }
   | factor { printf("term\n"); }
   ;
 
@@ -139,7 +131,7 @@ factor: number { printf("factor -> number\n"); }
   | bool_sym { printf("factor -> bool_sym\n"); }
   | var_access { printf("factor -> var_access\n"); }
   | LHRND expr RHRND { printf("factor -> ( expr )\n"); }
-  | NOT factor { actions->unary(tag::NOT, line); printf("factor -> NOT\n"); }
+  | NOT factor { actions->unary(tag::NOT); printf("factor -> NOT\n"); }
   ;
 
 
@@ -152,7 +144,7 @@ var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_acc
   | var_access { $$ = 1; }
   ;
 
-var_access: name selector { actions->access(line, (tag::Tag)$2); printf("var_access\n"); }
+var_access: name selector { actions->access((tag::Tag)$2); printf("var_access\n"); }
   ;
 
 selector: LHSQR expr RHSQR { $$ = (int)tag::ARRAY; printf("selector -> array access\n"); }
@@ -192,19 +184,19 @@ type_sym: INT { actions->new_token(tag::INT); printf("INT\n"); }
 
 constant: number { printf("constant -> number\n"); }
   | bool_sym { printf("constant -> bool\n"); } 
-  | name { actions->constant(tag::NAME, line); printf("constant -> name\n"); }
+  | name { actions->constant(tag::NAME); printf("constant -> name\n"); }
   | char { printf("constant -> char\n"); }
   ;
 
-char: CHARACTER { actions->constant(tag::CHAR, line, $1); printf("CHARACTER -> '%c'\n", $1); }
+char: CHARACTER { actions->constant(tag::CHAR, $1); printf("CHARACTER -> '%c'\n", $1); }
   ;
 
-number: NUMBER DOT NUMBER { actions->constant(tag::FLOAT, line, $1, $3); printf("number -> float: %d.%d\n", $1, $3); }
-  | NUMBER { actions->constant(tag::INT, line, $1); printf("number -> int: %d\n", $1); }
+number: NUMBER DOT NUMBER { actions->constant(tag::FLOAT, $1, $3); printf("number -> float: %d.%d\n", $1, $3); }
+  | NUMBER { actions->constant(tag::INT, $1); printf("number -> int: %d\n", $1); }
   ;
 
-bool_sym: TRUE { actions->constant(tag::TRUE, line); printf("FALSE\n"); }
-  | FALSE { actions->constant(tag::FALSE, line); printf("TRUE\n"); }
+bool_sym: TRUE { actions->constant(tag::TRUE); printf("FALSE\n"); }
+  | FALSE { actions->constant(tag::FALSE); printf("TRUE\n"); }
   ;
 
 name: NAME { actions->new_token(tag::NAME, std::string(yytext)); printf("NAME -> %s\n", yytext);}
@@ -213,5 +205,5 @@ name: NAME { actions->new_token(tag::NAME, std::string(yytext)); printf("NAME ->
 
 
 void yyerror(std::string s) {
-  actions->error(s, line, yytext);
+  actions->error(s, yytext);
 }

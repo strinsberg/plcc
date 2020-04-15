@@ -1,8 +1,9 @@
 %{
 #include "parser.tab.h"
+#include "Actions.h"
 #define YY_DECL extern "C" int yylex()
 
-int line = 1;
+extern Actions* actions;
 %}
 
 %option nounput noyywrap
@@ -73,7 +74,7 @@ false     { return FALSE; }
 {number}  { yylval = atoi(yytext); return NUMBER; }
 '.'        { yylval = yytext[1]; return CHARACTER; }
 
-\n        { line++; }
+\n        { actions->newline(); }
 [ \t]     { /*Ignore Whitespace*/ }
 <<EOF>>   { return 0; }
 
