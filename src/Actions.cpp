@@ -234,7 +234,10 @@ void Actions::constant(tag::Tag tag, int line, int val, int dec) {
 
 // Display methods ////////////////////////////////////////////////////
 
-void Actions::print_table() {
+void Actions::display() {
+  stacks.print_tokens();
+  stacks.print_nodes();
+
   cout << endl;
   cout << "=== BlockTable Nodes ===" << endl;
   table.print();

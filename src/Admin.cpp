@@ -15,6 +15,6 @@ Admin::~Admin() {
 
 AstNode* Admin::parse() {
   yyparse();
-  act->stacks.print_nodes();
+  act->display();
   return act->ast(); 
 };

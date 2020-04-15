@@ -39,13 +39,13 @@ class Actions {
   void constant(tag::Tag t, int line, int val = 0, int dec = 0);
 
   // helpers
-  void print_table();
+  void display();
   void new_block() { table.push_block(); }
   void error(std::string text, int line, std::string lexeme="");
 
-  AstStacks stacks;  // Make private once some functions are fixed
 
  private:
+  AstStacks stacks;
   BlockTable table;
 
   void add_vars(tag::Tag type, tag::Tag kind, int vars, int line);
