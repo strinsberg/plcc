@@ -1,20 +1,14 @@
 #include "Actions.h"
+#include "AstStacks.h"
 #include "Symbol.h"
 #include <string>
 #include <iostream>
 
 using namespace std;
 
+Actions::Actions() {};
 
 Actions::~Actions() {
-  for (auto & t : tokens)
-    delete t;
-
-  for (auto & e : exprs)
-    delete e;
-
-  for (auto & s : stmts)
-    delete s;
 }
 
 
@@ -26,61 +20,41 @@ void Actions::error(string text, int line, string lexeme) {
 }
 
 
-// Token addition /////////////////////////////////////////////////////
-void Actions::add_t(tag::Tag t) {
-  tokens.push_back(new Token(t));
-}
-
-void Actions::add_w(std::string s) {
-  tokens.push_back(new Word(s));
-}
-
-void Actions::add_n(int n) {
-  tokens.push_back(new Number(n));
-}
-
-void Actions::add_f(int n, int d) {
-  tokens.push_back(new Float(n, d));
-}
-
-void Actions::add_c(char c) {
-  tokens.push_back(new Char(c));
-}
 
 
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::def_part(int num_defs, int line) {
-  Def* def = next_def();
+  Def* def = stacks.pop_def();
   for (int i = 0; i < num_defs - 1; i++ ) {
-    def = new DefSeq( next_def(), def, line);
+    def = new DefSeq( stacks.pop_def(), def, line);
   }
-  defs.push_back(def);
+  stacks.push_def(def);
 }
 
 void Actions::const_def(int line) {
-  Expr* value = next_expr();
+  Expr* value = stacks.pop_expr();
   var_def(tag::SCALAR, 1, line);
   delete value;
 }
 
 void Actions::array_def(int vars, int line) {
-  Expr* size = next_expr();
+  Expr* size = stacks.pop_expr();
   var_def(tag::ARRAY, vars, line);
   delete size;
 }
 
 void Actions::var_def(tag::Tag kind, int vars, int line) {
-  Token* type = *(tokens.rbegin() + vars);
+  Token* type = stacks.get_token(vars);
   add_vars(type->tag, kind, vars, line);
-  tokens.pop_back();
+  type = stacks.pop_token();  // get token did not pop type token yet
   delete type;
 }
 
 void Actions::add_vars(tag::Tag type, tag::Tag kind, int vars, int line) {
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
-    Token* name = next_token();
+    Token* name = stacks.pop_token();
     string lexeme = name->to_string();
     Word* w = new Word(lexeme);
 
@@ -103,7 +77,7 @@ void Actions::add_vars(tag::Tag type, tag::Tag kind, int vars, int line) {
 
   if (def == nullptr)
     def = new Def(6000);
-  defs.push_back(def);
+  stacks.push_def(def);
 }
 
 
@@ -112,39 +86,39 @@ void Actions::add_vars(tag::Tag type, tag::Tag kind, int vars, int line) {
 void Actions::block(int num_defs, int num_stmts, int line) {
   def_part(num_defs, line);
   stmt_part(num_stmts, line);
-  stmts.push_back( new Block(next_def(), next_stmt(), line) );
+  stacks.push_stmt( new Block(stacks.pop_def(), stacks.pop_stmt(), line) );
   table.pop_block();
 }
 
 void Actions::stmt_part(int num_stmts, int line) {
-  Stmt* stmt = next_stmt();
+  Stmt* stmt = stacks.pop_stmt();
   for (int i = 0; i < num_stmts - 1; i++) {
-    stmt = new Seq( next_stmt(), stmt, line ); 
+    stmt = new Seq( stacks.pop_stmt(), stmt, line ); 
   }
-  stmts.push_back(stmt);
+  stacks.push_stmt(stmt);
 }
 
 void Actions::write(int num_expr, int line) {
-  Stmt* stmt = new Write(next_expr(), line);
+  Stmt* stmt = new Write(stacks.pop_expr(), line);
   for (int i = 0; i < num_expr - 1; i++) {  
-    stmt = new Seq( new Write(next_expr(), line), stmt, line );
+    stmt = new Seq( new Write(stacks.pop_expr(), line), stmt, line );
   }
-  stmts.push_back(stmt);
+  stacks.push_stmt(stmt);
 }
 
 void Actions::assign(int num_vars, int num_exprs, int line) {
   if (num_vars != num_exprs) {
     error("number of variables does not match number of exressions", line);
-    stmts.push_back(new Stmt(line) );
+    stacks.push_stmt(new Stmt(line) );
     return;
   }
 
   // get all the expressions
   vector<Expr*> rhs(num_vars);
-  for (auto & e : rhs) e = next_expr();
+  for (auto & e : rhs) e = stacks.pop_expr();
 
   vector<Expr*> lhs(num_vars);
-  for (auto & e : lhs) e = next_expr();
+  for (auto & e : lhs) e = stacks.pop_expr();
 
   // pair each access with it's value
   Stmt* stmt = nullptr;
@@ -161,105 +135,78 @@ void Actions::assign(int num_vars, int num_exprs, int line) {
 
   if (stmt == nullptr)
     stmt = new Stmt(line);
-  stmts.push_back(stmt);
+  stacks.push_stmt(stmt);
 }
 
 void Actions::if_stmt(int num_cond, int line) {
-  Stmt* cond = next_stmt();
+  Stmt* cond = stacks.pop_stmt();
   for (int i = 0; i < num_cond - 1; i++)
-    cond = new Seq(next_stmt(), cond, line);
-  stmts.push_back( new IfStmt(cond , line) );
+    cond = new Seq(stacks.pop_stmt(), cond, line);
+  stacks.push_stmt( new IfStmt(cond , line) );
 }
 
 void Actions::loop(int line) {
-  stmts.push_back( new Loop(next_stmt(), line) ); 
+  stacks.push_stmt( new Loop(stacks.pop_stmt(), line) ); 
 }
 
 void Actions::empty(int line) {
-  stmts.push_back( new Stmt(line) );
+  stacks.push_stmt( new Stmt(line) );
 }
 
 void Actions::condition(int num_stmts, int line) {
-  Expr* cond = next_expr();
+  Expr* cond = stacks.pop_expr();
   stmt_part(num_stmts, line);
-  Stmt* stmt = next_stmt();
-  stmts.push_back( new Cond(cond, stmt, line) );
+  Stmt* stmt = stacks.pop_stmt();
+  stacks.push_stmt( new Cond(cond, stmt, line) );
 }
 
 // Expression methods /////////////////////////////////////////////////
 
 void Actions::access(int line, tag::Tag type) {
-  Token* name = next_token();
+  Token* name = stacks.pop_token();
   string lexeme = name->to_string();
   Id* id = table.get(lexeme);
 
   if (id == nullptr) {
     error("'" + lexeme + "' is undeclared", line);
-    stmts.push_back( new Stmt(line) );
+    stacks.push_stmt( new Stmt(line) );
     return;
   }
 
   Access* acs = nullptr;
   if (type == tag::ARRAY) {
-    Expr* idx = next_expr();
+    Expr* idx = stacks.pop_expr();
     acs = new ArrayAccess(id, idx, line);  // Can do type check on index
   } else {
     acs = new Access(id, line);
   }
 
-  exprs.push_back(acs);
+  stacks.push_expr(acs);
   delete name;
 }
 
 void Actions::binary(int line) {
-  Token* op = next_token();
-  Expr* lhs = next_expr();
-  Expr* rhs = next_expr();
+  Token* op = stacks.pop_token();
+  Expr* lhs = stacks.pop_expr();
+  Expr* rhs = stacks.pop_expr();
 
-  exprs.push_back( new Binary(op, lhs, rhs, line) ); 
+  stacks.push_expr( new Binary(op, lhs, rhs, line) ); 
 }
 
 void Actions::unary(tag::Tag t, int line) {
   Token* op = new Token(t);
-  Expr* expr = next_expr();
+  Expr* expr = stacks.pop_expr();
 
-  exprs.push_back( new Unary(op, expr, line) );
+  stacks.push_expr( new Unary(op, expr, line) );
 }
 
 void Actions::constant(tag::Tag type, int line) {
-  Token* tok = next_token();
-  exprs.push_back( new Constant(tok, type, line) );
+  Token* tok = stacks.pop_token();
+  stacks.push_expr( new Constant(tok, type, line) );
 }
 
 
 // Display methods ////////////////////////////////////////////////////
-void Actions::print_tokens() {
-  cout << endl;
-  cout << "=== Token Stack ===" << endl;
-  for (auto & t : tokens) {
-    cout << t->to_string() << endl;
-  }
-}
-
-void Actions::print_nodes() {
-  cout << endl;
-  cout << "=== Definition Nodes: " << defs.size() << " ===" << endl;
-  for (auto & d : defs) {
-    cout << d->to_string() << endl;
-  }
-
-  cout << endl;
-  cout << "=== Statment Nodes: "<< stmts.size() << " ===" << endl;
-  for (auto & s : stmts) {
-    cout << s->to_string() << endl;
-  }
-
-  cout << endl;
-  cout << "=== Expression Nodes: " << exprs.size() << " ===" << endl;
-  for (auto & e : exprs) {
-    cout << e->to_string() << endl;
-  }
-}
 
 void Actions::print_table() {
   cout << endl;
@@ -267,41 +214,3 @@ void Actions::print_table() {
   table.print();
 }
 
-
-// Helpers ////////////////////////////////////////////////////////////
-// These could return empty objects if the stack is empty
-Token* Actions::next_token() {
-  if (tokens.size() > 0) {
-    Token* next = tokens.back();
-    tokens.pop_back();
-    return next;
-  }
-  return new Token(tag::EMPTY);
-}
-
-Expr* Actions::next_expr() {
-  if (exprs.size() > 0) {
-    Expr* next = exprs.back();
-    exprs.pop_back();
-    return next;
-  }
-  return new Expr( new Token(tag::EMPTY), tag::EMPTY, -1 );
-}
-
-Stmt* Actions::next_stmt() {
-  if (stmts.size() > 0) {
-    Stmt* next = stmts.back();
-    stmts.pop_back();
-    return next;
-  }
-  return new Stmt(-1);
-}
-
-Def* Actions::next_def() {
-  if (defs.size() > 0) {
-    Def* next = defs.back();
-    defs.pop_back();
-    return next;
-  }
-  return new Def(-1);
-}
