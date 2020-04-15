@@ -29,7 +29,7 @@ class Actions {
   void def_part(int num_defs, int line);
 
   // stmt actions
-  void block(int line);
+  void block(int num_defs, int num_stmts, int line);
   void stmt_part(int num_stmts, int line);
   void assign(int vars, int exprs, int line);
 

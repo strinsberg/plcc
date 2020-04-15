@@ -33,18 +33,18 @@ program:  /* nothing */
   | block DOT { printf("program\n\nTotal Lines: %d\n", line); }
   ;
 
-block: BEG def_part stmt_part END { actions.def_part($2, line); actions.stmt_part($3, line); printf("block\n"); }
+block: BEG def_part stmt_part END { actions.block($2, $3, line); printf("block\n"); }
   ;
 
 
 /* Definitions */
-def_part: def_part def SEMI { $$ = $1 + 1; printf("def_part\n"); }
+def_part: def_part def SEMI { $$ = $1 + 1; printf("def_part\n\n"); }
   | def_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = 0; }
   ;
 
-def: const_def { printf("def -> const_def\n\n"); }
-  | var_def { printf("def -> var_def\n\n"); }
+def: const_def { printf("def -> const_def\n"); }
+  | var_def { printf("def -> var_def\n"); }
   ;
 
 const_def: CONST type_sym name INIT constant { actions.const_def(line); printf("const_def\n"); }
@@ -60,17 +60,17 @@ v_prime: var_list { actions.var_def(SCALAR, $$, line); printf("v_prime -> var_li
 
 
 /* Statements */
-stmt_part: stmt_part stmt SEMI { $$ = $1 + 1; printf("stmt_part\n"); }
+stmt_part: stmt_part stmt SEMI { $$ = $1 + 1; printf("stmt_part\n\n"); }
   | stmt_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = 0; }
   ;
 
-stmt: write_stmt { printf("stmt -> write\n\n"); }
-  | asn_stmt { printf("stmt -> assign\n\n"); }
-  | if_stmt { printf("stmt -> if\n\n"); }
-  | loop_stmt { printf("stmt -> loop\n\n"); }
-  | empty_stmt { printf("stmt -> empty\n\n"); }
-  | block_stmt { printf("stmt -> block\n\n"); }
+stmt: write_stmt { printf("stmt -> write\n"); }
+  | asn_stmt { printf("stmt -> assign\n"); }
+  | if_stmt { printf("stmt -> if\n"); }
+  | loop_stmt { printf("stmt -> loop\n"); }
+  | empty_stmt { printf("stmt -> empty\n"); }
+  | block_stmt { printf("stmt -> block\n"); }
   ;
 
 write_stmt: WRITE expr_list { printf("write_stmt\n"); }

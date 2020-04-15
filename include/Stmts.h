@@ -3,6 +3,7 @@
 
 #include "AstNode.h"
 #include "Exprs.h"
+#include "Defs.h"
 #include <string>
 
 
@@ -20,6 +21,16 @@ class Seq : public Stmt {
   std::string to_string() { return first->to_string() + "\n" + rest->to_string(); }
   Stmt* first;
   Stmt* rest;
+};
+
+class Block : public Stmt {
+ public:
+  Block(Def* d, Stmt* s, int line) : Stmt(line), defs(d), stmts(s) {}
+  ~Block() { delete defs; delete stmts; }
+  std::string to_string() { return "\nBlock:\n--Defs--\n" + defs->to_string() + "\n--Stmts--\n" + stmts->to_string(); }
+
+  Def* defs;
+  Stmt* stmts;
 };
 
 class Asgn : public Stmt {

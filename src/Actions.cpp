@@ -100,8 +100,10 @@ void Actions::add_vars(yytokentype type, yytokentype kind, int vars, int line) {
 
 // Statement methods //////////////////////////////////////////////////
 
-void Actions::block(int line) {
-
+void Actions::block(int num_defs, int num_stmts, int line) {
+  def_part(num_defs, line);
+  stmt_part(num_stmts, line);
+  stmts.push_back( new Block(next_def(), next_stmt(), line) );
 }
 
 void Actions::stmt_part(int num_stmts, int line) {
@@ -203,19 +205,19 @@ void Actions::print_tokens() {
 
 void Actions::print_nodes() {
   cout << endl;
-  cout << "=== Definition Nodes ===" << endl;
+  cout << "=== Definition Nodes: " << defs.size() << " ===" << endl;
   for (auto & d : defs) {
     cout << d->to_string() << endl;
   }
 
   cout << endl;
-  cout << "=== Statment Nodes ===" << endl;
+  cout << "=== Statment Nodes: "<< stmts.size() << " ===" << endl;
   for (auto & s : stmts) {
     cout << s->to_string() << endl;
   }
 
   cout << endl;
-  cout << "=== Expression Nodes ===" << endl;
+  cout << "=== Expression Nodes: " << exprs.size() << " ===" << endl;
   for (auto & e : exprs) {
     cout << e->to_string() << endl;
   }
