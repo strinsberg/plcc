@@ -21,7 +21,7 @@ begin
       A[i] := T;
     else if T do
       A[i] := false;
-    else if T do:
+    else if false do:
       skip;
     end if;
 

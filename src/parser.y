@@ -155,8 +155,8 @@ var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_acc
 var_access: name selector { actions.access(line, (tag::Tag)$2); printf("var_access\n"); }
   ;
 
-selector: LHSQR expr RHSQR { $$ = ARRAY; printf("selector -> array access\n"); }
-  | /* epsilon */ { $$ = SCALAR; }
+selector: LHSQR expr RHSQR { $$ = (int)tag::ARRAY; printf("selector -> array access\n"); }
+  | /* epsilon */ { $$ = int(tag::SCALAR); }
   ;
 
 
