@@ -104,12 +104,21 @@ void Actions::block(int num_defs, int num_stmts, int line) {
   def_part(num_defs, line);
   stmt_part(num_stmts, line);
   stmts.push_back( new Block(next_def(), next_stmt(), line) );
+  table.pop_block();
 }
 
 void Actions::stmt_part(int num_stmts, int line) {
   Stmt* stmt = next_stmt();
   for (int i = 0; i < num_stmts - 1; i++) {
     stmt = new Seq( next_stmt(), stmt, line ); 
+  }
+  stmts.push_back(stmt);
+}
+
+void Actions::write(int num_expr, int line) {
+  Stmt* stmt = new Write(next_expr(), line);
+  for (int i = 0; i < num_expr - 1; i++) {  
+    stmt = new Seq( new Write(next_expr(), line), stmt, line );
   }
   stmts.push_back(stmt);
 }

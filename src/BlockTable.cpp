@@ -11,8 +11,8 @@ using namespace std;
 BlockTable::BlockTable() : level(0) {}
 
 BlockTable::~BlockTable() {
-  for (auto & blk : blocks)
-    del_block(blk);
+  for (auto & blk : blocks) {}
+    //del_block(blk);
 }
 
 bool BlockTable::put(string lexeme, Id* id) {
@@ -39,7 +39,7 @@ void BlockTable::push_block() {
 }
 
 void BlockTable::pop_block() {
-  del_block( blocks.back() );
+  //del_block( blocks.back() );
   blocks.pop_back();
   level--;
 }

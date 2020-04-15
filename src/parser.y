@@ -73,7 +73,7 @@ stmt: write_stmt { printf("stmt -> write\n"); }
   | block_stmt { printf("stmt -> block\n"); }
   ;
 
-write_stmt: WRITE expr_list { printf("write_stmt\n"); }
+write_stmt: WRITE expr_list { actions.write($2, line); printf("write_stmt\n"); }
   ;
 
 asn_stmt: var_access_list ASGN expr_list { actions.assign($1, $3, line); printf("assignment_stmt\n"); }

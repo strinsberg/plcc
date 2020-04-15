@@ -31,6 +31,7 @@ class Actions {
   // stmt actions
   void block(int num_defs, int num_stmts, int line);
   void stmt_part(int num_stmts, int line);
+  void write(int num_expr, int line);
   void assign(int vars, int exprs, int line);
 
   // expr actions

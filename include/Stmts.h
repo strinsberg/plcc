@@ -26,8 +26,8 @@ class Seq : public Stmt {
 class Block : public Stmt {
  public:
   Block(Def* d, Stmt* s, int line) : Stmt(line), defs(d), stmts(s) {}
-  ~Block() { delete defs; delete stmts; }
-  std::string to_string() { return "\nBlock:\n--Defs--\n" + defs->to_string() + "\n--Stmts--\n" + stmts->to_string(); }
+  ~Block() { if (defs != nullptr) delete defs; if (stmts != nullptr) delete stmts; }
+  std::string to_string() { return "\nBlock (" + std::to_string(line_num) + "):\n--Defs--\n" + defs->to_string() + "\n--Stmts--\n" + stmts->to_string() + "\n"; }
 
   Def* defs;
   Stmt* stmts;
@@ -37,11 +37,18 @@ class Asgn : public Stmt {
  public:
   Asgn(Expr* a, Expr* e, int line) : Stmt(line), acs(a), expr(e) {}
   ~Asgn() { delete acs; delete expr; } 
-  std::string to_string() { return "assignment: " + acs->to_string() + " := " + expr->op->to_string(); }
+  std::string to_string() { return "assignment: " + acs->to_string() + " := " + expr->to_string(); }
   Expr* acs;
   Expr* expr;
 };
 
+class Write : public Stmt {
+ public:
+  Write(Expr* e, int line) : Stmt(line), expr(e) {}
+  ~Write() { delete expr; } 
+  std::string to_string() { return "write: " + expr->to_string(); }
+  Expr* expr;
+};
 // if, loop, assign, write, skip
 // condition?
 // array assignment

@@ -15,7 +15,7 @@ class Def : public AstNode {
 class VarDef : public Def {
  public:
   VarDef(Id* i, int line) : Def(line), id(i) {} 
-  virtual ~VarDef() {}  // Probably need to be responsible for deleteing ID's eventually
+  virtual ~VarDef() { delete id; }
   virtual std::string to_string() { return "Var: " + id->to_string(); }
 
   Id* id;
