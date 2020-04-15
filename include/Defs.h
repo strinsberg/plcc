@@ -9,7 +9,7 @@ class Def : public AstNode {
  public:
   Def(int line) : AstNode(line) {} 
   virtual ~Def() {}  // Probably need to be responsible for deleteing ID's eventually
-  virtual std::string to_string() { return "def: " + std::to_string(line_num); }
+  virtual std::string to_string() { return "EMPTY DEF: " + std::to_string(line_num); }
 };
 
 class VarDef : public Def {

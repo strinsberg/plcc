@@ -169,7 +169,7 @@ void Actions::loop(int line) {
 }
 
 void Actions::empty(int line) {
-
+  stmts.push_back( new Stmt(line) );
 }
 
 void Actions::condition(int num_stmts, int line) {
@@ -261,7 +261,7 @@ void Actions::print_table() {
 
 
 // Helpers ////////////////////////////////////////////////////////////
-
+// These could return empty objects if the stack is empty
 Token* Actions::next_token() {
   Token* next = tokens.back();
   tokens.pop_back();

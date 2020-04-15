@@ -92,7 +92,7 @@ conditions: conditions ELIF condition { $$ = $1 + 1; printf("conditions\n"); }
 condition: expr DO stmt_part { actions.condition($3, line); printf("condition -> do\n"); }
   ;
 
-empty_stmt: SKIP { printf("empty_stmt\n"); }
+empty_stmt: SKIP { actions.empty(line); printf("empty_stmt\n"); }
   ;
 
 block_stmt: block { printf("block_stmt\n"); }

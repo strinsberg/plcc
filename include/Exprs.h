@@ -6,7 +6,8 @@
 #include "Tokens.h"
 #include <string>
 
-
+// Consider making the base class take nothing but a line
+// so that it can be the explicitly empty expr
 class Expr : public AstNode {
  public:
   Expr(Token* tok, yytokentype t, int line) : AstNode(line), op(tok), type(t) {}

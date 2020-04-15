@@ -11,7 +11,7 @@ class Stmt : public AstNode {
  public:
   Stmt(int line) : AstNode(line) {}
   virtual ~Stmt() {}
-  virtual std::string to_string() { return "stmt: " + std::to_string(line_num); }
+  virtual std::string to_string() { return "EMPTY STMT: " + std::to_string(line_num); }
 };
 
 class Seq : public Stmt {
@@ -77,6 +77,7 @@ class IfStmt : public Stmt {
 
   Stmt* cond;
 };
+
 // if, loop, assign, write, skip
 // condition?
 // array assignment
