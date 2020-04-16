@@ -185,8 +185,8 @@ void Actions::access(symbol::Tag type) {
 
 void Actions::binary() {
   Token* op = stacks.pop_token();
-  Expr* lhs = stacks.pop_expr();
   Expr* rhs = stacks.pop_expr();
+  Expr* lhs = stacks.pop_expr();
 
   stacks.push_expr( new Binary(op, lhs, rhs) ); 
 }
