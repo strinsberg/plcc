@@ -13,6 +13,7 @@ class Constant : public Expr {
   Constant(Token* token, symbol::Tag type);
   virtual ~Constant();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Constant& node);
 };
 
 
@@ -21,6 +22,7 @@ class Id : public Expr {
   Id(Word* word, symbol::Tag type, symbol::Tag kind);
   virtual ~Id();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Id& node);
 
  protected:
   symbol::Tag kind;
@@ -32,6 +34,7 @@ class Access : public Expr {
   Access(Id* id);
   virtual ~Access();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Access& node);
 
  protected:
   Id* id;
@@ -43,6 +46,7 @@ class ArrayAccess : public Access {
   ArrayAccess(Id* id, Expr* index);
   virtual ~ArrayAccess();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const ArrayAccess& node);
 
  protected:
   Expr* index;
@@ -54,6 +58,7 @@ class Binary : public Expr {
   Binary(Token* op, Expr* lhs, Expr* rhs);
   virtual ~Binary();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Binary& node);
 
  protected:
   Expr* lhs;
@@ -66,6 +71,7 @@ class Unary : public Expr {
   Unary(Token* op, Expr* e);
   virtual ~Unary();
   virtual void visit(CodeGen* generator);
+  friend std::ostream& operator<< (std::ostream& out, const Unary& node);
 
  protected:
   Expr* expr;

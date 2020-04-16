@@ -25,6 +25,8 @@ class Expr : public AstNode {
   virtual void visit(CodeGen* generator);
   friend std::ostream& operator<< (std::ostream& out, const Expr& node);
 
+  symbol::Tag get_type() { return type; }
+
  protected:
   Token* token;
   symbol::Tag type;
