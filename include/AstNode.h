@@ -13,6 +13,7 @@ class AstNode {
   AstNode();
   virtual ~AstNode();
   virtual void visit(CodeGen* generator);
+  virtual void display(std::ostream& os) const;
   friend std::ostream& operator<< (std::ostream& out, const AstNode& node);
 };
 
@@ -23,7 +24,7 @@ class Expr : public AstNode {
   Expr(Token* token, symbol::Tag type);
   virtual ~Expr();
   virtual void visit(CodeGen* generator);
-  friend std::ostream& operator<< (std::ostream& out, const Expr& node);
+  virtual void display(std::ostream& os) const;
 
   symbol::Tag get_type() { return type; }
 
@@ -38,7 +39,7 @@ class Def : public AstNode {
   Def();
   virtual ~Def();
   virtual void visit(CodeGen* generator);
-  friend std::ostream& operator<< (std::ostream& out, const Def& node);
+  virtual void display(std::ostream& os) const;
 };
 
 
@@ -47,7 +48,7 @@ class Stmt : public AstNode {
   Stmt();
   virtual ~Stmt();
   virtual void visit(CodeGen* generator);
-  friend std::ostream& operator<< (std::ostream& out, const Stmt& node);
+  virtual void display(std::ostream& os) const;
 };
 
 #endif

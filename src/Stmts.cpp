@@ -17,9 +17,8 @@ void Seq::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Seq& node) {
-  out << node.first << endl << node.rest;
-  return out;
+void Seq::display(ostream& out) const {
+  out << *first << endl << *rest;
 }
 
 
@@ -35,9 +34,11 @@ void Block::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Block& node) {
-  out << node.defs << endl << node.stmts;
-  return out;
+void Block::display(ostream& out) const {
+  out << endl << "BLOCK" << endl;
+  out << "==DEFS==" << endl << *defs << endl << endl;
+  out << "==STMTS==" << endl << *stmts << endl;
+  out << "ENDBLOCK" << endl;
 }
 
 
@@ -53,9 +54,8 @@ void Asgn::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Asgn& node) {
-  out << node.acs << " := " << node.expr << endl;
-  return out;
+void Asgn::display(ostream& out) const {
+  out << *acs << " := " << *expr;
 }
 
 // WRITE //////////////////////////////////////////////////////////////
@@ -69,9 +69,8 @@ void Write::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Write& node) {
-  out << "Write: " << node.expr;
-  return out;
+void Write::display(ostream& out) const {
+  out << "WRITE: " << *expr;
 }
 
 
@@ -87,9 +86,9 @@ void Cond::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Cond& node) {
-  out << "cond:" << endl << node.cond << endl << node.stmts << endl << "ENDCOND";
-  return out;
+void Cond::display(ostream& out) const {
+  out << "++COND++" << endl << *cond << endl;
+  out << *stmts << endl << "++ENDCOND++";
 }
 
 
@@ -104,9 +103,8 @@ void Loop::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Loop& node) {
-  out << "loop:" << endl << node.cond << endl << "ENDLOOP";
-  return out;
+void Loop::display(ostream& out) const {
+  out << "**LOOP**" << endl << *cond << endl << "**ENDLOOP**";
 }
 
 
@@ -121,7 +119,6 @@ void IfStmt::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const IfStmt& node) {
-  out << "if:" << endl << node.conds << endl << "ENDIF";
-  return out;
+void IfStmt::display(ostream& out) const {
+  out << "--IF--" << endl << *conds << endl << "--ENDIF--";
 }

@@ -89,18 +89,18 @@ void AstStacks::print_nodes() {
   cout << endl;
   cout << "=== Definition Nodes: " << defs.size() << " ===" << endl;
   for (auto & d : defs) {
-    cout << d << endl;
+    cout << *d << endl;
   }
 
   cout << endl;
   cout << "=== Statment Nodes: "<< stmts.size() << " ===" << endl;
   for (auto & s : stmts) {
-    cout << s << endl;
+    cout << *s << endl;
   }
 
   cout << endl;
   cout << "=== Expression Nodes: " << exprs.size() << " ===" << endl;
   for (auto & e : exprs) {
-    cout << e << endl;
+    cout << *e << endl;
   }
 }

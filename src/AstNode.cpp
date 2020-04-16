@@ -11,8 +11,12 @@ void AstNode::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
+void AstNode::display(ostream& out) const {
+  out << "Ast Node";
+}
+
 std::ostream& operator<< (std::ostream& out, const AstNode& node) {
-  out << "Ast Node" << endl;
+  node.display(out);
   return out;
 }
 
@@ -30,10 +34,9 @@ void Expr::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Expr& node) {
-  out << node.token->to_string() << " (" << symbol::to_string.at(node.type);
+void Expr::display(ostream& out) const {
+  out << token->to_string() << "(" << symbol::to_string.at(type);
   out << ")";
-  return out;
 }
 
 
@@ -46,10 +49,10 @@ void Def::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Def& node) {
+void Def::display(ostream& out) const {
   out << "Def Node";
-  return out;
 }
+
 
 // STMT ///////////////////////////////////////////////////////////////
 Stmt::Stmt() {}
@@ -60,7 +63,6 @@ void Stmt::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Stmt& node) {
+void Stmt::display(ostream& out) const {
   out << "Stmt Node";
-  return out;
 }

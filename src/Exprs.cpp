@@ -14,9 +14,8 @@ void Constant::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Constant& node) {
-  out << node;  // Use the Parent's?
-  return out;
+void Constant::display(ostream& out) const {
+  Expr::display(out);
 }
 
 
@@ -30,9 +29,9 @@ void Id::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Id& node) {
-  out << node << "(" << symbol::to_string.at(node.kind) << ")";
-  return out;
+void Id::display(ostream& out) const {
+  Expr::display(out);
+  out << "(" << symbol::to_string.at(kind) << ")";
 }
 
 
@@ -47,9 +46,8 @@ void Access::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Access& node) {
-  out << node << "(access)";
-  return out;
+void Access::display(ostream& out) const {
+  out << *id << "(access)";
 }
 
 
@@ -64,9 +62,8 @@ void ArrayAccess::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const ArrayAccess& node) {
-  out << node << "[" << node.index << "]";
-  return out;
+void ArrayAccess::display(ostream& out) const {
+  out << *id << "[" << *index << "]";
 }
 
 
@@ -83,9 +80,8 @@ void Binary::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Binary& node) {
-  out << node;
-  return out;
+void Binary::display(ostream& out) const {
+  out << *lhs << " ## " << token->to_string() << " ## " << *rhs;
 }
 
 
@@ -100,8 +96,7 @@ void Unary::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const Unary& node) {
-  out << node;
-  return out;
+void Unary::display(ostream& out) const {
+  out << token->to_string() << " ++ " << *expr;
 }
 

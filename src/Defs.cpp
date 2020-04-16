@@ -15,9 +15,8 @@ void VarDef::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const VarDef& node) {
-  out << "Var: " << node.id;
-  return out;
+void VarDef::display(std::ostream& out) const {
+  out << *id;
 }
 
 
@@ -33,7 +32,6 @@ void DefSeq::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-std::ostream& operator<< (std::ostream& out, const DefSeq& node) {
-  out << node.first << endl << node.rest;
-  return out;
+void DefSeq::display(std::ostream& out) const {
+  out << *first << endl << *rest;
 }

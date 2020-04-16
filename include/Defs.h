@@ -12,7 +12,7 @@ class VarDef : public Def {
   VarDef(Id* i);
   virtual ~VarDef();
   virtual void visit(CodeGen* generator);
-  friend std::ostream& operator<< (std::ostream& out, const VarDef& node);
+  virtual void display(std::ostream& os) const;
 
  protected:
   Id* id;
@@ -24,7 +24,7 @@ class DefSeq : public Def {
   DefSeq(Def* first, Def* rest);
   virtual ~DefSeq();
   virtual void visit(CodeGen* generator);
-  friend std::ostream& operator<< (std::ostream& out, const DefSeq& node);
+  virtual void display(std::ostream& os) const;
 
  protected:
   Def* first;
