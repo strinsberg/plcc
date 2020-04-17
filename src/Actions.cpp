@@ -28,6 +28,16 @@ void Actions::new_op(symbol::Tag op, symbol::Tag type) {
   stacks.set_op( Operator(op, t) );
 };
 
+void Actions::name(string n) {
+  Id* id = table.get(n);
+  if (id == nullptr) {
+    admin->error("'" + n + "' is undeclared");
+    id = new Id(n, Type());
+  }
+
+  stacks.push_expr(id);
+}
+
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::new_token(symbol::Tag tag, string lexeme) {

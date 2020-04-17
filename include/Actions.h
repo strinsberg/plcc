@@ -19,6 +19,7 @@ class Actions {
 
   void new_type(symbol::Tag);
   void new_op(symbol::Tag, symbol::Tag);
+  void name(std::string);
 
   // definition actions
   void new_token(symbol::Tag tag, std::string lexeme="");

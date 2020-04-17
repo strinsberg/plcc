@@ -29,7 +29,10 @@ void Constant::display(ostream& out) const {
 
 // Id /////////////////////////////////////////////////////////////////
 Id::Id(Word* w, Type type)
-    : Expr(type), word(w) {}
+    : Expr(type), word(w), lexeme(w->to_string()) {}
+
+Id::Id(string l, Type type)
+    : Expr(type), word(new Word(l)), lexeme(l) {}
 
 Id::~Id() {
   delete word;

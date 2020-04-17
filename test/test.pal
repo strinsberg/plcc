@@ -1,10 +1,4 @@
 begin
   int x;
-
-  proc mine
-    int y;
-    write x;
-  end proc;
-
   call x;
 end.
