@@ -19,7 +19,13 @@ void Constant::visit(CodeGen* generator) {
 }
 
 void Constant::display(ostream& out) const {
-  Expr::display(out);
+  if (type.type == symbol::FLOAT)
+    out << dec;
+  else if (type.type == symbol::CHAR)
+    out << (char)value;
+  else
+    out << value;
+  out << "(" << symbol::to_string.at(type.type) << ")";
 }
 
 
