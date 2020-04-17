@@ -44,7 +44,7 @@ class Actions {
   void access(symbol::Tag type);
   void binary();
   void unary(symbol::Tag t);
-  void constant(symbol::Tag t, int val = 0, int dec = 0);
+  void constant(symbol::Tag t, int val = 0, double dec = 0.0);
 
   // helpers
   void display();

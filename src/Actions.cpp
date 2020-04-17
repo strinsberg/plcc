@@ -266,26 +266,43 @@ void Actions::unary(symbol::Tag t) {
   stacks.push_expr( new Unary(op, expr) );
 }
 
-void Actions::constant(symbol::Tag tag, int val, int dec) {
+void Actions::constant(symbol::Tag tag, int val, double dec) {
   admin->debug("constant: " + symbol::to_string.at(tag) + " " + std::to_string(val)); 
+  Expr* con;
+  Type t;
+  t.type = tag;
+
   Token* tok;
   symbol::Tag type;
 
   if (tag == symbol::TRUE or tag == symbol::FALSE) {
+    t.type = symbol::BOOL;
+    t.qual = symbol::CONST;
+    con = new Constant(t, val, dec);
+
     tok = new Token(tag);
     type = symbol::BOOL;
   } else if (tag == symbol::INT) {
+    t.qual = symbol::CONST;
+    con = new Constant(t, val, dec);
+
     tok = new Number(val);
     type = symbol::INT;
   } else if (tag == symbol::FLOAT) {
+    t.qual = symbol::CONST;
+    con = new Constant(t, val, dec);
+
     tok = new Float(val, dec);
     type = symbol::FLOAT;
   } else if (tag == symbol::CHAR) {
+    t.qual = symbol::CONST;
+    con = new Constant(t, val, dec);
+
     tok = new Char(val);
     type = symbol::CHAR;
   } else {
     access(symbol::CONST);
-    
+    // need to check for const here or in access somehow
     return;
   }
 
