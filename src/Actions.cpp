@@ -2,6 +2,7 @@
 #include "Admin.h"
 #include "AstStacks.h"
 #include "Symbol.h"
+#include "exceptions.h"
 #include <string>
 #include <iostream>
 
@@ -233,7 +234,15 @@ void Actions::binary() {
   Expr* rhs = stacks.pop_expr();
   Expr* lhs = stacks.pop_expr();
 
-  stacks.push_expr( new Binary(op, lhs, rhs) ); 
+  string op_str = op->to_string();
+  Expr* bin = new Expr(symbol::EMPTY);
+  try {
+    bin = new Binary(op, lhs, rhs);
+  } catch ( const type_error & e ) {
+    admin->error("type error: " + string(e.what()), op_str);
+  }
+
+  stacks.push_expr( bin ); 
 }
 
 void Actions::unary(symbol::Tag t) {

@@ -1,5 +1,5 @@
 begin
   const int x = 20;
   int array[x] A;
-  write 5;
+  write 5 + 10.0;
 end.

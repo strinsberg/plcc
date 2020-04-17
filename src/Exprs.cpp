@@ -1,6 +1,7 @@
 #include "Exprs.h"
 #include "Tokens.h"
 #include "Symbol.h"
+#include "exceptions.h"
 #include <iostream>
 using namespace std;
 
@@ -70,7 +71,12 @@ void ArrayAccess::display(ostream& out) const {
 
 // Binary /////////////////////////////////////////////////////////////
 Binary::Binary(Token* op, Expr* l, Expr* r)
-    : Expr(op, l->get_type()), lhs(l), rhs(r) {}
+    : Expr(op, l->get_type()), lhs(l), rhs(r) {
+  if (lhs->get_type() != rhs->get_type())
+    throw type_error("type mismatch for binary operator");
+  // can also add a check to make sure type of the operator is
+  // valid for the types of the expressions. Ie < need 2 bool.
+}
 
 Binary::~Binary() {
   delete lhs;
@@ -87,7 +93,9 @@ void Binary::display(ostream& out) const {
 
 
 // Unary //////////////////////////////////////////////////////////////
-Unary::Unary(Token* op, Expr* e) : Expr(op, e->get_type()), expr(e) {}
+Unary::Unary(Token* op, Expr* e) : Expr(op, e->get_type()), expr(e) {
+  // check that type of operator matches expr
+}
 
 Unary::~Unary() {
   delete expr;

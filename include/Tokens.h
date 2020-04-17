@@ -5,6 +5,7 @@
 #include <string>
 
 
+// Get rid of all token classes in favour of types, operators, and constant exprs
 class Token {
  public:
   Token(symbol::Tag t) : tag(t) {}
@@ -48,6 +49,14 @@ class Char : public Token {
   virtual ~Char() {}
   virtual std::string to_string() { return std::string(1, value); }
   char value;
+};
+
+class Type {
+  // should have 3 tags. one for type, kind, and qualifier
+};
+
+class Operator {
+  // should have a type so that it can be used to match types
 };
 
 #endif
