@@ -60,10 +60,8 @@ void Actions::array_def(int vars) {
 
 void Actions::var_def(symbol::Tag kind, int vars) {
   admin->debug("var def: " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
-  Token* type = stacks.get_token(vars);  // Use get_token() to access below the top
-  add_vars(type->tag, kind, vars);
-  type = stacks.pop_token();  // Now type is top of stack
-  delete type;
+  Type type = stacks.get_type();
+  add_vars(type, kind, vars);
 }
 
 
@@ -74,15 +72,17 @@ void Actions::proc_def() {
 }
 
 
-void Actions::add_vars(symbol::Tag type, symbol::Tag kind, int vars) {
-  admin->debug("add vars: " + symbol::to_string.at(type) + " " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
+void Actions::add_vars(Type type, symbol::Tag kind, int vars) {
+  admin->debug("add vars: " + symbol::str(type.type) + " " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
+  type.kind = kind;
+
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     Token* name = stacks.pop_token();
     string lexeme = name->to_string();
     Word* w = new Word(lexeme);
 
-    auto id = new Id(w, type, kind);
+    auto id = new Id(w, type);
     bool added = table.put(lexeme, id);
 
     if (!added) {
@@ -239,24 +239,23 @@ void Actions::access(symbol::Tag kind) {
 
 void Actions::binary() {
   admin->debug("binary");
-  Token* op = stacks.pop_token();
+  Operator op = stacks.get_op();
   auto rhs = stacks.pop_expr();
   auto lhs = stacks.pop_expr();
 
-  string op_str = op->to_string();
-  auto bin = new Expr(symbol::EMPTY);
+  auto bin = new Expr(Type());
   try {
     bin = new Binary(op, lhs, rhs);
   } catch ( const type_error & e ) {
-    admin->error("type error: " + string(e.what()), op_str);
+    admin->error("type error: " + string(e.what()), symbol::str(op.op));
   }
 
   stacks.push_expr( bin ); 
 }
 
-void Actions::unary(symbol::Tag t) {
-  admin->debug("unary: " + symbol::to_string.at(t));
-  Token* op = new Token(t);
+void Actions::unary() {
+  admin->debug("unary");
+  Operator op = stacks.get_op();
   auto expr = stacks.pop_expr();
 
   // Catch a type error for using mismatched operators and expressions

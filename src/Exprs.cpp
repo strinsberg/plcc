@@ -42,7 +42,7 @@ void Id::visit(CodeGen* generator) {
 void Id::display(ostream& out) const {
   out << word->to_string();
   Expr::display(out);
-  out << "(" << symbol::to_string.at(kind) << ")";
+  out << "(" << symbol::str(type.kind) << ")";
 }
 
 
@@ -82,7 +82,9 @@ void ArrayAccess::display(ostream& out) const {
 // Binary /////////////////////////////////////////////////////////////
 Binary::Binary(Operator o, Expr* l, Expr* r)
     : Expr(l->get_type()), op(o), lhs(l), rhs(r) {
-  if (lhs->get_type() != rhs->get_type())
+  if (lhs->get_type() == rhs->get_type())
+    1 + 1;
+  else
     throw type_error("type mismatch for binary operator");
   // can also add a check to make sure type of the operator is
   // valid for the types of the expressions. Ie < need 2 bool.

@@ -27,7 +27,7 @@ class Actions {
   void array_def(int vars);
   void proc_def();
   void def_part(int num_defs);
-  void add_vars(symbol::Tag type, symbol::Tag kind, int vars);
+  void add_vars(Type type, symbol::Tag kind, int vars);
 
   // stmt actions
   void block(int num_defs, int num_stmts);
@@ -43,7 +43,7 @@ class Actions {
   // expr actions
   void access(symbol::Tag type);
   void binary();
-  void unary(symbol::Tag t);
+  void unary();
   void constant(symbol::Tag t, int val = 0, double dec = 0.0);
 
   // helpers

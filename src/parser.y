@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Actions.h"
 #include "Symbol.h"
+#include "Tokens.h"
 
 extern char* yytext;
 extern "C" int yylex(void);
@@ -59,7 +60,7 @@ v_prime: var_list { actions->var_def(symbol::SCALAR, $$); }
   | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); }
   ;
 
-proc_def: PROC name { actions->add_vars(symbol::EMPTY, symbol::PROC, 1); }
+proc_def: PROC name { actions->add_vars(Type(), symbol::PROC, 1); }
           bprime ENDPROC { actions->proc_def(); }
   ;
 
@@ -132,7 +133,7 @@ simple_expr: simple_expr add_op t_prime { actions->binary(); }
   ;
 
 /* pop top and return unary with minus if first rule */
-t_prime: MINUS term { actions->unary(symbol::MINUS); }
+t_prime: MINUS term { actions->new_op(symbol::MINUS, symbol::NUMERIC), actions->unary(); }
   | term
   ;
 
@@ -147,7 +148,7 @@ factor: number
   | bool_sym 
   | var_access 
   | LHRND expr RHRND
-  | NOT factor { actions->unary(symbol::NOT); }
+  | NOT factor { actions->new_op(symbol::NOT, symbol::BOOL); actions->unary(); }
   ;
 
 

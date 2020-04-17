@@ -70,7 +70,7 @@ Expr* AstStacks::pop_expr() {
     exprs.pop_back();
     return next;
   }
-  return new Expr(symbol::EMPTY);
+  return new Expr(Type());
 }
 
 Stmt* AstStacks::pop_stmt() {
