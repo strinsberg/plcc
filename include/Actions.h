@@ -29,7 +29,7 @@ class Actions {
   // stmt actions
   void block(int num_defs, int num_stmts);
   void stmt_part(int num_stmts);
-  void write(int num_expr);
+  void io(int num_expr, symbol::Tag);
   void assign(int vars, int exprs);
   void if_stmt(int num_cond);
   void loop();

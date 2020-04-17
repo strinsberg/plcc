@@ -81,7 +81,7 @@ stmt: write_stmt { printf("stmt -> write\n"); }
   | read_stmt { printf("stmt -> read\n"); }
   ;
 
-write_stmt: WRITE expr_list { actions->write($2); printf("write_stmt\n"); }
+write_stmt: WRITE expr_list { actions->io($2, symbol::WRITE); printf("write_stmt\n"); }
   ;
 
 asn_stmt: var_access_list ASGN expr_list { actions->assign($1, $3); printf("assignment_stmt\n"); }
@@ -109,7 +109,7 @@ block_stmt: block { printf("block_stmt\n"); }
 proc_stmt: CALL name { actions->proc_stmt(); printf("proc call\n"); }
   ;
 
-read_stmt: READ expr_list { actions->write($2); printf("read_stmt\n"); }
+read_stmt: READ expr_list { actions->io($2, symbol::READ); printf("read_stmt\n"); }
   ;
 
 /* Expressions - All are going to be passing out nodes */

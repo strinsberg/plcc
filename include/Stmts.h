@@ -4,6 +4,7 @@
 #include "AstNode.h"
 #include "Exprs.h"
 #include "CodeGen.h"
+#include "Symbol.h"
 #include <string>
 
 
@@ -46,15 +47,16 @@ class Asgn : public Stmt {
 };
 
 
-class Write : public Stmt {
+class IoStmt : public Stmt {
  public:
-  Write(Expr* expr);
-  virtual ~Write();
+  IoStmt(Expr* expr, symbol::Tag type);
+  virtual ~IoStmt();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
   Expr* expr;
+  symbol::Tag type;
 };
 
 

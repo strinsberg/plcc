@@ -105,10 +105,10 @@ void Actions::stmt_part(int num_stmts) {
   stacks.push_stmt(stmt);
 }
 
-void Actions::write(int num_expr) {
-  Stmt* stmt = new Write(stacks.pop_expr());
+void Actions::io(int num_expr, symbol::Tag type) {
+  Stmt* stmt = new IoStmt(stacks.pop_expr(), type);
   for (int i = 0; i < num_expr - 1; i++) {  
-    stmt = new Seq( new Write(stacks.pop_expr()), stmt );
+    stmt = new Seq( new IoStmt(stacks.pop_expr(), type), stmt );
   }
   stacks.push_stmt(stmt);
 }

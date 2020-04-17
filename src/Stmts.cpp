@@ -59,18 +59,18 @@ void Asgn::display(ostream& out) const {
 }
 
 // WRITE //////////////////////////////////////////////////////////////
-Write::Write(Expr* e) : Stmt(), expr(e) {}
+IoStmt::IoStmt(Expr* e, symbol::Tag t) : Stmt(), expr(e), type(t) {}
 
-Write::~Write() {
+IoStmt::~IoStmt() {
   delete expr;
 }
 
-void Write::visit(CodeGen* generator) {
+void IoStmt::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-void Write::display(ostream& out) const {
-  out << "WRITE: " << *expr;
+void IoStmt::display(ostream& out) const {
+  out << symbol::to_string.at(type) << ": " << *expr;
 }
 
 
