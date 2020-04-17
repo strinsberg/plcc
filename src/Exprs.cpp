@@ -39,7 +39,7 @@ void Id::display(ostream& out) const {
 Access::Access(Id* i) : Expr( i->get_type() ) , id(i) {}
 
 Access::~Access() {
-  delete id;
+  // A definition owns the id so do not delete it!
 }
 
 void Access::visit(CodeGen* generator) {
@@ -55,7 +55,8 @@ void Access::display(ostream& out) const {
 ArrayAccess::ArrayAccess(Id* i, Expr* idx) : Access(i), index(idx) {}
 
 ArrayAccess::~ArrayAccess() {
-  delete index;
+  // do not delete the index if it is an id
+  //delete index;
 }
 
 void ArrayAccess::visit(CodeGen* generator) {

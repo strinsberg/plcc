@@ -260,7 +260,7 @@ void Actions::constant(symbol::Tag tag, int val, int dec) {
     type = symbol::CHAR;
   } else {
     access(symbol::CONST);
-    // Should check for const in here
+    
     return;
   }
 
