@@ -13,6 +13,18 @@ Actions::Actions(Admin* a) : admin(a) {};
 Actions::~Actions() {
 }
 
+// Type and Op ///////////////////////////////////////////////////
+void Actions::new_type(symbol::Tag type) {
+  Type t;
+  t.type = type;
+  stacks.set_type(t);
+};
+
+void Actions::new_op(symbol::Tag op, symbol::Tag type) {
+  Type t;
+  t.type = type;
+  stacks.set_op( Operator(op, t) );
+};
 
 // Definitions ///////////////////////////////////////////////////
 

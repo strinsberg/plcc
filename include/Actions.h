@@ -17,6 +17,9 @@ class Actions {
   AstNode* ast() { return stacks.pop_stmt(); }
   Admin* get_admin() {return admin; }
 
+  void new_type(symbol::Tag);
+  void new_op(symbol::Tag, symbol::Tag);
+
   // definition actions
   void new_token(symbol::Tag tag, std::string lexeme="");
   void const_def();
