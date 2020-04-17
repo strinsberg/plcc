@@ -23,8 +23,7 @@ void Actions::new_type(symbol::Tag type) {
 
 void Actions::new_op(symbol::Tag op, symbol::Tag type) {
   admin->debug("op: " + symbol::str(op));
-  Type t;
-  t.type = type;
+  Type t(type, symbol::OPERATOR, symbol::UNIVERSAL);
   stacks.set_op( Operator(op, t) );
 };
 

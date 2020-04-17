@@ -165,7 +165,7 @@ var_access: name selector { actions->access((symbol::Tag)$2); }
   ;
 
 selector: LHSQR expr RHSQR { $$ = (int)symbol::ARRAY; actions->get_admin()->debug("selector -> array access"); }
-  | /* epsilon */ { $$ = int(symbol::SCALAR); }
+  | /* epsilon */ { $$ = (int)symbol::SCALAR; }
   ;
 
 
@@ -176,19 +176,19 @@ prim_op: AND { actions->new_op(symbol::AND, symbol::BOOL); }
 
 rel_op: EQ { actions->new_op(symbol::EQ, symbol::UNIVERSAL); }
   | NEQ { actions->new_op(symbol::NEQ, symbol::UNIVERSAL); }
-  | LESS { actions->new_op(symbol::LESS, symbol::UNIVERSAL); }
-  | GREATER { actions->new_op(symbol::GREATER, symbol::UNIVERSAL); }
-  | LEQ { actions->new_op(symbol::LEQ, symbol::UNIVERSAL); }
-  | GEQ { actions->new_op(symbol::GEQ, symbol::UNIVERSAL); }
+  | LESS { actions->new_op(symbol::LESS, symbol::NUMBER); }
+  | GREATER { actions->new_op(symbol::GREATER, symbol::NUMBER); }
+  | LEQ { actions->new_op(symbol::LEQ, symbol::NUMBER); }
+  | GEQ { actions->new_op(symbol::GEQ, symbol::NUMBER); }
   ;
 
-add_op: PLUS { actions->new_op(symbol::PLUS, symbol::UNIVERSAL); }
-  | MINUS { actions->new_op(symbol::MINUS, symbol::UNIVERSAL); }
+add_op: PLUS { actions->new_op(symbol::PLUS, symbol::NUMBER); }
+  | MINUS { actions->new_op(symbol::MINUS, symbol::NUMBER); }
   ;
 
-mult_op: MULT { actions->new_op(symbol::MULT, symbol::UNIVERSAL); }
-  | DIV { actions->new_op(symbol::DIV, symbol::UNIVERSAL); }
-  | MOD { actions->new_op(symbol::MOD, symbol::UNIVERSAL); }
+mult_op: MULT { actions->new_op(symbol::MULT, symbol::NUMBER); }
+  | DIV { actions->new_op(symbol::DIV, symbol::NUMBER); }
+  | MOD { actions->new_op(symbol::MOD, symbol::INT); }
   ;
 
 
