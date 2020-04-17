@@ -210,8 +210,8 @@ number: NUMBER DOT NUMBER { actions->constant(symbol::FLOAT, $1, $3); }
   | NUMBER { actions->constant(symbol::INT, $1); }
   ;
 
-bool_sym: TRUE { actions->constant(symbol::TRUE); }
-  | FALSE { actions->constant(symbol::FALSE); }
+bool_sym: TRUE { actions->constant(symbol::TRUE, 1); }
+  | FALSE { actions->constant(symbol::FALSE, 0); }
   ;
 
 name: NAME { actions->name(std::string(yytext));

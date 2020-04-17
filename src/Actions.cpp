@@ -52,8 +52,8 @@ void Actions::const_def() {
 
 void Actions::array_def(int vars) {
   admin->debug("array def: " + std::to_string(vars)); 
-  auto size = stacks.pop_expr();  // Still unused?
   var_def(symbol::ARRAY, vars);
+  auto size = stacks.pop_expr();  // Under the names, should get it in the add_vars
   delete size;
 }
 
@@ -208,6 +208,14 @@ void Actions::condition(int num_stmts) {
 
 void Actions::access(symbol::Tag kind) {
   admin->debug("access: " + symbol::to_string.at(kind));
+  Expr* idx;
+  if (kind == symbol::ARRAY)
+    idx = stacks.pop_expr();
+
+  // Would be nice to put this into a function and return something
+  // It is used in different places and would make it easier to split this into
+  // access and array access now that the idx has to come before the name.
+  // and when record types are needed it will be needed there too.
   auto name = stacks.pop_expr();
   auto id = table.get(name->get_name());
 
@@ -220,7 +228,6 @@ void Actions::access(symbol::Tag kind) {
 
   Access* acs = nullptr;
   if (kind == symbol::ARRAY) {
-    auto idx = stacks.pop_expr();
     acs = new ArrayAccess(id, idx);  // Can do type check on index
   } else {
     acs = new Access(id);
@@ -241,11 +248,11 @@ void Actions::binary() {
   auto bin = new Expr(Type());
   try {
     bin = new Binary(op, lhs, rhs);
-  } catch ( const type_error & e ) {
+  } catch (const type_error& e) {
     admin->error("type error: " + string(e.what()), symbol::str(op.op));
   }
 
-  stacks.push_expr( bin ); 
+  stacks.push_expr(bin); 
 }
 
 void Actions::unary() {
@@ -253,8 +260,14 @@ void Actions::unary() {
   Operator op = stacks.pop_op();
   auto expr = stacks.pop_expr();
 
-  // Catch a type error for using mismatched operators and expressions
-  stacks.push_expr( new Unary(op, expr) );
+  auto un = new Expr(Type());
+  try {
+    un = new Unary(op, expr);
+  } catch (const type_error& e) {
+    admin->error("type error: " + string(e.what()), symbol::str(op.op));
+  }
+
+  stacks.push_expr(un);
 }
 
 void Actions::constant(symbol::Tag tag, int val, double dec) {
