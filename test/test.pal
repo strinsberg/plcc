@@ -1,5 +1,5 @@
 begin
   int x, y, z;
-  write -x * (-z);
+  write x * z + - y / z + x - y * z;
   write true == not false;
 end.

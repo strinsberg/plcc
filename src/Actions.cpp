@@ -24,7 +24,7 @@ void Actions::new_type(symbol::Tag type) {
 void Actions::new_op(symbol::Tag op, symbol::Tag type) {
   admin->debug("op: " + symbol::str(op));
   Type t(type, symbol::OPERATOR, symbol::UNIVERSAL);
-  stacks.set_op( Operator(op, t) );
+  stacks.push_op( Operator(op, t) );
 };
 
 void Actions::name(string n) {
@@ -234,7 +234,7 @@ void Actions::access(symbol::Tag kind) {
 
 void Actions::binary() {
   admin->debug("binary");
-  Operator op = stacks.get_op();
+  Operator op = stacks.pop_op();
   auto rhs = stacks.pop_expr();
   auto lhs = stacks.pop_expr();
 
@@ -250,7 +250,7 @@ void Actions::binary() {
 
 void Actions::unary() {
   admin->debug("unary");
-  Operator op = stacks.get_op();
+  Operator op = stacks.pop_op();
   auto expr = stacks.pop_expr();
 
   // Catch a type error for using mismatched operators and expressions

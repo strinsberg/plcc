@@ -17,25 +17,25 @@ AstStacks::~AstStacks() {
 }
 
 
-// Type and Op ////////////////////////////////////////////////////////
+// Type ///////////////////////////////////////////////////////////////
 void AstStacks::set_type(Type t) {
   type = t;
-}
-
-void AstStacks::set_op(Operator o) {
-  op = o;
 }
 
 Type AstStacks::get_type() {
   return type;
 }
 
-Operator AstStacks::get_op() {
-  return op;
-}
-
 
 // Pop Nodes /////////////////////////////////////////////////////////
+Operator AstStacks::pop_op() {
+  if (ops.size() > 0) {
+    Operator next = ops.back();
+    ops.pop_back();
+    return next;
+  }
+  return Operator();
+}
 
 Expr* AstStacks::pop_expr() {
   if (exprs.size() > 0) {
@@ -70,8 +70,13 @@ Def* AstStacks::pop_def() {
 void AstStacks::print_nodes() {
   cout << endl;
   cout << "=================== STACKS ========================" << endl;
-  cout << "Type:     " << symbol::str(type.type) << endl;
-  cout << "Operator: " << symbol::str(op.op) << endl;
+  cout << "Last Type:     " << symbol::str(type.type) << endl;
+
+  cout << endl;
+  cout << "=== Operator Nodes: " << defs.size() << " ===" << endl;
+  for (auto & o : ops) {
+    cout << symbol::str(o.op) << endl;
+  }
 
   cout << endl;
   cout << "=== Definition Nodes: " << defs.size() << " ===" << endl;
