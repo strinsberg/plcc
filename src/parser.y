@@ -133,7 +133,7 @@ simple_expr: simple_expr add_op t_prime { actions->binary(); }
   ;
 
 /* pop top and return unary with minus if first rule */
-t_prime: MINUS term { actions->new_op(symbol::MINUS, symbol::NUMERIC), actions->unary(); }
+t_prime: MINUS term { actions->new_op(symbol::MINUS, symbol::NUMBER), actions->unary(); }
   | term
   ;
 

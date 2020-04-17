@@ -82,9 +82,7 @@ void ArrayAccess::display(ostream& out) const {
 // Binary /////////////////////////////////////////////////////////////
 Binary::Binary(Operator o, Expr* l, Expr* r)
     : Expr(l->get_type()), op(o), lhs(l), rhs(r) {
-  if (lhs->get_type() == rhs->get_type())
-    1 + 1;
-  else
+  if (!(lhs->get_type() == rhs->get_type()))
     throw type_error("type mismatch for binary operator");
   // can also add a check to make sure type of the operator is
   // valid for the types of the expressions. Ie < need 2 bool.
@@ -118,6 +116,6 @@ void Unary::visit(CodeGen* generator) {
 }
 
 void Unary::display(ostream& out) const {
-  out << symbol::str(op.op) << " ++ " << *expr;
+  out << symbol::str(op.op) << " # " << *expr;
 }
 
