@@ -53,6 +53,9 @@ class Char : public Token {
 
 class Type {
   // should have 3 tags. one for type, kind, and qualifier
+  // will need to have operator== overloaded so that types can easily be
+  // compared. Also will need to have some tags for types that mean
+  // anything is allowed. Perhaps use a universal instead of empty.
 };
 
 class Operator {

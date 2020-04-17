@@ -25,7 +25,7 @@ void Actions::new_token(symbol::Tag tag, string lexeme) {
 
 void Actions::def_part(int num_defs) {
   admin->debug("def part: " + std::to_string(num_defs)); 
-  Def* def = stacks.pop_def();
+  auto def = stacks.pop_def();
   for (int i = 0; i < num_defs - 1; i++ ) {
     def = new DefSeq( stacks.pop_def(), def);
   }
@@ -34,14 +34,14 @@ void Actions::def_part(int num_defs) {
 
 void Actions::const_def() {
   admin->debug("const def");
-  Expr* value = stacks.pop_expr();  // Still unused?
+  auto value = stacks.pop_expr();  // Still unused?
   var_def(symbol::CONST, 1);
   delete value;
 }
 
 void Actions::array_def(int vars) {
   admin->debug("array def: " + std::to_string(vars)); 
-  Expr* size = stacks.pop_expr();  // Still unused?
+  auto size = stacks.pop_expr();  // Still unused?
   if (!size->check_type(symbol::INT))
     admin->error("array size must be int");  
 
@@ -60,7 +60,7 @@ void Actions::var_def(symbol::Tag kind, int vars) {
 
 void Actions::proc_def() {
   admin->debug("proc def");
-  Def* name = stacks.pop_def();
+  auto name = stacks.pop_def();
   stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
 }
 
@@ -73,14 +73,14 @@ void Actions::add_vars(symbol::Tag type, symbol::Tag kind, int vars) {
     string lexeme = name->to_string();
     Word* w = new Word(lexeme);
 
-    Id* id = new Id(w, type, kind);
+    auto id = new Id(w, type, kind);
     bool added = table.put(lexeme, id);
 
     if (!added) {
       admin->error("'" + lexeme + "' already declared");
       delete id;
     } else {
-      Def* var = new VarDef(id);
+      auto var = new VarDef(id);
       if (def == nullptr)
         def = var;
       else
@@ -108,7 +108,7 @@ void Actions::block(int num_defs, int num_stmts) {
 
 void Actions::stmt_part(int num_stmts) {
   admin->debug("stmt part: " + std::to_string(num_stmts));
-  Stmt* stmt = stacks.pop_stmt();
+  auto stmt = stacks.pop_stmt();
   for (int i = 0; i < num_stmts - 1; i++) {
     stmt = new Seq( stacks.pop_stmt(), stmt ); 
   }
@@ -142,8 +142,8 @@ void Actions::assign(int num_vars, int num_exprs) {
   // pair each access with it's value
   Stmt* stmt = nullptr;
   for (int i = 0; i < num_vars; i++) {
-    Expr* acs = lhs.at(i);
-    Expr* expr = rhs.at(i);
+    auto acs = lhs.at(i);
+    auto expr = rhs.at(i);
 
     Asgn* asgn = new Asgn(acs, expr);  // will do type checking
     if (stmt == nullptr)
@@ -159,7 +159,7 @@ void Actions::assign(int num_vars, int num_exprs) {
 
 void Actions::if_stmt(int num_cond) {
   admin->debug("if: " + std::to_string(num_cond));
-  Stmt* cond = stacks.pop_stmt();
+  auto cond = stacks.pop_stmt();
   for (int i = 0; i < num_cond - 1; i++)
     cond = new Seq(stacks.pop_stmt(), cond);
   stacks.push_stmt( new IfStmt(cond) );
@@ -180,7 +180,7 @@ void Actions::proc_stmt() {
   // this code should probably be in a function
   Token* name = stacks.pop_token();
   string lexeme = name->to_string();
-  Id* id = table.get(lexeme);
+  auto id = table.get(lexeme);
 
   if (id == nullptr) {
     admin->error("'" + lexeme + "' is undeclared");
@@ -193,9 +193,9 @@ void Actions::proc_stmt() {
 
 void Actions::condition(int num_stmts) {
   admin->debug("condition: " + std::to_string(num_stmts));
-  Expr* cond = stacks.pop_expr();
+  auto cond = stacks.pop_expr();
   stmt_part(num_stmts);
-  Stmt* stmt = stacks.pop_stmt();
+  auto stmt = stacks.pop_stmt();
   stacks.push_stmt( new Cond(cond, stmt) );
 }
 
@@ -205,7 +205,7 @@ void Actions::access(symbol::Tag kind) {
   admin->debug("access: " + symbol::to_string.at(kind));
   Token* name = stacks.pop_token();
   string lexeme = name->to_string();
-  Id* id = table.get(lexeme);
+  auto id = table.get(lexeme);
 
   if (id == nullptr) {
     admin->error("'" + lexeme + "' is undeclared");
@@ -215,7 +215,7 @@ void Actions::access(symbol::Tag kind) {
 
   Access* acs = nullptr;
   if (kind == symbol::ARRAY) {
-    Expr* idx = stacks.pop_expr();
+    auto idx = stacks.pop_expr();
     acs = new ArrayAccess(id, idx);  // Can do type check on index
   } else {
     acs = new Access(id);
@@ -231,11 +231,11 @@ void Actions::access(symbol::Tag kind) {
 void Actions::binary() {
   admin->debug("binary");
   Token* op = stacks.pop_token();
-  Expr* rhs = stacks.pop_expr();
-  Expr* lhs = stacks.pop_expr();
+  auto rhs = stacks.pop_expr();
+  auto lhs = stacks.pop_expr();
 
   string op_str = op->to_string();
-  Expr* bin = new Expr(symbol::EMPTY);
+  auto bin = new Expr(symbol::EMPTY);
   try {
     bin = new Binary(op, lhs, rhs);
   } catch ( const type_error & e ) {
@@ -248,8 +248,9 @@ void Actions::binary() {
 void Actions::unary(symbol::Tag t) {
   admin->debug("unary: " + symbol::to_string.at(t));
   Token* op = new Token(t);
-  Expr* expr = stacks.pop_expr();
+  auto expr = stacks.pop_expr();
 
+  // Catch a type error for using mismatched operators and expressions
   stacks.push_expr( new Unary(op, expr) );
 }
 
