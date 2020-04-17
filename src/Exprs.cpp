@@ -1,5 +1,5 @@
 #include "Exprs.h"
-#include "Tokens.h"
+#include "Types.h"
 #include "Symbol.h"
 #include "exceptions.h"
 #include <iostream>
@@ -28,17 +28,12 @@ void Constant::display(ostream& out) const {
 
 
 // Id /////////////////////////////////////////////////////////////////
-Id::Id(Word* w, Type type) : Expr(type), word(w) {
-  name = w->to_string();
-}
 
-Id::Id(string l, Type type) : Expr(type), word(new Word(l)) {
+Id::Id(string l, Type type) : Expr(type) {
   name = l;
 }
 
-Id::~Id() {
-  delete word;
-}
+Id::~Id() {}
 
 void Id::visit(CodeGen* generator) {
   generator->visit(this);

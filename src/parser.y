@@ -4,7 +4,7 @@
 #include <iostream>
 #include "Actions.h"
 #include "Symbol.h"
-#include "Tokens.h"
+#include "Types.h"
 
 extern char* yytext;
 extern "C" int yylex(void);

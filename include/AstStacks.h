@@ -2,7 +2,7 @@
 #define PLCC_AST_STACKS_H
 
 #include "Symbol.h"
-#include "Tokens.h"
+#include "Types.h"
 #include "Exprs.h"
 #include "Stmts.h"
 #include "Defs.h"

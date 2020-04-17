@@ -4,7 +4,7 @@
 #include "AstNode.h"
 #include "CodeGen.h"
 #include "Symbol.h"
-#include "Tokens.h"
+#include "Types.h"
 #include <string>
 
 
@@ -23,14 +23,10 @@ class Constant : public Expr {
 
 class Id : public Expr {
  public:
-  Id(Word* word, Type type);
   Id(std::string lexeme, Type type);
   virtual ~Id();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
-
- protected:
-  Word* word;
 };
 
 

@@ -2,7 +2,7 @@
 #define PLCC_AST_NODE_H
 
 #include "Symbol.h"
-#include "Tokens.h"
+#include "Types.h"
 #include "CodeGen.h"
 #include <string>
 #include <iostream>
