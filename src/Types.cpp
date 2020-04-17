@@ -37,8 +37,11 @@ bool Operator::accepts(Expr* expr) {
   if (type.type == symbol::UNIVERSAL)
     return true;
 
-  if (type.type == symbol::NUMBER and (t != symbol::INT or t != symbol::FLOAT))
+  if (type.type != t) {
+    if (type.type == symbol::NUMBER and (t == symbol::INT or t == symbol::FLOAT))
+      return true;
     return false;
+  }
 
   return true;
 }

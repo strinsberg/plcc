@@ -84,8 +84,9 @@ Binary::Binary(Operator o, Expr* l, Expr* r)
     : Expr(l->get_type()), op(o), lhs(l), rhs(r) {
   if (!(lhs->get_type() == rhs->get_type()))
     throw type_error("type mismatch for binary operator");
-  // can also add a check to make sure type of the operator is
-  // valid for the types of the expressions. Ie < need 2 bool.
+
+  if (!op.accepts(lhs) or !op.accepts(rhs))
+    throw type_error("invalid types for binary operator");
 }
 
 Binary::~Binary() {
@@ -104,7 +105,8 @@ void Binary::display(ostream& out) const {
 
 // Unary //////////////////////////////////////////////////////////////
 Unary::Unary(Operator o, Expr* e) : Expr(e->get_type()), op(o), expr(e) {
-  // check that type of operator matches expr
+  if (!op.accepts(e))
+    throw type_error("invalid type for unary operator");
 }
 
 Unary::~Unary() {

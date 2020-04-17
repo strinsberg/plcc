@@ -1,5 +1,5 @@
 begin
-  int x, y;
-  call x;
-  y := x;
+  int x, y, z;
+  write -x * (-z);
+  write true == not false;
 end.

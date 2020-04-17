@@ -132,17 +132,15 @@ simple_expr: simple_expr add_op t_prime { actions->binary(); }
   | t_prime
   ;
 
-/* pop top and return unary with minus if first rule */
+/* minus may need to be adjusted, this is a little ambiguous */
 t_prime: MINUS term { actions->new_op(symbol::MINUS, symbol::NUMBER), actions->unary(); }
   | term
   ;
 
-/* Like expr for adding a binary expr if an op is found */
 term: factor mult_op factor { actions->binary(); }
   | factor
   ;
 
-/* All can just leave the expression on the stack. except not needs to put in unary */
 factor: number
   | char 
   | bool_sym 
