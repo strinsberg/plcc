@@ -27,8 +27,8 @@ Actions* actions;
 
 
 %%
-program:  /* nothing */
-  | block DOT { printf("program\n\nTotal Lines: %d\n", actions->get_admin()->get_line()); }
+program:  /* nothing for bison */
+  | block DOT
   ;
 
 block: BEG bprime END 
@@ -39,7 +39,7 @@ bprime: def_part stmt_part { actions->block($1, $2); }
 
 
 /* Definitions */
-def_part: def_part def SEMI { $$ = $1 + 1; printf("def_part\n\n"); }
+def_part: def_part def SEMI { $$ = $1 + 1; actions->get_admin()->debug("def_part\n"); }
   | def_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = 0; actions->new_block(); }
   ;
@@ -66,7 +66,7 @@ proc_def: PROC name { actions->add_vars(symbol::EMPTY, symbol::PROC, 1); }
 
 
 /* Statements */
-stmt_part: stmt_part stmt SEMI { $$ = $1 + 1; printf("stmt_part\n\n"); }
+stmt_part: stmt_part stmt SEMI { $$ = $1 + 1; actions->get_admin()->debug("stmt_part\n"); }
   | stmt_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = 0; }
   ;
@@ -93,7 +93,7 @@ if_stmt: IF conditions ENDIF { actions->if_stmt($2); }
 loop_stmt: LOOP condition ENDLOOP { actions->loop(); }
   ;
 
-conditions: conditions ELIF condition { $$ = $1 + 1; printf("conditions\n"); }
+conditions: conditions ELIF condition { $$ = $1 + 1; actions->get_admin()->debug("conditions"); }
   | condition { $$ = 1; }
   ;
 
@@ -113,7 +113,7 @@ read_stmt: READ expr_list { actions->io($2, symbol::READ); }
   ;
 
 /* Expressions - All are going to be passing out nodes */
-expr_list: expr_list COMMA expr { $$ = $1 + 1; printf("expr_list\n"); }
+expr_list: expr_list COMMA expr { $$ = $1 + 1; actions->get_admin()->debug("expr_list"); }
   | expr { $$ = 1; }
   | error { $$ = 0; yyerrok; }
   ;
@@ -152,50 +152,50 @@ factor: number
 
 
 /* Variables */
-var_list: var_list COMMA name { $$ = $1 + 1; printf("var_list\n"); }
-  | name { $$ = 1; printf("var_list -> name\n"); }
+var_list: var_list COMMA name { $$ = $1 + 1; actions->get_admin()->debug("var_list"); }
+  | name { $$ = 1; actions->get_admin()->debug("var_list -> name"); }
   ;
 
-var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; printf("var_access_list\n"); }
+var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; actions->get_admin()->debug("var_access_list"); }
   | var_access { $$ = 1; }
   ;
 
 var_access: name selector { actions->access((symbol::Tag)$2); }
   ;
 
-selector: LHSQR expr RHSQR { $$ = (int)symbol::ARRAY; printf("selector -> array access\n"); }
+selector: LHSQR expr RHSQR { $$ = (int)symbol::ARRAY; actions->get_admin()->debug("selector -> array access"); }
   | /* epsilon */ { $$ = int(symbol::SCALAR); }
   ;
 
 
 /* Operators */
-prim_op: AND { actions->new_token(symbol::AND); printf("AND\n"); }
-  | OR { actions->new_token(symbol::OR); printf("OR\n"); }
+prim_op: AND { actions->new_token(symbol::AND); actions->get_admin()->debug("AND"); }
+  | OR { actions->new_token(symbol::OR); actions->get_admin()->debug("OR"); }
   ;
 
-rel_op: EQ { actions->new_token(symbol::EQ); printf("EQUAL\n"); }
-  | NEQ { actions->new_token(symbol::NEQ); printf("NOT EQUAL\n"); }
-  | LESS { actions->new_token(symbol::LESS); printf("LESS\n"); }
-  | GREATER { actions->new_token(symbol::GREATER); printf("GREATER\n"); } 
-  | LEQ { actions->new_token(symbol::LEQ); printf("LESS EQUAL\n"); }
-  | GEQ { actions->new_token(symbol::GEQ); printf("GREATER EQUAL\n"); }
+rel_op: EQ { actions->new_token(symbol::EQ); actions->get_admin()->debug("EQUAL"); }
+  | NEQ { actions->new_token(symbol::NEQ); actions->get_admin()->debug("NOT EQUAL"); }
+  | LESS { actions->new_token(symbol::LESS); actions->get_admin()->debug("LESS"); }
+  | GREATER { actions->new_token(symbol::GREATER); actions->get_admin()->debug("GREATER"); } 
+  | LEQ { actions->new_token(symbol::LEQ); actions->get_admin()->debug("LESS EQUAL"); }
+  | GEQ { actions->new_token(symbol::GEQ); actions->get_admin()->debug("GREATER EQUAL"); }
   ;
 
-add_op: PLUS { actions->new_token(symbol::PLUS); printf("PLUS\n"); }
-  | MINUS { actions->new_token(symbol::MINUS); printf("MINUS\n"); }
+add_op: PLUS { actions->new_token(symbol::PLUS); actions->get_admin()->debug("PLUS"); }
+  | MINUS { actions->new_token(symbol::MINUS); actions->get_admin()->debug("MINUS"); }
   ;
 
-mult_op: MULT { actions->new_token(symbol::MULT); printf("MULT\n"); }
-  | DIV { actions->new_token(symbol::DIV); printf("DIV\n"); }
-  | MOD { actions->new_token(symbol::MOD); printf("MOD\n"); }
+mult_op: MULT { actions->new_token(symbol::MULT); actions->get_admin()->debug("MULT"); }
+  | DIV { actions->new_token(symbol::DIV); actions->get_admin()->debug("DIV"); }
+  | MOD { actions->new_token(symbol::MOD); actions->get_admin()->debug("MOD"); }
   ;
 
 
 /* Terminals */
-type_sym: INT { actions->new_token(symbol::INT); printf("INT\n"); }
-  | FLOAT { actions->new_token(symbol::FLOAT); printf("FLOAT\n"); }
-  | BOOL { actions->new_token(symbol::BOOL); printf("BOOL\n"); }
-  | CHAR { actions->new_token(symbol::CHAR); printf("CHAR\n"); }
+type_sym: INT { actions->new_token(symbol::INT); actions->get_admin()->debug("INT"); }
+  | FLOAT { actions->new_token(symbol::FLOAT); actions->get_admin()->debug("FLOAT"); }
+  | BOOL { actions->new_token(symbol::BOOL); actions->get_admin()->debug("BOOL"); }
+  | CHAR { actions->new_token(symbol::CHAR); actions->get_admin()->debug("CHAR"); }
   ;
 
 constant: number
@@ -215,7 +215,7 @@ bool_sym: TRUE { actions->constant(symbol::TRUE); }
   | FALSE { actions->constant(symbol::FALSE); }
   ;
 
-name: NAME { actions->new_token(symbol::NAME, std::string(yytext)); printf("NAME -> %s\n", yytext);}
+name: NAME { actions->new_token(symbol::NAME, std::string(yytext)); actions->get_admin()->debug("NAME -> " + std::string(yytext));}
   ;
 %%
 

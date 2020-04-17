@@ -220,6 +220,9 @@ void Actions::access(symbol::Tag kind) {
     acs = new Access(id);
   }
 
+  // Check the kind of access here to make sure that array access is
+  // not done on a scalar id. Possibly even add a kind field to access.
+
   stacks.push_expr(acs);
   delete name;
 }
