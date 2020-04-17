@@ -1,12 +1,11 @@
 -- Caclulates the fibonacci number given by the user
 begin
-  integer temp;
+  int temp;
 
   -- uses temp to calculate fib of temp
   -- result is in temp
   proc fib
-  begin
-    integer x, y, z;
+    int x, y, z;
     if temp > 1 do
       x := temp;
       temp := x - 1;
@@ -16,7 +15,7 @@ begin
       call fib;
       z := temp;
       temp := y + z;
-    else if ~(temp > 1) do
+    else if not (temp > 1) do
       skip;
     end if;
   end proc;

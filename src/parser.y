@@ -16,7 +16,7 @@ Actions* actions;
 %token BEG END
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
-%token WRITE ASGN IF DO ELIF ENDIF LOOP ENDLOOP SKIP CALL
+%token WRITE ASGN IF DO ELIF ENDIF LOOP ENDLOOP SKIP CALL READ
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
@@ -78,6 +78,7 @@ stmt: write_stmt { printf("stmt -> write\n"); }
   | empty_stmt { printf("stmt -> empty\n"); }
   | block_stmt { printf("stmt -> block\n"); }
   | proc_stmt { printf("stmt -> proc\n"); }
+  | read_stmt { printf("stmt -> read\n"); }
   ;
 
 write_stmt: WRITE expr_list { actions->write($2); printf("write_stmt\n"); }
@@ -108,6 +109,8 @@ block_stmt: block { printf("block_stmt\n"); }
 proc_stmt: CALL name { actions->proc_stmt(); printf("proc call\n"); }
   ;
 
+read_stmt: READ expr_list { actions->write($2); printf("read_stmt\n"); }
+  ;
 
 /* Expressions - All are going to be passing out nodes */
 expr_list: expr_list COMMA expr { $$ = $1 + 1; printf("expr_list\n"); }

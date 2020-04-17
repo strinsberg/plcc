@@ -11,7 +11,7 @@ begin
   bool array[N] A;
 
   -- procedure definition
-  proc doit
+  proc my_proc
     int x;
     x := 30;
     write x + i + j;
@@ -28,7 +28,7 @@ begin
       A[i] := T;
     else if T do
       A[i] := false;
-    else if false do:
+    else if false do
       skip;
     end if;
 
@@ -48,5 +48,5 @@ begin
   write 1 > 2, 10 <= 10, 10 >= 9, 20 ~= 20;
   write not true, true and false, true or false;
 
-  call doit;
+  call my_proc;
 end .
