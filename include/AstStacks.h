@@ -22,6 +22,12 @@ class AstStacks {
   void push_expr(Expr* d) { exprs.push_back(d); }
   void push_stmt(Stmt* d) { stmts.push_back(d); }
 
+  // Type and Op
+  void set_type(Type t);
+  void set_op(Operator o);
+  Type get_type();
+  Operator get_op();
+
   // Get nodes
   Token* get_token(int from_top);
   Token* pop_token();
@@ -38,6 +44,8 @@ class AstStacks {
   std::vector<Expr*> exprs;
   std::vector<Stmt*> stmts;
   std::vector<Def*> defs;
+  Type type;
+  Operator op;
 };
 
 #endif

@@ -52,6 +52,7 @@ class Char : public Token {
 };
 
 struct Type {
+  Type() : type(symbol::EMPTY), kind(symbol::UNIVERSAL), qual(symbol::UNIVERSAL) {}
   Type(symbol::Tag t, symbol::Tag k, symbol::Tag q)
       : type(t), kind(k), qual(q) {}
 
@@ -71,6 +72,7 @@ struct Type {
 };
 
 struct Operator {
+  Operator() : op(symbol::EMPTY) {}
   Operator(symbol::Tag o, Type t) : op(o), type(t) {}
   symbol::Tag op;
   Type type;

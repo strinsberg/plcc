@@ -28,6 +28,23 @@ void AstStacks::push_word(std::string lexeme) {
   tokens.push_back(new Word(lexeme));
 }
 
+// Type and Op ////////////////////////////////////////////////////////
+void AstStacks::set_type(Type t) {
+  type = t;
+}
+
+void AstStacks::set_op(Operator o) {
+  op = o;
+}
+
+Type AstStacks::get_type() {
+  return type;
+}
+
+Operator AstStacks::get_op() {
+  return op;
+}
+
 
 // Pop Nodes /////////////////////////////////////////////////////////
 
