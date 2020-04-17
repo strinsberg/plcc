@@ -29,23 +29,11 @@ void Actions::new_op(symbol::Tag op, symbol::Tag type) {
 };
 
 void Actions::name(string n) {
-  Id* id = table.get(n);
-  if (id == nullptr) {
-    admin->error("'" + n + "' is undeclared");
-    id = new Id(n, Type());
-  }
-
-  stacks.push_expr(id);
+  stacks.push_expr( new Id(n, Type()) );
 }
+
 
 // Definitions ///////////////////////////////////////////////////
-
-void Actions::new_token(symbol::Tag tag, string lexeme) {
-  if (tag != symbol::NAME)
-    stacks.push_token(tag);
-  else
-    stacks.push_word(lexeme);
-}
 
 void Actions::def_part(int num_defs) {
   admin->debug("def part: " + std::to_string(num_defs)); 
@@ -86,19 +74,17 @@ void Actions::proc_def() {
 
 void Actions::add_vars(Type type, symbol::Tag kind, int vars) {
   admin->debug("add vars: " + symbol::str(type.type) + " " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
+
   type.kind = kind;
-
   Def* def = nullptr;
-  for (int i = 0; i < vars; i++) {
-    Token* name = stacks.pop_token();
-    string lexeme = name->to_string();
-    Word* w = new Word(lexeme);
 
-    auto id = new Id(w, type);
-    bool added = table.put(lexeme, id);
+  for (int i = 0; i < vars; i++) {
+    auto name = stacks.pop_expr();
+    Id* id = new Id(name->get_name(), type);
+    bool added = table.put(name->get_name(), id);
 
     if (!added) {
-      admin->error("'" + lexeme + "' already declared");
+      admin->error("'" + name->get_name() + "' already declared");
       delete id;
     } else {
       auto var = new VarDef(id);
@@ -198,16 +184,15 @@ void Actions::empty() {
 
 void Actions::proc_stmt() {
   admin->debug("call");
-  // this code should probably be in a function
-  Token* name = stacks.pop_token();
-  string lexeme = name->to_string();
-  auto id = table.get(lexeme);
+  auto name = stacks.pop_expr();
+  auto id = table.get(name->get_name());
 
   if (id == nullptr) {
-    admin->error("'" + lexeme + "' is undeclared");
+    admin->error("'" + name->get_name() + "' is undeclared");
     stacks.push_stmt( new Stmt() );
     return;
   }
+  delete name;
 
   stacks.push_stmt( new Proc(id) );
 }
@@ -224,15 +209,15 @@ void Actions::condition(int num_stmts) {
 
 void Actions::access(symbol::Tag kind) {
   admin->debug("access: " + symbol::to_string.at(kind));
-  Token* name = stacks.pop_token();
-  string lexeme = name->to_string();
-  auto id = table.get(lexeme);
+  auto name = stacks.pop_expr();
+  auto id = table.get(name->get_name());
 
   if (id == nullptr) {
-    admin->error("'" + lexeme + "' is undeclared");
+    admin->error("'" + name->get_name() + "' is undeclared");
     stacks.push_stmt( new Stmt() );
     return;
   }
+  delete name;
 
   Access* acs = nullptr;
   if (kind == symbol::ARRAY) {
@@ -246,7 +231,6 @@ void Actions::access(symbol::Tag kind) {
   // not done on a scalar id. Possibly even add a kind field to access.
 
   stacks.push_expr(acs);
-  delete name;
 }
 
 void Actions::binary() {
@@ -313,7 +297,6 @@ void Actions::constant(symbol::Tag tag, int val, double dec) {
 // Display methods ////////////////////////////////////////////////////
 
 void Actions::display() {
-  stacks.print_tokens();
   stacks.print_nodes();
 
   cout << endl;

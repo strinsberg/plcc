@@ -22,7 +22,6 @@ class Actions {
   void name(std::string);
 
   // definition actions
-  void new_token(symbol::Tag tag, std::string lexeme="");
   void const_def();
   void var_def(symbol::Tag kind, int vars);
   void array_def(int vars);

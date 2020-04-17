@@ -3,7 +3,7 @@
 using namespace std;
 
 // AST ////////////////////////////////////////////////////////////////
-AstNode::AstNode() {}
+AstNode::AstNode() : name("Ast Node") {}
 
 AstNode::~AstNode() {}
 
@@ -12,7 +12,7 @@ void AstNode::visit(CodeGen* generator) {
 }
 
 void AstNode::display(ostream& out) const {
-  out << "Ast Node";
+  out << name;
 }
 
 std::ostream& operator<< (std::ostream& out, const AstNode& node) {
@@ -22,7 +22,9 @@ std::ostream& operator<< (std::ostream& out, const AstNode& node) {
 
 
 // EXPR ///////////////////////////////////////////////////////////////
-Expr::Expr(Type t) : type(t) {}
+Expr::Expr(Type t) : type(t) {
+  name = "Expr Node";
+}
 
 Expr::~Expr() {}
 
@@ -36,7 +38,9 @@ void Expr::display(ostream& out) const {
 
 
 // DEF ////////////////////////////////////////////////////////////////
-Def::Def() {}
+Def::Def() {
+  name = "EMPTY DEF";
+}
 
 Def::~Def() {}
 
@@ -45,12 +49,14 @@ void Def::visit(CodeGen* generator) {
 }
 
 void Def::display(ostream& out) const {
-  out << "EMPTY DEF";
+  AstNode::display(out);
 }
 
 
 // STMT ///////////////////////////////////////////////////////////////
-Stmt::Stmt() {}
+Stmt::Stmt() {
+  name = "EMPTY STMT";
+}
 
 Stmt::~Stmt() {}
 
@@ -59,5 +65,5 @@ void Stmt::visit(CodeGen* generator) {
 }
 
 void Stmt::display(ostream& out) const {
-  out << "EMPTY STMT";
+  AstNode::display(out);
 }

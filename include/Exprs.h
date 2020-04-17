@@ -31,7 +31,6 @@ class Id : public Expr {
 
  protected:
   Word* word;
-  std::string lexeme;
 };
 
 

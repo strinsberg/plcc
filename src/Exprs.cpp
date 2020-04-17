@@ -28,11 +28,13 @@ void Constant::display(ostream& out) const {
 
 
 // Id /////////////////////////////////////////////////////////////////
-Id::Id(Word* w, Type type)
-    : Expr(type), word(w), lexeme(w->to_string()) {}
+Id::Id(Word* w, Type type) : Expr(type), word(w) {
+  name = w->to_string();
+}
 
-Id::Id(string l, Type type)
-    : Expr(type), word(new Word(l)), lexeme(l) {}
+Id::Id(string l, Type type) : Expr(type), word(new Word(l)) {
+  name = l;
+}
 
 Id::~Id() {
   delete word;
@@ -43,7 +45,7 @@ void Id::visit(CodeGen* generator) {
 }
 
 void Id::display(ostream& out) const {
-  out << word->to_string();
+  out << name;
   Expr::display(out);
   out << "(" << symbol::str(type.kind) << ")";
 }

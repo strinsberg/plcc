@@ -216,7 +216,8 @@ bool_sym: TRUE { actions->constant(symbol::TRUE); }
   | FALSE { actions->constant(symbol::FALSE); }
   ;
 
-name: NAME { actions->new_token(symbol::NAME, std::string(yytext)); actions->get_admin()->debug("NAME -> " + std::string(yytext));}
+name: NAME { actions->name(std::string(yytext));
+             actions->get_admin()->debug("NAME -> " + std::string(yytext));}
   ;
 %%
 

@@ -9,9 +9,6 @@ using namespace std;
 AstStacks::AstStacks() {}
 
 AstStacks::~AstStacks() {
-  for (auto & t : tokens)
-    delete t;
-
   for (auto & e : exprs)
     delete e;
 
@@ -19,14 +16,6 @@ AstStacks::~AstStacks() {
     delete s;
 }
 
-// Token addition /////////////////////////////////////////////////////
-void AstStacks::push_token(symbol::Tag t) {
-  tokens.push_back(new Token(t));
-}
-
-void AstStacks::push_word(std::string lexeme) {
-  tokens.push_back(new Word(lexeme));
-}
 
 // Type and Op ////////////////////////////////////////////////////////
 void AstStacks::set_type(Type t) {
@@ -47,22 +36,6 @@ Operator AstStacks::get_op() {
 
 
 // Pop Nodes /////////////////////////////////////////////////////////
-
-// WARNING: This token is not removed and must be popped at the right time!
-// Should probably make it erase it, as it will only be used with a few
-// things on the stack max.
-Token* AstStacks::get_token(int from_top) {
-  return *(tokens.rbegin() + from_top);
-}
-
-Token* AstStacks::pop_token() {
-  if (tokens.size() > 0) {
-    Token* next = tokens.back();
-    tokens.pop_back();
-    return next;
-  }
-  return new Token(symbol::EMPTY);
-}
 
 Expr* AstStacks::pop_expr() {
   if (exprs.size() > 0) {
@@ -94,15 +67,12 @@ Def* AstStacks::pop_def() {
 
 // Display stacks /////////////////////////////////////////////////////
 
-void AstStacks::print_tokens() {
-  cout << endl;
-  cout << "=== Token Stack ===" << endl;
-  for (auto & t : tokens) {
-    cout << t->to_string() << endl;
-  }
-}
-
 void AstStacks::print_nodes() {
+  cout << endl;
+  cout << "=================== STACKS ========================" << endl;
+  cout << "Type:     " << symbol::str(type.type) << endl;
+  cout << "Operator: " << symbol::str(op.op) << endl;
+
   cout << endl;
   cout << "=== Definition Nodes: " << defs.size() << " ===" << endl;
   for (auto & d : defs) {

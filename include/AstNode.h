@@ -14,7 +14,12 @@ class AstNode {
   virtual ~AstNode();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
+  std::string get_name() { return name; }
+  void set_name(std::string n) { name = n; }
   friend std::ostream& operator<< (std::ostream& out, const AstNode& node);
+
+ protected:
+  std::string name;
 };
 
 
@@ -26,6 +31,7 @@ class Expr : public AstNode {
   virtual void display(std::ostream& os) const;
 
   Type get_type() { return type; }
+  void set_type(Type t) { type = t; }
 
  protected:
   Type type;
