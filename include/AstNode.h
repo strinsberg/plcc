@@ -20,11 +20,12 @@ class AstNode {
 
 class Expr : public AstNode {
  public:
-  Expr();
+  Expr(symbol::Tag type);
   Expr(Token* token, symbol::Tag type);
   virtual ~Expr();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
+  virtual bool check_type(symbol::Tag type = symbol::EMPTY);
 
   symbol::Tag get_type() { return type; }
 

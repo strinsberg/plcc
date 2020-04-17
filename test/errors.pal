@@ -1,5 +1,5 @@
 begin
-  int y;
-  y := 0;
-  y := u;
+  const int x = 20;
+  int array[x] A;
+  write 5;
 end.

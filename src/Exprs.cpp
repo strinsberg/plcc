@@ -36,7 +36,7 @@ void Id::display(ostream& out) const {
 
 
 // Access /////////////////////////////////////////////////////////////
-Access::Access(Id* i) : Expr(), id(i) {}
+Access::Access(Id* i) : Expr( i->get_type() ) , id(i) {}
 
 Access::~Access() {
   delete id;

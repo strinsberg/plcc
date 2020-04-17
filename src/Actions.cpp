@@ -23,6 +23,7 @@ void Actions::new_token(symbol::Tag tag, string lexeme) {
 }
 
 void Actions::def_part(int num_defs) {
+  admin->debug("def part: " + std::to_string(num_defs)); 
   Def* def = stacks.pop_def();
   for (int i = 0; i < num_defs - 1; i++ ) {
     def = new DefSeq( stacks.pop_def(), def);
@@ -31,34 +32,40 @@ void Actions::def_part(int num_defs) {
 }
 
 void Actions::const_def() {
-  Expr* value = stacks.pop_expr();
-  var_def(symbol::SCALAR, 1);
+  admin->debug("const def");
+  Expr* value = stacks.pop_expr();  // Still unused?
+  var_def(symbol::CONST, 1);
   delete value;
 }
 
 void Actions::array_def(int vars) {
-  Expr* size = stacks.pop_expr();
+  admin->debug("array def: " + std::to_string(vars)); 
+  Expr* size = stacks.pop_expr();  // Still unused?
+  if (!size->check_type(symbol::INT))
+    admin->error("array size must be int");  
+
   var_def(symbol::ARRAY, vars);
   delete size;
 }
 
 void Actions::var_def(symbol::Tag kind, int vars) {
-  Token* type = stacks.get_token(vars);
+  admin->debug("var def: " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
+  Token* type = stacks.get_token(vars);  // Use get_token() to access below the top
   add_vars(type->tag, kind, vars);
-  type = stacks.pop_token();  // get token has not popped type token yet
+  type = stacks.pop_token();  // Now type is top of stack
   delete type;
 }
 
 
 void Actions::proc_def() {
-  stacks.print_tokens();
-  stacks.print_nodes();
+  admin->debug("proc def");
   Def* name = stacks.pop_def();
   stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
 }
 
 
 void Actions::add_vars(symbol::Tag type, symbol::Tag kind, int vars) {
+  admin->debug("add vars: " + symbol::to_string.at(type) + " " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     Token* name = stacks.pop_token();
@@ -91,6 +98,7 @@ void Actions::add_vars(symbol::Tag type, symbol::Tag kind, int vars) {
 // Statement methods //////////////////////////////////////////////////
 
 void Actions::block(int num_defs, int num_stmts) {
+  admin->debug("block: " + std::to_string(num_defs) + ", " + std::to_string(num_stmts));
   def_part(num_defs);
   stmt_part(num_stmts);
   stacks.push_stmt( new Block(stacks.pop_def(), stacks.pop_stmt()) );
@@ -98,6 +106,7 @@ void Actions::block(int num_defs, int num_stmts) {
 }
 
 void Actions::stmt_part(int num_stmts) {
+  admin->debug("stmt part: " + std::to_string(num_stmts));
   Stmt* stmt = stacks.pop_stmt();
   for (int i = 0; i < num_stmts - 1; i++) {
     stmt = new Seq( stacks.pop_stmt(), stmt ); 
@@ -106,6 +115,7 @@ void Actions::stmt_part(int num_stmts) {
 }
 
 void Actions::io(int num_expr, symbol::Tag type) {
+  admin->debug("io: " + std::to_string(num_expr) + " " + symbol::to_string.at(type));
   Stmt* stmt = new IoStmt(stacks.pop_expr(), type);
   for (int i = 0; i < num_expr - 1; i++) {  
     stmt = new Seq( new IoStmt(stacks.pop_expr(), type), stmt );
@@ -114,6 +124,7 @@ void Actions::io(int num_expr, symbol::Tag type) {
 }
 
 void Actions::assign(int num_vars, int num_exprs) {
+  admin->debug("assign: " + std::to_string(num_vars) + ", " + std::to_string(num_exprs));
   if (num_vars != num_exprs) {
     admin->error("number of variables does not match number of exressions");
     stacks.push_stmt(new Stmt() );
@@ -146,6 +157,7 @@ void Actions::assign(int num_vars, int num_exprs) {
 }
 
 void Actions::if_stmt(int num_cond) {
+  admin->debug("if: " + std::to_string(num_cond));
   Stmt* cond = stacks.pop_stmt();
   for (int i = 0; i < num_cond - 1; i++)
     cond = new Seq(stacks.pop_stmt(), cond);
@@ -153,14 +165,17 @@ void Actions::if_stmt(int num_cond) {
 }
 
 void Actions::loop() {
+  admin->debug("loop");
   stacks.push_stmt( new Loop(stacks.pop_stmt()) ); 
 }
 
 void Actions::empty() {
+  admin->debug("empty");
   stacks.push_stmt( new Stmt() );
 }
 
 void Actions::proc_stmt() {
+  admin->debug("call");
   // this code should probably be in a function
   Token* name = stacks.pop_token();
   string lexeme = name->to_string();
@@ -176,6 +191,7 @@ void Actions::proc_stmt() {
 }
 
 void Actions::condition(int num_stmts) {
+  admin->debug("condition: " + std::to_string(num_stmts));
   Expr* cond = stacks.pop_expr();
   stmt_part(num_stmts);
   Stmt* stmt = stacks.pop_stmt();
@@ -184,7 +200,8 @@ void Actions::condition(int num_stmts) {
 
 // Expression methods /////////////////////////////////////////////////
 
-void Actions::access(symbol::Tag type) {
+void Actions::access(symbol::Tag kind) {
+  admin->debug("access: " + symbol::to_string.at(kind));
   Token* name = stacks.pop_token();
   string lexeme = name->to_string();
   Id* id = table.get(lexeme);
@@ -196,7 +213,7 @@ void Actions::access(symbol::Tag type) {
   }
 
   Access* acs = nullptr;
-  if (type == symbol::ARRAY) {
+  if (kind == symbol::ARRAY) {
     Expr* idx = stacks.pop_expr();
     acs = new ArrayAccess(id, idx);  // Can do type check on index
   } else {
@@ -208,6 +225,7 @@ void Actions::access(symbol::Tag type) {
 }
 
 void Actions::binary() {
+  admin->debug("binary");
   Token* op = stacks.pop_token();
   Expr* rhs = stacks.pop_expr();
   Expr* lhs = stacks.pop_expr();
@@ -216,6 +234,7 @@ void Actions::binary() {
 }
 
 void Actions::unary(symbol::Tag t) {
+  admin->debug("unary: " + symbol::to_string.at(t));
   Token* op = new Token(t);
   Expr* expr = stacks.pop_expr();
 
@@ -223,6 +242,7 @@ void Actions::unary(symbol::Tag t) {
 }
 
 void Actions::constant(symbol::Tag tag, int val, int dec) {
+  admin->debug("constant: " + symbol::to_string.at(tag) + " " + std::to_string(val)); 
   Token* tok;
   symbol::Tag type;
 
@@ -239,8 +259,9 @@ void Actions::constant(symbol::Tag tag, int val, int dec) {
     tok = new Char(val);
     type = symbol::CHAR;
   } else {
-    tok = stacks.pop_token();
-    type = symbol::NAME;
+    access(symbol::CONST);
+    // Should check for const in here
+    return;
   }
 
   stacks.push_expr( new Constant(tok, type) );
