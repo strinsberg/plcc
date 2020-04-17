@@ -31,4 +31,17 @@ class DefSeq : public Def {
   Def* rest;
 };
 
+
+class ProcDef : public Def {
+ public:
+  ProcDef(Def* name, Stmt* block);
+  virtual ~ProcDef();
+  virtual void visit(CodeGen* generator);
+  virtual void display(std::ostream& os) const;
+
+ protected:
+  Def* name;
+  Stmt* block;
+};
+
 #endif

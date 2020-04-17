@@ -2,6 +2,7 @@
 #define PLCC_STATEMENTS_H
 
 #include "AstNode.h"
+#include "Exprs.h"
 #include "CodeGen.h"
 #include <string>
 
@@ -93,5 +94,16 @@ class IfStmt : public Stmt {
   Stmt* conds;
 };
 
+
+class Proc : public Stmt {
+ public:
+  Proc(Id* id);
+  virtual ~Proc();
+  virtual void visit(CodeGen* generator);
+  virtual void display(std::ostream& out) const;
+
+ protected:
+  Id* id;
+};
 #endif
 

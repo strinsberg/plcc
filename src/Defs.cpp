@@ -35,3 +35,22 @@ void DefSeq::visit(CodeGen* generator) {
 void DefSeq::display(std::ostream& out) const {
   out << *first << endl << *rest;
 }
+
+
+// PROCDEF ////////////////////////////////////////////////////////////
+ProcDef::ProcDef(Def* d, Stmt* s) : name(d), block(s)  {}
+
+ProcDef::~ProcDef() {
+  delete name;
+  delete block;
+}
+
+void ProcDef::visit(CodeGen* generator) {
+  generator->visit(this);
+}
+
+void ProcDef::display(std::ostream& out) const {
+  out << endl << "PROC" << endl << *name;
+  out << *block << "ENDPROC";
+}
+

@@ -10,6 +10,13 @@ begin
   const bool T = true;
   bool array[N] A;
 
+  -- procedure definition
+  proc doit
+    int x;
+    x := 30;
+    write x + i + j;
+  end proc;
+
   -- Assignments
   i, j := 0, 20;
   f := 3.14;
@@ -40,4 +47,6 @@ begin
   write j * i , f / 10.0, ch;
   write 1 > 2, 10 <= 10, 10 >= 9, 20 ~= 20;
   write not true, true and false, true or false;
+
+  call doit;
 end .

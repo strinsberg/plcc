@@ -22,7 +22,9 @@ class Actions {
   void const_def();
   void var_def(symbol::Tag kind, int vars);
   void array_def(int vars);
+  void proc_def();
   void def_part(int num_defs);
+  void add_vars(symbol::Tag type, symbol::Tag kind, int vars);
 
   // stmt actions
   void block(int num_defs, int num_stmts);
@@ -32,6 +34,7 @@ class Actions {
   void if_stmt(int num_cond);
   void loop();
   void empty();
+  void proc_stmt();
   void condition(int num_stmts);
 
   // expr actions
@@ -42,15 +45,13 @@ class Actions {
 
   // helpers
   void display();
-  void new_block() { table.push_block(); }
+  void new_block() { admin->debug("new_block"); table.push_block(); }
 
 
  private:
   AstStacks stacks;
   BlockTable table;
   Admin* admin;
-
-  void add_vars(symbol::Tag type, symbol::Tag kind, int vars);
 };
 
 #endif

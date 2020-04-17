@@ -54,6 +54,7 @@ while     { return LOOP; }
 "="       { return INIT; }
 ":="        { return ASGN; }
 skip      { return SKIP; }
+call      { return CALL; }
 
 const     { return CONST; }
 int       { return INT; }

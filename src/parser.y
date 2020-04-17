@@ -16,7 +16,7 @@ Actions* actions;
 %token BEG END
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
-%token WRITE ASGN IF DO ELIF ENDIF LOOP ENDLOOP SKIP
+%token WRITE ASGN IF DO ELIF ENDIF LOOP ENDLOOP SKIP CALL
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
@@ -31,7 +31,10 @@ program:  /* nothing */
   | block DOT { printf("program\n\nTotal Lines: %d\n", actions->get_admin()->get_line()); }
   ;
 
-block: BEG def_part stmt_part END { actions->block($2, $3); printf("block\n"); }
+block: BEG bprime END 
+  ;
+
+bprime: def_part stmt_part { actions->block($1, $2); printf("block\n"); }
   ;
 
 
@@ -43,6 +46,7 @@ def_part: def_part def SEMI { $$ = $1 + 1; printf("def_part\n\n"); }
 
 def: const_def { printf("def -> const_def\n"); }
   | var_def { printf("def -> var_def\n"); }
+  | proc_def { printf("def -> proc_def\n"); }
   ;
 
 const_def: CONST type_sym name INIT constant { actions->const_def(); printf("const_def\n"); }
@@ -53,6 +57,10 @@ var_def: type_sym v_prime { printf("var_def\n"); }
 
 v_prime: var_list { actions->var_def(symbol::SCALAR, $$); printf("v_prime -> var_list\n"); }
   | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); printf("v_prime -> array\n"); }
+  ;
+
+proc_def: PROC name { actions->add_vars(symbol::EMPTY, symbol::PROC, 1); }
+          bprime ENDPROC { actions->proc_def(); printf("proc_def\n"); }
   ;
 
 
@@ -69,6 +77,7 @@ stmt: write_stmt { printf("stmt -> write\n"); }
   | loop_stmt { printf("stmt -> loop\n"); }
   | empty_stmt { printf("stmt -> empty\n"); }
   | block_stmt { printf("stmt -> block\n"); }
+  | proc_stmt { printf("stmt -> proc\n"); }
   ;
 
 write_stmt: WRITE expr_list { actions->write($2); printf("write_stmt\n"); }
@@ -94,6 +103,10 @@ empty_stmt: SKIP { actions->empty(); printf("empty_stmt\n"); }
   ;
 
 block_stmt: block { printf("block_stmt\n"); }
+  ;
+
+proc_stmt: CALL name { actions->proc_stmt(); printf("proc call\n"); }
+  ;
 
 
 /* Expressions - All are going to be passing out nodes */

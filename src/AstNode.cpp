@@ -50,7 +50,7 @@ void Def::visit(CodeGen* generator) {
 }
 
 void Def::display(ostream& out) const {
-  out << "Def Node";
+  out << "EMPTY DEF";
 }
 
 
@@ -64,5 +64,5 @@ void Stmt::visit(CodeGen* generator) {
 }
 
 void Stmt::display(ostream& out) const {
-  out << "Stmt Node";
+  out << "EMPTY STMT";
 }

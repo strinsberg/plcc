@@ -122,3 +122,19 @@ void IfStmt::visit(CodeGen* generator) {
 void IfStmt::display(ostream& out) const {
   out << "--IF--" << endl << *conds << endl << "--ENDIF--";
 }
+
+
+// PROC ///////////////////////////////////////////////////////////////
+Proc::Proc(Id* i) : Stmt(), id(i) {}
+
+Proc::~Proc() {
+  // The id is owned by a def node. Do Not Delete it!
+}
+
+void Proc::visit(CodeGen* generator) {
+  generator->visit(this);
+}
+
+void Proc::display(std::ostream& out) const {
+  out << "Call: " << *id;
+}

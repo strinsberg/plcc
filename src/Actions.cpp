@@ -45,9 +45,18 @@ void Actions::array_def(int vars) {
 void Actions::var_def(symbol::Tag kind, int vars) {
   Token* type = stacks.get_token(vars);
   add_vars(type->tag, kind, vars);
-  type = stacks.pop_token();  // get token did not pop type token yet
+  type = stacks.pop_token();  // get token has not popped type token yet
   delete type;
 }
+
+
+void Actions::proc_def() {
+  stacks.print_tokens();
+  stacks.print_nodes();
+  Def* name = stacks.pop_def();
+  stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
+}
+
 
 void Actions::add_vars(symbol::Tag type, symbol::Tag kind, int vars) {
   Def* def = nullptr;
@@ -149,6 +158,21 @@ void Actions::loop() {
 
 void Actions::empty() {
   stacks.push_stmt( new Stmt() );
+}
+
+void Actions::proc_stmt() {
+  // this code should probably be in a function
+  Token* name = stacks.pop_token();
+  string lexeme = name->to_string();
+  Id* id = table.get(lexeme);
+
+  if (id == nullptr) {
+    admin->error("'" + lexeme + "' is undeclared");
+    stacks.push_stmt( new Stmt() );
+    return;
+  }
+
+  stacks.push_stmt( new Proc(id) );
 }
 
 void Actions::condition(int num_stmts) {
