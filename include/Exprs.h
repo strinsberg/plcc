@@ -11,9 +11,15 @@
 class Constant : public Expr {
  public:
   Constant(Token* token, symbol::Tag type);
+  Constant(Type type, int value = 0, double dec = 0.0);
   virtual ~Constant();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
+
+ private:
+  Type type;
+  int value;
+  double dec;
 };
 
 

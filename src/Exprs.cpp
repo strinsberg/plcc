@@ -9,6 +9,9 @@ using namespace std;
 // Constant ///////////////////////////////////////////////////////////
 Constant::Constant(Token* token, symbol::Tag type) : Expr(token, type) {}
 
+Constant::Constant(Type t, int v, double d)
+  : Expr( new Token(symbol::EMPTY), t.type), type(t), value(v), dec(d) {}
+
 Constant::~Constant() {}
 
 void Constant::visit(CodeGen* generator) {
