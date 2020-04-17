@@ -20,18 +20,15 @@ class AstNode {
 
 class Expr : public AstNode {
  public:
-  Expr(symbol::Tag type);
-  Expr(Token* token, symbol::Tag type);
+  Expr(Type type);
   virtual ~Expr();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
-  virtual bool check_type(symbol::Tag type = symbol::EMPTY);
 
-  symbol::Tag get_type() { return type; }
+  Type get_type() { return type; }
 
  protected:
-  Token* token;
-  symbol::Tag type;
+  Type type;
 };
 
 

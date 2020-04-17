@@ -7,10 +7,8 @@ using namespace std;
 
 
 // Constant ///////////////////////////////////////////////////////////
-Constant::Constant(Token* token, symbol::Tag type) : Expr(token, type) {}
-
 Constant::Constant(Type t, int v, double d)
-  : Expr( new Token(symbol::EMPTY), t.type), type(t), value(v), dec(d) {}
+  : Expr(t), value(v), dec(d) {}
 
 Constant::~Constant() {}
 
@@ -25,21 +23,24 @@ void Constant::display(ostream& out) const {
     out << (char)value;
   else
     out << value;
-  out << "(" << symbol::to_string.at(type.type) << ")";
+  Expr::display(out);
 }
 
 
 // Id /////////////////////////////////////////////////////////////////
-Id::Id(Word* word, symbol::Tag type, symbol::Tag k)
-    : Expr(word, type), kind(k) {}
+Id::Id(Word* w, Type type)
+    : Expr(type), word(w) {}
 
-Id::~Id() {}
+Id::~Id() {
+  delete word;
+}
 
 void Id::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
 void Id::display(ostream& out) const {
+  out << word->to_string();
   Expr::display(out);
   out << "(" << symbol::to_string.at(kind) << ")";
 }
@@ -79,8 +80,8 @@ void ArrayAccess::display(ostream& out) const {
 
 
 // Binary /////////////////////////////////////////////////////////////
-Binary::Binary(Token* op, Expr* l, Expr* r)
-    : Expr(op, l->get_type()), lhs(l), rhs(r) {
+Binary::Binary(Operator o, Expr* l, Expr* r)
+    : Expr(l->get_type()), op(o), lhs(l), rhs(r) {
   if (lhs->get_type() != rhs->get_type())
     throw type_error("type mismatch for binary operator");
   // can also add a check to make sure type of the operator is
@@ -97,12 +98,12 @@ void Binary::visit(CodeGen* generator) {
 }
 
 void Binary::display(ostream& out) const {
-  out << *lhs << " ## " << token->to_string() << " ## " << *rhs;
+  out << *lhs << " ## " << symbol::str(op.op) << " ## " << *rhs;
 }
 
 
 // Unary //////////////////////////////////////////////////////////////
-Unary::Unary(Token* op, Expr* e) : Expr(op, e->get_type()), expr(e) {
+Unary::Unary(Operator o, Expr* e) : Expr(e->get_type()), op(o), expr(e) {
   // check that type of operator matches expr
 }
 
@@ -115,6 +116,6 @@ void Unary::visit(CodeGen* generator) {
 }
 
 void Unary::display(ostream& out) const {
-  out << token->to_string() << " ++ " << *expr;
+  out << symbol::str(op.op) << " ++ " << *expr;
 }
 

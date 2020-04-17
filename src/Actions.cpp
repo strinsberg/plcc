@@ -54,9 +54,6 @@ void Actions::const_def() {
 void Actions::array_def(int vars) {
   admin->debug("array def: " + std::to_string(vars)); 
   auto size = stacks.pop_expr();  // Still unused?
-  if (!size->check_type(symbol::INT))
-    admin->error("array size must be int");  
-
   var_def(symbol::ARRAY, vars);
   delete size;
 }

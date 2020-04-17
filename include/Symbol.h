@@ -78,5 +78,12 @@ const std::map<Tag, std::string> to_string {
   {UNIVERSAL, "UNIVERSAL"},
 };
 
+
+// To simplify to string calls. Not sure inline is good practice, but
+// something is necessary to define it here without a source file.
+inline std::string str(Tag t) {
+  return to_string.at(t);
+}
+
 }
 #endif

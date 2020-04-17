@@ -22,27 +22,16 @@ std::ostream& operator<< (std::ostream& out, const AstNode& node) {
 
 
 // EXPR ///////////////////////////////////////////////////////////////
-Expr::Expr(symbol::Tag t) : token( new Token(symbol::EMPTY) ), type(t) {}
+Expr::Expr(Type t) : type(t) {}
 
-Expr::Expr(Token* tok, symbol::Tag tp) : token(tok), type(tp) {}
-
-Expr::~Expr() {
-  delete token;
-}
+Expr::~Expr() {}
 
 void Expr::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
 void Expr::display(ostream& out) const {
-  out << token->to_string() << "(" << symbol::to_string.at(type);
-  out << ")";
-}
-
-bool Expr::check_type(symbol::Tag t) {
-  if (t != symbol::EMPTY)
-    return t == type;
-  return true;
+  out << "(" << symbol::to_string.at(type.type) << ")";
 }
 
 

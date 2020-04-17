@@ -56,6 +56,8 @@ struct Type {
   Type(symbol::Tag t, symbol::Tag k, symbol::Tag q)
       : type(t), kind(k), qual(q) {}
 
+  // This will need to be more complicated or updated in Op to group some types
+  // for certain operators. ie kind == numeric or bool etc
   bool operator==(const Type& other) {
     if (type != other.type)
       return false;
