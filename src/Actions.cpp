@@ -15,12 +15,14 @@ Actions::~Actions() {
 
 // Type and Op ///////////////////////////////////////////////////
 void Actions::new_type(symbol::Tag type) {
+  admin->debug("type: " + symbol::str(type));
   Type t;
   t.type = type;
   stacks.set_type(t);
 };
 
 void Actions::new_op(symbol::Tag op, symbol::Tag type) {
+  admin->debug("op: " + symbol::str(op));
   Type t;
   t.type = type;
   stacks.set_op( Operator(op, t) );
@@ -47,7 +49,7 @@ void Actions::def_part(int num_defs) {
 void Actions::const_def() {
   admin->debug("const def");
   auto value = stacks.pop_expr();  // Still unused?
-  var_def(symbol::CONST, 1);
+  var_def(symbol::SCALAR, 1);  // perhaps chang this later if other types can be const
   delete value;
 }
 
@@ -279,7 +281,10 @@ void Actions::constant(symbol::Tag tag, int val, double dec) {
 
   } else if (tag == symbol::FLOAT) {
     t.qual = symbol::CONST;
-    con = new Constant(t, val, dec);
+    int size = to_string((int)dec).size();
+    for (int i = 0; i < size; i++)
+      dec /= 10;
+    con = new Constant(t, 0, val + dec);
 
   } else if (tag == symbol::CHAR) {
     t.qual = symbol::CONST;

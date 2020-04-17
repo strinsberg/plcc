@@ -170,41 +170,33 @@ selector: LHSQR expr RHSQR { $$ = (int)symbol::ARRAY; actions->get_admin()->debu
 
 
 /* Operators */
-prim_op: AND { actions->new_op(symbol::AND, symbol::BOOL);
-               actions->new_token(symbol::AND); actions->get_admin()->debug("AND"); }
-  | OR { actions->new_op(symbol::OR, symbol::BOOL);
-         actions->new_token(symbol::OR); actions->get_admin()->debug("OR"); }
+prim_op: AND { actions->new_op(symbol::AND, symbol::BOOL); }
+  | OR { actions->new_op(symbol::OR, symbol::BOOL); }
   ;
 
-rel_op: EQ { actions->new_op(symbol::EQ, symbol::UNIVERSAL);
-             actions->new_token(symbol::EQ); actions->get_admin()->debug("EQUAL"); }
-  | NEQ { actions->new_op(symbol::NEQ, symbol::UNIVERSAL);
-          actions->new_token(symbol::NEQ); actions->get_admin()->debug("NOT EQUAL"); }
-  | LESS { actions->new_op(symbol::LESS, symbol::UNIVERSAL);
-           actions->new_token(symbol::LESS); actions->get_admin()->debug("LESS"); }
-  | GREATER { actions->new_op(symbol::GREATER, symbol::UNIVERSAL);
-              actions->new_token(symbol::GREATER); actions->get_admin()->debug("GREATER"); } 
-  | LEQ { actions->new_op(symbol::LEQ, symbol::UNIVERSAL);
-          actions->new_token(symbol::LEQ); actions->get_admin()->debug("LESS EQUAL"); }
-  | GEQ { actions->new_op(symbol::GEQ, symbol::UNIVERSAL);
-          actions->new_token(symbol::GEQ); actions->get_admin()->debug("GREATER EQUAL"); }
+rel_op: EQ { actions->new_op(symbol::EQ, symbol::UNIVERSAL); }
+  | NEQ { actions->new_op(symbol::NEQ, symbol::UNIVERSAL); }
+  | LESS { actions->new_op(symbol::LESS, symbol::UNIVERSAL); }
+  | GREATER { actions->new_op(symbol::GREATER, symbol::UNIVERSAL); }
+  | LEQ { actions->new_op(symbol::LEQ, symbol::UNIVERSAL); }
+  | GEQ { actions->new_op(symbol::GEQ, symbol::UNIVERSAL); }
   ;
 
-add_op: PLUS { actions->new_op(symbol::PLUS, symbol::UNIVERSAL); actions->new_token(symbol::PLUS); actions->get_admin()->debug("PLUS"); }
-  | MINUS { actions->new_op(symbol::MINUS, symbol::UNIVERSAL); actions->new_token(symbol::MINUS); actions->get_admin()->debug("MINUS"); }
+add_op: PLUS { actions->new_op(symbol::PLUS, symbol::UNIVERSAL); }
+  | MINUS { actions->new_op(symbol::MINUS, symbol::UNIVERSAL); }
   ;
 
-mult_op: MULT { actions->new_op(symbol::MULT, symbol::UNIVERSAL); actions->new_token(symbol::MULT); actions->get_admin()->debug("MULT"); }
-  | DIV { actions->new_op(symbol::DIV, symbol::UNIVERSAL); actions->new_token(symbol::DIV); actions->get_admin()->debug("DIV"); }
-  | MOD { actions->new_op(symbol::MOD, symbol::UNIVERSAL); actions->new_token(symbol::MOD); actions->get_admin()->debug("MOD"); }
+mult_op: MULT { actions->new_op(symbol::MULT, symbol::UNIVERSAL); }
+  | DIV { actions->new_op(symbol::DIV, symbol::UNIVERSAL); }
+  | MOD { actions->new_op(symbol::MOD, symbol::UNIVERSAL); }
   ;
 
 
 /* Terminals */
-type_sym: INT { actions->new_type(symbol::INT); actions->new_token(symbol::INT); actions->get_admin()->debug("INT"); }
-  | FLOAT { actions->new_type(symbol::INT); actions->new_token(symbol::FLOAT); actions->get_admin()->debug("FLOAT"); }
-  | BOOL { actions->new_type(symbol::INT); actions->new_token(symbol::BOOL); actions->get_admin()->debug("BOOL"); }
-  | CHAR { actions->new_type(symbol::INT); actions->new_token(symbol::CHAR); actions->get_admin()->debug("CHAR"); }
+type_sym: INT { actions->new_type(symbol::INT); }
+  | FLOAT { actions->new_type(symbol::FLOAT); }
+  | BOOL { actions->new_type(symbol::BOOL); }
+  | CHAR { actions->new_type(symbol::CHAR); }
   ;
 
 constant: number
