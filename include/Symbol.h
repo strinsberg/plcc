@@ -17,7 +17,7 @@ enum Tag {
   ARRAY, PROC, ENDPROC, RECORD, ENDREC, TYPE, SCALAR,
   INT, BOOL, FLOAT, CHAR, CONST,
   NUMBER, TRUE, FALSE, NAME, CHARACTER,
-  EMPTY, CALL, READ
+  EMPTY, CALL, READ, UNIVERSAL,
 };
 
 
@@ -75,6 +75,7 @@ const std::map<Tag, std::string> to_string {
   {EMPTY, "EMPTY"},
   {CALL, "CALL"},
   {READ, "READ"},
+  {UNIVERSAL, "UNIVERSAL"},
 };
 
 }

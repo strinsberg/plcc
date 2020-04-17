@@ -51,15 +51,29 @@ class Char : public Token {
   char value;
 };
 
-class Type {
-  // should have 3 tags. one for type, kind, and qualifier
-  // will need to have operator== overloaded so that types can easily be
-  // compared. Also will need to have some tags for types that mean
-  // anything is allowed. Perhaps use a universal instead of empty.
+struct Type {
+  Type(symbol::Tag t, symbol::Tag k, symbol::Tag q)
+      : type(t), kind(k), qual(q) {}
+
+  bool operator==(const Type& other) {
+    if (type != other.type)
+      return false;
+    if (kind != other.kind and kind != symbol::UNIVERSAL
+        and other.kind != symbol::UNIVERSAL)
+      return false;
+    if (qual != other.qual and qual != symbol::UNIVERSAL
+        and other.qual != symbol::UNIVERSAL)
+      return false;
+    return true;
+  }
+
+  symbol::Tag type, kind, qual;
 };
 
-class Operator {
-  // should have a type so that it can be used to match types
+struct Operator {
+  Operator(symbol::Tag o, Type t) : op(o), type(t) {}
+  symbol::Tag op;
+  Type type;
 };
 
 #endif
