@@ -28,8 +28,7 @@ void Constant::display(ostream& out) const {
 
 
 // Id /////////////////////////////////////////////////////////////////
-
-Id::Id(string l, Type type) : Expr(type) {
+Id::Id(string l, Type type, int s) : Expr(type), size(s) {
   name = l;
 }
 
@@ -43,6 +42,21 @@ void Id::display(ostream& out) const {
   out << name;
   Expr::display(out);
   out << "(" << symbol::str(type.kind) << ")";
+}
+
+
+// Id /////////////////////////////////////////////////////////////////
+ConstId::ConstId(string l, Type type, Constant* c) : Id(l, type, 1), value(c) {}
+
+ConstId::~ConstId() {}
+
+void ConstId::visit(CodeGen* generator) {
+  generator->visit(this);
+}
+
+void ConstId::display(ostream& out) const {
+  Id::display(out);
+  out << "(Const)" << endl;
 }
 
 
@@ -112,7 +126,7 @@ void Binary::visit(CodeGen* generator) {
 }
 
 void Binary::display(ostream& out) const {
-  out << *lhs << " ## " << symbol::str(op.op) << " ## " << *rhs;
+  out << "{ " << *lhs << " ## " << symbol::str(op.op) << " ## " << *rhs << " }";
 }
 
 
@@ -131,6 +145,6 @@ void Unary::visit(CodeGen* generator) {
 }
 
 void Unary::display(ostream& out) const {
-  out << symbol::str(op.op) << " # " << *expr;
+  out << "{ " << symbol::str(op.op) << " # " << *expr << " }";
 }
 

@@ -1,6 +1,5 @@
 begin
   int x, y, z;
-  const int m = 5;
-  m := 6;
-  call m;
+  bool array[x] A;
+  A[10.4] := 5;
 end.

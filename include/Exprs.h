@@ -23,10 +23,23 @@ class Constant : public Expr {
 
 class Id : public Expr {
  public:
-  Id(std::string lexeme, Type type);
+  Id(std::string lexeme, Type type, int size);
   virtual ~Id();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
+ protected:
+  int size;
+};
+
+
+class ConstId : public Id {
+ public:
+  ConstId(std::string lexeme, Type type, Constant* value);
+  virtual ~ConstId();
+  virtual void visit(CodeGen* generator);
+  virtual void display(std::ostream& os) const;
+ protected:
+  Constant* value;
 };
 
 

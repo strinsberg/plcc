@@ -28,7 +28,7 @@ void Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 };
 
 void Actions::name(string n) {
-  stacks.push_expr( new Id(n, Type()) );
+  stacks.push_expr( new Id(n, Type(), 1) );
 }
 
 
@@ -46,14 +46,14 @@ void Actions::def_part(int num_defs) {
 void Actions::const_def() {
   admin->debug("const def");
   auto value = stacks.pop_expr();  // Still unused?
-  var_def(1, symbol::SCALAR, symbol::CONST);  // perhaps chang this later if other types can be const
+  var_def(1, symbol::SCALAR, symbol::CONST);
   delete value;
 }
 
 void Actions::array_def(int vars) {
   admin->debug("array def: " + to_string(vars)); 
   var_def(vars, symbol::ARRAY);
-  auto size = stacks.pop_expr();  // Under the names, should get it in the add_vars
+  auto size = stacks.pop_expr();  // Under the names, still unused.
   delete size;
 }
 
@@ -79,7 +79,7 @@ void Actions::add_vars(Type type, int vars) {
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     auto name = stacks.pop_expr();
-    Id* id = new Id(name->get_name(), type);
+    Id* id = new Id(name->get_name(), type, 1);
     bool added = table.put(name->get_name(), id);
 
     if (!added) {
@@ -235,11 +235,15 @@ void Actions::access(symbol::Tag kind) {
   if (id == nullptr)
     return;
 
-  Access* acs = nullptr;
-  if (kind == symbol::ARRAY) {
-    acs = new ArrayAccess(id, idx);
-  } else {
-    acs = new Access(id);
+  Expr* acs = new Expr(Type());
+  try {
+    if (kind == symbol::ARRAY) {
+      acs = new ArrayAccess(id, idx);
+    } else {
+      acs = new Access(id);
+    }
+  } catch (const exception& e) {
+    admin->error("type error: " + string(e.what()), id->get_name());
   }
 
   stacks.push_expr(acs);
