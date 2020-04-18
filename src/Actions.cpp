@@ -28,6 +28,7 @@ void Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 };
 
 void Actions::name(string n) {
+  // temp id to hold the name on exprssion stack
   stacks.push_expr( new Id(n, Type(), new Expr(Type())) );
 }
 
@@ -51,7 +52,36 @@ void Actions::const_def() {
 
 void Actions::array_def(int vars) {
   admin->debug("array def: " + to_string(vars)); 
-  var_def(vars, symbol::ARRAY);
+  vector<Expr*> names(vars);
+  for (auto & n : names)
+    n = stacks.pop_expr();
+
+  Expr* size = stacks.pop_expr();
+  Type type = stacks.get_type();
+  type.kind = symbol::ARRAY;
+
+  Def* def = nullptr;
+  for (auto& n : names) {
+    Id* id = new Id(n->get_name(), type, size); 
+    bool added = table.put(n->get_name(), id);
+
+    if (!added) {
+      admin->error("'" + n->get_name() + "' already declared");
+      delete id;
+    } else {
+      auto var = new VarDef(id);
+      if (def == nullptr)
+        def = var;
+      else
+        def = new DefSeq(var, def);
+    }
+
+    delete n;
+  }
+
+  if (def == nullptr)
+    def = new Def();
+  stacks.push_def(def);
 }
 
 void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual, Expr* value) {
