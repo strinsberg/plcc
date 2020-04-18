@@ -189,15 +189,10 @@ void Actions::empty() {
 
 void Actions::proc_stmt() {
   admin->debug("call");
-  auto name = stacks.pop_expr();
-  auto id = table.get(name->get_name());
 
-  if (id == nullptr) {
-    admin->error("'" + name->get_name() + "' is undeclared");
-    stacks.push_stmt( new Stmt() );
+  auto id = get_id();
+  if (id == nullptr)
     return;
-  }
-  delete name;
 
   Stmt* stmt = new Stmt();
   try {
@@ -211,6 +206,7 @@ void Actions::proc_stmt() {
 
 void Actions::condition(int num_stmts) {
   admin->debug("condition: " + to_string(num_stmts));
+
   auto cond = stacks.pop_expr();
   stmt_part(num_stmts);
   auto stmt = stacks.pop_stmt();
@@ -230,33 +226,21 @@ void Actions::condition(int num_stmts) {
 
 void Actions::access(symbol::Tag kind) {
   admin->debug("access: " + symbol::str(kind));
+
   Expr* idx;
   if (kind == symbol::ARRAY)
     idx = stacks.pop_expr();
 
-  // Would be nice to put this into a function and return something
-  // It is used in different places and would make it easier to split this into
-  // access and array access now that the idx has to come before the name.
-  // and when record types are needed it will be needed there too.
-  auto name = stacks.pop_expr();
-  auto id = table.get(name->get_name());
-
-  if (id == nullptr) {
-    admin->error("'" + name->get_name() + "' is undeclared");
-    stacks.push_stmt( new Stmt() );
+  auto id = get_id();
+  if (id == nullptr)
     return;
-  }
-  delete name;
 
   Access* acs = nullptr;
   if (kind == symbol::ARRAY) {
-    acs = new ArrayAccess(id, idx);  // Can do type check on index
+    acs = new ArrayAccess(id, idx);
   } else {
     acs = new Access(id);
   }
-
-  // Check the kind of access here to make sure that array access is
-  // not done on a scalar id. Possibly even add a kind field to access.
 
   stacks.push_expr(acs);
 }
@@ -338,3 +322,17 @@ void Actions::display() {
   table.print();
 }
 
+
+// Helpers ////////////////////////////////////////////////////////////
+Id* Actions::get_id() {
+  auto name = stacks.pop_expr();
+  auto id = table.get(name->get_name());
+
+  if (id == nullptr) {
+    admin->error("'" + name->get_name() + "' is undeclared");
+    stacks.push_stmt( new Stmt() );
+  }
+
+  delete name;
+  return id;
+}

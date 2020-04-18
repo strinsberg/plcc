@@ -55,6 +55,8 @@ class Actions {
   AstStacks stacks;
   BlockTable table;
   Admin* admin;
+
+  Id* get_id();
 };
 
 #endif
