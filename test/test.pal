@@ -1,5 +1,6 @@
 begin
   int x, y, z;
-  int array[5] A, B, C;
-  write A[0];
+  const int m = 5;
+  m := 6;
+  call m;
 end.

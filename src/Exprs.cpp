@@ -47,7 +47,9 @@ void Id::display(ostream& out) const {
 
 
 // Access /////////////////////////////////////////////////////////////
-Access::Access(Id* i) : Expr( i->get_type() ) , id(i) {}
+Access::Access(Id* i) : Expr( i->get_type() ) , id(i) {
+  name = id->get_name();
+}
 
 Access::~Access() {
   // A definition owns the id so do not delete it!

@@ -46,21 +46,23 @@ void Actions::def_part(int num_defs) {
 void Actions::const_def() {
   admin->debug("const def");
   auto value = stacks.pop_expr();  // Still unused?
-  var_def(symbol::SCALAR, 1);  // perhaps chang this later if other types can be const
+  var_def(1, symbol::SCALAR, symbol::CONST);  // perhaps chang this later if other types can be const
   delete value;
 }
 
 void Actions::array_def(int vars) {
   admin->debug("array def: " + to_string(vars)); 
-  var_def(symbol::ARRAY, vars);
+  var_def(vars, symbol::ARRAY);
   auto size = stacks.pop_expr();  // Under the names, should get it in the add_vars
   delete size;
 }
 
-void Actions::var_def(symbol::Tag kind, int vars) {
+void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual) {
   admin->debug("var def: " + symbol::str(kind) + " " + to_string(vars)); 
   Type type = stacks.get_type();
-  add_vars(type, kind, vars);
+  type.kind = kind;
+  type.qual = qual;
+  add_vars(type, vars);
 }
 
 
@@ -71,12 +73,10 @@ void Actions::proc_def() {
 }
 
 
-void Actions::add_vars(Type type, symbol::Tag kind, int vars) {
-  admin->debug("add vars: " + symbol::str(type.type) + " " + symbol::str(kind) + " " + to_string(vars)); 
+void Actions::add_vars(Type type, int vars) {
+  admin->debug("add vars: " + symbol::str(type.type) + " " + to_string(vars)); 
 
-  type.kind = kind;
   Def* def = nullptr;
-
   for (int i = 0; i < vars; i++) {
     auto name = stacks.pop_expr();
     Id* id = new Id(name->get_name(), type);
@@ -199,7 +199,14 @@ void Actions::proc_stmt() {
   }
   delete name;
 
-  stacks.push_stmt( new Proc(id) );
+  Stmt* stmt = new Stmt();
+  try {
+    stmt = new Proc(id);
+  } catch (const exception& e) {
+    admin->error("type error: " + string(e.what()));
+  }
+
+  stacks.push_stmt(stmt);
 }
 
 void Actions::condition(int num_stmts) {
@@ -212,8 +219,10 @@ void Actions::condition(int num_stmts) {
   try {
     c = new Cond(cond, stmt);
   } catch (const exception& e) {
-    admin->error("type error: " + string(e.what()), symbol::str(cond->get_type().type));
+    admin->error("type error: " + string(e.what()) +
+                 ". actual type: " + symbol::str(cond->get_type().type));
   }
+
   stacks.push_stmt(c);
 }
 

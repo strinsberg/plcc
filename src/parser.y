@@ -56,11 +56,13 @@ const_def: CONST type_sym name INIT constant { actions->const_def(); }
 var_def: type_sym v_prime
   ;
 
-v_prime: var_list { actions->var_def(symbol::SCALAR, $$); }
+v_prime: var_list { actions->var_def($$, symbol::SCALAR); }
   | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); }
   ;
 
-proc_def: PROC name { actions->add_vars(Type(), symbol::PROC, 1); }
+proc_def: PROC name { actions->add_vars(
+                        Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL),
+                        1); }
           bprime ENDPROC { actions->proc_def(); }
   ;
 
