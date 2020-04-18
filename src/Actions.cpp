@@ -57,6 +57,12 @@ void Actions::array_def(int vars) {
     n = stacks.pop_expr();
 
   Expr* size = stacks.pop_expr();
+  // Should be added to a def node. Probably to the standard id.
+  if (size->get_type().qual != symbol::CONST)
+    admin->error("array size must be a constant");
+  if (size->get_type().type != symbol::INT)
+    admin->error("array size must be int");
+
   Type type = stacks.get_type();
   type.kind = symbol::ARRAY;
 
@@ -84,6 +90,7 @@ void Actions::array_def(int vars) {
   stacks.push_def(def);
 }
 
+// No longer needs a kind as arrays are defined separatedly
 void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual, Expr* value) {
   admin->debug("var def: " + symbol::str(kind) + " " + to_string(vars)); 
   Type type = stacks.get_type();
@@ -104,12 +111,11 @@ void Actions::add_vars(Type type, int vars, Expr* value) {
   admin->debug("add vars: " + symbol::str(type.type) + " " + to_string(vars)); 
   Expr* size = new Constant(
       Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0);
-  if (type.kind == symbol::ARRAY)
-    size = stacks.pop_expr();
 
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     auto name = stacks.pop_expr();
+    // Should probably also be doing some type checkng for proper sizes
     Id* id = new Id(name->get_name(), type, size);
 
     if (type.qual == symbol::CONST) {
@@ -120,6 +126,9 @@ void Actions::add_vars(Type type, int vars, Expr* value) {
       }
     }
 
+    // may be possible to move this to it's own function to reduce duplicate code
+    // and make future composit defs have easy access to it like array def needs
+    // give it a param for id and def and just update the def
     bool added = table.put(name->get_name(), id);
     if (!added) {
       admin->error("'" + name->get_name() + "' already declared");

@@ -1,5 +1,5 @@
 begin
-  int x, y, z;
-  bool array[x] A;
+  float x, y, z;
+  bool array[true] A;
   A[10.4] := 5;
 end.
