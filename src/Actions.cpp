@@ -28,7 +28,7 @@ void Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 };
 
 void Actions::name(string n) {
-  stacks.push_expr( new Id(n, Type(), 1) );
+  stacks.push_expr( new Id(n, Type(), new Expr(Type())) );
 }
 
 
@@ -45,24 +45,21 @@ void Actions::def_part(int num_defs) {
 
 void Actions::const_def() {
   admin->debug("const def");
-  auto value = stacks.pop_expr();  // Still unused?
-  var_def(1, symbol::SCALAR, symbol::CONST);
-  delete value;
+  auto value = stacks.pop_expr();
+  var_def(1, symbol::SCALAR, symbol::CONST, value);
 }
 
 void Actions::array_def(int vars) {
   admin->debug("array def: " + to_string(vars)); 
   var_def(vars, symbol::ARRAY);
-  auto size = stacks.pop_expr();  // Under the names, still unused.
-  delete size;
 }
 
-void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual) {
+void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual, Expr* value) {
   admin->debug("var def: " + symbol::str(kind) + " " + to_string(vars)); 
   Type type = stacks.get_type();
   type.kind = kind;
   type.qual = qual;
-  add_vars(type, vars);
+  add_vars(type, vars, value);
 }
 
 
@@ -73,15 +70,27 @@ void Actions::proc_def() {
 }
 
 
-void Actions::add_vars(Type type, int vars) {
+void Actions::add_vars(Type type, int vars, Expr* value) {
   admin->debug("add vars: " + symbol::str(type.type) + " " + to_string(vars)); 
+  Expr* size = new Constant(
+      Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0);
+  if (type.kind == symbol::ARRAY)
+    size = stacks.pop_expr();
 
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     auto name = stacks.pop_expr();
-    Id* id = new Id(name->get_name(), type, 1);
-    bool added = table.put(name->get_name(), id);
+    Id* id = new Id(name->get_name(), type, size);
 
+    if (type.qual == symbol::CONST) {
+      try {
+        id = new ConstId(name->get_name(), type, value);
+      } catch (const exception& e) {
+        admin->error("type error: " + string(e.what()), name->get_name());
+      }
+    }
+
+    bool added = table.put(name->get_name(), id);
     if (!added) {
       admin->error("'" + name->get_name() + "' already declared");
       delete id;

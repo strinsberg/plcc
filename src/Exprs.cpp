@@ -28,7 +28,7 @@ void Constant::display(ostream& out) const {
 
 
 // Id /////////////////////////////////////////////////////////////////
-Id::Id(string l, Type type, int s) : Expr(type), size(s) {
+Id::Id(string l, Type type, Expr* s) : Expr(type), size(s) {
   name = l;
 }
 
@@ -46,7 +46,15 @@ void Id::display(ostream& out) const {
 
 
 // Id /////////////////////////////////////////////////////////////////
-ConstId::ConstId(string l, Type type, Constant* c) : Id(l, type, 1), value(c) {}
+ConstId::ConstId(string l, Type t, Expr* c) 
+    : Id(l, t, new Constant(
+      Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0)), value(c) {
+  if (t.type != value->get_type().type)
+    throw type_error("constant variable type does not match value type");
+
+  if (c->get_type().qual != symbol::CONST)
+    throw type_error("values assigned to constants must be constant");
+}
 
 ConstId::~ConstId() {}
 
@@ -56,7 +64,7 @@ void ConstId::visit(CodeGen* generator) {
 
 void ConstId::display(ostream& out) const {
   Id::display(out);
-  out << "(Const)" << endl;
+  out << "(Const: " << *value << ")";
 }
 
 

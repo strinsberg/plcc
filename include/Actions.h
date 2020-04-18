@@ -23,11 +23,11 @@ class Actions {
 
   // definition actions
   void const_def();
-  void var_def(int vars, symbol::Tag kind, symbol::Tag qual=symbol::UNIVERSAL);
+  void var_def(int vars, symbol::Tag kind, symbol::Tag qual=symbol::UNIVERSAL, Expr* expr=nullptr);
   void array_def(int vars);
   void proc_def();
   void def_part(int num_defs);
-  void add_vars(Type type, int vars);
+  void add_vars(Type type, int vars, Expr* value=nullptr);
 
   // stmt actions
   void block(int num_defs, int num_stmts);
