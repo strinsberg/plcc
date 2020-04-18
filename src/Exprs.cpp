@@ -8,7 +8,7 @@ using namespace std;
 
 // Constant ///////////////////////////////////////////////////////////
 Constant::Constant(Type t, int v, double d)
-  : Expr(t), value(v), dec(d) {}
+    : Expr(t), value(v), dec(d) {}
 
 Constant::~Constant() {}
 
@@ -63,7 +63,13 @@ void Access::display(ostream& out) const {
 
 
 // ArrayAccess ////////////////////////////////////////////////////////
-ArrayAccess::ArrayAccess(Id* i, Expr* idx) : Access(i), index(idx) {}
+ArrayAccess::ArrayAccess(Id* i, Expr* idx) : Access(i), index(idx) {
+  if (i->get_type().kind != symbol::ARRAY)
+    throw type_error("variable must be array");
+
+  if (index->get_type().type != symbol::INT)
+    throw type_error("array index must be type int");
+}
 
 ArrayAccess::~ArrayAccess() {
   // do not delete the index if it is an id

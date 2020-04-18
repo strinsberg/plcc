@@ -35,7 +35,7 @@ void Actions::name(string n) {
 // Definitions ///////////////////////////////////////////////////
 
 void Actions::def_part(int num_defs) {
-  admin->debug("def part: " + std::to_string(num_defs)); 
+  admin->debug("def part: " + to_string(num_defs)); 
   auto def = stacks.pop_def();
   for (int i = 0; i < num_defs - 1; i++ ) {
     def = new DefSeq( stacks.pop_def(), def);
@@ -51,14 +51,14 @@ void Actions::const_def() {
 }
 
 void Actions::array_def(int vars) {
-  admin->debug("array def: " + std::to_string(vars)); 
+  admin->debug("array def: " + to_string(vars)); 
   var_def(symbol::ARRAY, vars);
   auto size = stacks.pop_expr();  // Under the names, should get it in the add_vars
   delete size;
 }
 
 void Actions::var_def(symbol::Tag kind, int vars) {
-  admin->debug("var def: " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
+  admin->debug("var def: " + symbol::str(kind) + " " + to_string(vars)); 
   Type type = stacks.get_type();
   add_vars(type, kind, vars);
 }
@@ -72,7 +72,7 @@ void Actions::proc_def() {
 
 
 void Actions::add_vars(Type type, symbol::Tag kind, int vars) {
-  admin->debug("add vars: " + symbol::str(type.type) + " " + symbol::to_string.at(kind) + " " + std::to_string(vars)); 
+  admin->debug("add vars: " + symbol::str(type.type) + " " + symbol::str(kind) + " " + to_string(vars)); 
 
   type.kind = kind;
   Def* def = nullptr;
@@ -105,7 +105,7 @@ void Actions::add_vars(Type type, symbol::Tag kind, int vars) {
 // Statement methods //////////////////////////////////////////////////
 
 void Actions::block(int num_defs, int num_stmts) {
-  admin->debug("block: " + std::to_string(num_defs) + ", " + std::to_string(num_stmts));
+  admin->debug("block: " + to_string(num_defs) + ", " + to_string(num_stmts));
   def_part(num_defs);
   stmt_part(num_stmts);
   stacks.push_stmt( new Block(stacks.pop_def(), stacks.pop_stmt()) );
@@ -113,7 +113,7 @@ void Actions::block(int num_defs, int num_stmts) {
 }
 
 void Actions::stmt_part(int num_stmts) {
-  admin->debug("stmt part: " + std::to_string(num_stmts));
+  admin->debug("stmt part: " + to_string(num_stmts));
   auto stmt = stacks.pop_stmt();
   for (int i = 0; i < num_stmts - 1; i++) {
     stmt = new Seq( stacks.pop_stmt(), stmt ); 
@@ -122,7 +122,7 @@ void Actions::stmt_part(int num_stmts) {
 }
 
 void Actions::io(int num_expr, symbol::Tag type) {
-  admin->debug("io: " + std::to_string(num_expr) + " " + symbol::to_string.at(type));
+  admin->debug("io: " + to_string(num_expr) + " " + symbol::str(type));
   Stmt* stmt = new IoStmt(stacks.pop_expr(), type);
   for (int i = 0; i < num_expr - 1; i++) {  
     stmt = new Seq( new IoStmt(stacks.pop_expr(), type), stmt );
@@ -131,7 +131,7 @@ void Actions::io(int num_expr, symbol::Tag type) {
 }
 
 void Actions::assign(int num_vars, int num_exprs) {
-  admin->debug("assign: " + std::to_string(num_vars) + ", " + std::to_string(num_exprs));
+  admin->debug("assign: " + to_string(num_vars) + ", " + to_string(num_exprs));
   if (num_vars != num_exprs) {
     admin->error("number of variables does not match number of exressions");
     stacks.push_stmt(new Stmt() );
@@ -164,7 +164,7 @@ void Actions::assign(int num_vars, int num_exprs) {
 }
 
 void Actions::if_stmt(int num_cond) {
-  admin->debug("if: " + std::to_string(num_cond));
+  admin->debug("if: " + to_string(num_cond));
   auto cond = stacks.pop_stmt();
   for (int i = 0; i < num_cond - 1; i++)
     cond = new Seq(stacks.pop_stmt(), cond);
@@ -197,7 +197,7 @@ void Actions::proc_stmt() {
 }
 
 void Actions::condition(int num_stmts) {
-  admin->debug("condition: " + std::to_string(num_stmts));
+  admin->debug("condition: " + to_string(num_stmts));
   auto cond = stacks.pop_expr();
   stmt_part(num_stmts);
   auto stmt = stacks.pop_stmt();
@@ -207,7 +207,7 @@ void Actions::condition(int num_stmts) {
 // Expression methods /////////////////////////////////////////////////
 
 void Actions::access(symbol::Tag kind) {
-  admin->debug("access: " + symbol::to_string.at(kind));
+  admin->debug("access: " + symbol::str(kind));
   Expr* idx;
   if (kind == symbol::ARRAY)
     idx = stacks.pop_expr();
@@ -271,7 +271,7 @@ void Actions::unary() {
 }
 
 void Actions::constant(symbol::Tag tag, int val, double dec) {
-  admin->debug("constant: " + symbol::to_string.at(tag) + " " + std::to_string(val)); 
+  admin->debug("constant: " + symbol::str(tag) + " " + to_string(val)); 
   Expr* con;
   Type t;
   t.type = tag;

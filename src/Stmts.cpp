@@ -1,6 +1,7 @@
 #include "Stmts.h"
 #include "AstNode.h"
 #include "Exprs.h"
+#include "exceptions.h"
 #include <iostream>
 using namespace std;
 
@@ -43,7 +44,10 @@ void Block::display(ostream& out) const {
 
 
 // ASGN ///////////////////////////////////////////////////////////////
-Asgn::Asgn(Expr* a, Expr* e) : Stmt(), acs(a), expr(e) {}
+Asgn::Asgn(Expr* a, Expr* e) : Stmt(), acs(a), expr(e) {
+  if (!(acs->get_type() == expr->get_type()))
+    throw type_error("assignment variable type does not match expression type");
+}
 
 Asgn::~Asgn() {
   delete acs;
@@ -70,12 +74,15 @@ void IoStmt::visit(CodeGen* generator) {
 }
 
 void IoStmt::display(ostream& out) const {
-  out << symbol::to_string.at(type) << ": " << *expr;
+  out << symbol::str(type) << ": " << *expr;
 }
 
 
 // COND ///////////////////////////////////////////////////////////////
-Cond::Cond(Expr* c, Stmt* s) : Stmt(), cond(c), stmts(s) {}
+Cond::Cond(Expr* c, Stmt* s) : Stmt(), cond(c), stmts(s) {
+  if (cond->get_type().type != symbol::BOOL)
+    throw type_error("condition must be boolean expression");
+}
 
 Cond::~Cond() {
   delete cond;
@@ -125,7 +132,10 @@ void IfStmt::display(ostream& out) const {
 
 
 // PROC ///////////////////////////////////////////////////////////////
-Proc::Proc(Id* i) : Stmt(), id(i) {}
+Proc::Proc(Id* i) : Stmt(), id(i) {
+  if (i->get_type().kind != symbol::PROC)
+    throw type_error("variable is not a procedure");
+}
 
 Proc::~Proc() {
   // The id is owned by a def node. Do Not Delete it!
