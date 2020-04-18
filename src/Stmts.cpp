@@ -45,7 +45,7 @@ void Block::display(ostream& out) const {
 
 // ASGN ///////////////////////////////////////////////////////////////
 Asgn::Asgn(Expr* a, Expr* e) : Stmt(), acs(a), expr(e) {
-  if (!(acs->get_type() == expr->get_type()))
+  if (!(acs->get_type().type == expr->get_type().type))
     throw type_error("assignment variable type does not match expression type");
 }
 

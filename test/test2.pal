@@ -39,7 +39,7 @@ begin
   -- Test block stmt
   begin
     int inside;
-    inside := A[0];
+    inside := i;
     write inside;
   end;
 
