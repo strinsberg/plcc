@@ -88,6 +88,11 @@ void ArrayAccess::display(ostream& out) const {
 // Binary /////////////////////////////////////////////////////////////
 Binary::Binary(Operator o, Expr* l, Expr* r)
     : Expr(l->get_type()), op(o), lhs(l), rhs(r) {
+  if (o.type.qual != symbol::UNIVERSAL) {
+    type.type = o.type.qual;
+    type.kind = symbol::UNIVERSAL;
+  }
+
   if (!(lhs->get_type() == rhs->get_type()))
     throw type_error("type mismatch for binary operator");
 

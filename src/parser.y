@@ -168,16 +168,16 @@ selector: LHSQR expr RHSQR { $$ = (int)symbol::ARRAY; actions->get_admin()->debu
 
 
 /* Operators */
-prim_op: AND { actions->new_op(symbol::AND, symbol::BOOL); }
-  | OR { actions->new_op(symbol::OR, symbol::BOOL); }
+prim_op: AND { actions->new_op(symbol::AND, symbol::BOOL, symbol::BOOL); }
+  | OR { actions->new_op(symbol::OR, symbol::BOOL, symbol::BOOL); }
   ;
 
-rel_op: EQ { actions->new_op(symbol::EQ, symbol::UNIVERSAL); }
-  | NEQ { actions->new_op(symbol::NEQ, symbol::UNIVERSAL); }
-  | LESS { actions->new_op(symbol::LESS, symbol::NUMBER); }
-  | GREATER { actions->new_op(symbol::GREATER, symbol::NUMBER); }
-  | LEQ { actions->new_op(symbol::LEQ, symbol::NUMBER); }
-  | GEQ { actions->new_op(symbol::GEQ, symbol::NUMBER); }
+rel_op: EQ { actions->new_op(symbol::EQ, symbol::UNIVERSAL, symbol::BOOL); }
+  | NEQ { actions->new_op(symbol::NEQ, symbol::UNIVERSAL, symbol::BOOL); }
+  | LESS { actions->new_op(symbol::LESS, symbol::NUMBER, symbol::BOOL); }
+  | GREATER { actions->new_op(symbol::GREATER, symbol::NUMBER, symbol::BOOL); }
+  | LEQ { actions->new_op(symbol::LEQ, symbol::NUMBER, symbol::BOOL); }
+  | GEQ { actions->new_op(symbol::GEQ, symbol::NUMBER, symbol::BOOL); }
   ;
 
 add_op: PLUS { actions->new_op(symbol::PLUS, symbol::NUMBER); }

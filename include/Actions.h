@@ -18,7 +18,7 @@ class Actions {
   Admin* get_admin() {return admin; }
 
   void new_type(symbol::Tag);
-  void new_op(symbol::Tag, symbol::Tag);
+  void new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
   void name(std::string);
 
   // definition actions

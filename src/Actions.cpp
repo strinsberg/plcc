@@ -21,9 +21,9 @@ void Actions::new_type(symbol::Tag type) {
   stacks.set_type(t);
 };
 
-void Actions::new_op(symbol::Tag op, symbol::Tag type) {
+void Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
   admin->debug("op: " + symbol::str(op));
-  Type t(type, symbol::OPERATOR, symbol::UNIVERSAL);
+  Type t(type, symbol::OPERATOR, qual);
   stacks.push_op( Operator(op, t) );
 };
 
@@ -151,11 +151,17 @@ void Actions::assign(int num_vars, int num_exprs) {
     auto acs = lhs.at(i);
     auto expr = rhs.at(i);
 
-    Asgn* asgn = new Asgn(acs, expr);  // will do type checking
+    Stmt* asgn = new Stmt();
+    try {
+      asgn = new Asgn(acs, expr);
+    } catch (const exception& e) {
+      admin->error("type error: " + string(e.what()), acs->get_name());
+    }
+
     if (stmt == nullptr)
       stmt = asgn;
     else
-      stmt = new Seq(asgn, stmt);  // will do type checking
+      stmt = new Seq(asgn, stmt);
   }
 
   if (stmt == nullptr)
@@ -201,7 +207,14 @@ void Actions::condition(int num_stmts) {
   auto cond = stacks.pop_expr();
   stmt_part(num_stmts);
   auto stmt = stacks.pop_stmt();
-  stacks.push_stmt( new Cond(cond, stmt) );
+
+  Stmt* c = new Stmt();
+  try {
+    c = new Cond(cond, stmt);
+  } catch (const exception& e) {
+    admin->error("type error: " + string(e.what()), symbol::str(cond->get_type().type));
+  }
+  stacks.push_stmt(c);
 }
 
 // Expression methods /////////////////////////////////////////////////
