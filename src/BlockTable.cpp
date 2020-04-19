@@ -4,18 +4,17 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 
 using namespace std;
 
 
 BlockTable::BlockTable() : level(0) {}
 
-BlockTable::~BlockTable() {
-  for (auto & blk : blocks) {}
-    //del_block(blk);
-}
+BlockTable::~BlockTable() {}
 
-bool BlockTable::put(string lexeme, Id* id) {
+
+bool BlockTable::put(string lexeme, shared_ptr<Id> id) {
   auto it = blocks.back().find(lexeme);
   if ( it != blocks.back().end() )
     return false;
@@ -24,7 +23,7 @@ bool BlockTable::put(string lexeme, Id* id) {
   return true;
 }
 
-Id* BlockTable::get(std::string lexeme) {
+shared_ptr<Id> BlockTable::get(std::string lexeme) {
   for (auto it = blocks.rbegin(); it != blocks.rend(); ++it) {
     auto item = it->find(lexeme);
     if ( item != it->end() )
@@ -34,12 +33,11 @@ Id* BlockTable::get(std::string lexeme) {
 }
 
 void BlockTable::push_block() {
-  blocks.push_back( map<string, Id*>() );
+  blocks.push_back( map<string, shared_ptr<Id>>() );
   level++;
 }
 
 void BlockTable::pop_block() {
-  //del_block( blocks.back() );
   blocks.pop_back();
   level--;
 }
@@ -58,7 +56,3 @@ void BlockTable::print() {
   }
 }
 
-void BlockTable::del_block(std::map<std::string, Id*>& block) {
-    for (auto & it : block)
-      delete it.second;
-}

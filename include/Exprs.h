@@ -6,6 +6,7 @@
 #include "Symbol.h"
 #include "Types.h"
 #include <string>
+#include <memory>
 
 
 class Constant : public Expr {
@@ -24,74 +25,74 @@ class Constant : public Expr {
 
 class Id : public Expr {
  public:
-  Id(std::string lexeme, Type type, Expr* size);
+  Id(std::string lexeme, Type type, std::shared_ptr<Expr> size);
   virtual ~Id();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
  protected:
-  Expr* size;
+  std::shared_ptr<Expr> size;
 };
 
 
 class ConstId : public Id {
  public:
-  ConstId(std::string lexeme, Type type, Expr* value);
+  ConstId(std::string lexeme, Type type, std::shared_ptr<Expr> value);
   virtual ~ConstId();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
  protected:
-  Expr* value;
+  std::shared_ptr<Expr> value;
 };
 
 
 class Access : public Expr {
  public:
-  Access(Id* id);
+  Access(std::shared_ptr<Id> id);
   virtual ~Access();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
-  Id* id;
+  std::shared_ptr<Id> id;
 };
 
 
 class ArrayAccess : public Access {
  public:
-  ArrayAccess(Id* id, Expr* index);
+  ArrayAccess(std::shared_ptr<Id> id, std::shared_ptr<Expr> index);
   virtual ~ArrayAccess();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
-  Expr* index;
+  std::shared_ptr<Expr> index;
 };
 
 
 class Binary : public Expr {
  public:
-  Binary(Operator op, Expr* lhs, Expr* rhs);
+  Binary(Operator op, std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs);
   virtual ~Binary();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
   Operator op;
-  Expr* lhs;
-  Expr* rhs;
+  std::shared_ptr<Expr> lhs;
+  std::shared_ptr<Expr> rhs;
 };
 
 
 class Unary : public Expr {
  public:
-  Unary(Operator op, Expr* e);
+  Unary(Operator op, std::shared_ptr<Expr> e);
   virtual ~Unary();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
   Operator op;
-  Expr* expr;
+  std::shared_ptr<Expr> expr;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "Actions.h"
 #include "AstNode.h"
 #include "Symbol.h"
@@ -22,14 +23,14 @@ int yylex();
 %type <std::vector<std::string>> var_list
 
 %type <Vp> vprime
-%type <Def*> def_part def const_def var_def proc_def
+%type <std::shared_ptr<Def>> def_part def const_def var_def proc_def
 
-%type <Expr*> expr prime_expr simple_expr term factor var_access
-%type <Expr*> constant character number bool_sym selector proc_name
-%type <std::vector<Expr*>> expr_list var_access_list
+%type <std::shared_ptr<Expr>> expr prime_expr simple_expr term factor var_access
+%type <std::shared_ptr<Expr>> constant character number bool_sym selector proc_name
+%type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <Stmt*> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
-%type <Stmt*> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
+%type <std::shared_ptr<Stmt>> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
+%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
 
 %type <Operator> prim_op rel_op add_op mult_op
 %type <Type> type_sym
@@ -174,8 +175,8 @@ read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
 
 /* Expressions */
 expr_list: expr_list COMMA expr { $1.push_back($3); $$ = $1; }
-  | expr { $$ = std::vector<Expr*>{$1}; }
-  | error { $$ = std::vector<Expr*>(); yyerrok; }
+  | expr { $$ = std::vector<std::shared_ptr<Expr>>{$1}; }
+  | error { $$ = std::vector<std::shared_ptr<Expr>>(); yyerrok; }
   ;
 
 expr: expr prim_op prime_expr { $$ = actions->binary($2, $1, $3); }
@@ -210,7 +211,7 @@ var_list: var_list COMMA name { $1.push_back($3); $$ = $1; }
   ;
 
 var_access_list: var_access_list COMMA var_access { $1.push_back($3); $$ = $1; }
-  | var_access { $$ = std::vector<Expr*>{$1}; }
+  | var_access { $$ = std::vector<std::shared_ptr<Expr>>{$1}; }
   ;
 
 var_access: name selector { $$ = actions->access($1, $2); }

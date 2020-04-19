@@ -5,43 +5,44 @@
 #include "Exprs.h"
 #include <iostream>
 #include <string>
+#include <memory>
 
 
 class VarDef : public Def {
  public:
-  VarDef(Id* i);
+  VarDef(std::shared_ptr<Id> i);
   virtual ~VarDef();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
-  Id* id;
+  std::shared_ptr<Id> id;
 };
 
 
 class DefSeq : public Def {
  public:
-  DefSeq(Def* first, Def* rest);
+  DefSeq(std::shared_ptr<Def> first, std::shared_ptr<Def> rest);
   virtual ~DefSeq();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
-  Def* first;
-  Def* rest;
+  std::shared_ptr<Def> first;
+  std::shared_ptr<Def> rest;
 };
 
 
 class ProcDef : public Def {
  public:
-  ProcDef(Expr* name, Stmt* block);
+  ProcDef(std::shared_ptr<Expr> name, std::shared_ptr<Stmt> block);
   virtual ~ProcDef();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
-  Expr* name;
-  Stmt* block;
+  std::shared_ptr<Expr> name;
+  std::shared_ptr<Stmt> block;
 };
 
 #endif

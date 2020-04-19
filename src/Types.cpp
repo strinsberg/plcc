@@ -3,6 +3,7 @@
 #include "AstNode.h"
 #include <iostream>
 #include <string>
+#include <memory>
 using namespace std;
 
 
@@ -31,7 +32,7 @@ bool Type::operator==(const Type& other) {
 
 
 
-bool Operator::accepts(Expr* expr) {
+bool Operator::accepts(shared_ptr<Expr> expr) {
   symbol::Tag t = expr->get_type().type;
 
   if (type.type == symbol::UNIVERSAL)
