@@ -62,18 +62,15 @@ Def* Actions::const_def(Type* type, std::string* name, Expr* value) {
 }
 
 
-Def* Actions::var_def(Type* type, std::pair<Expr*, std::vector<std::string*>*>* pp) {
+Def* Actions::var_def(Type* type, Vp pp) {
   admin->debug("var def");
 
-  Expr* size = pp->first;
-  vector<string*>* names = pp->second;
-
-  if (size == nullptr)
+  if (pp.size == nullptr)
     type->kind = symbol::SCALAR;
   else
     type->kind = symbol::ARRAY;
 
-  return add_vars(names, type, size);
+  return add_vars(pp.names, type, pp.size);
 }
 
 
@@ -134,9 +131,11 @@ Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
 }
 
 
-std::pair<Expr*, std::vector<std::string*>*>* Actions::vprime(
-    std::vector<std::string*>* rest, Expr* e) {
-  return new pair<Expr*, vector<string*>*>{e, rest};
+Vp Actions::vprime(std::vector<std::string*>* names, Expr* size) {
+  Vp result;
+  result.size = size;
+  result.names = names;
+  return result;
 }
 
 

@@ -18,7 +18,7 @@ int yylex();
 %type <int> num
 %type <std::string*> name
 %type <std::vector<std::string*>*> var_list
-%type <std::pair<Expr*, std::vector<std::string*>*>*> vprime
+%type <Vp> vprime
 %type <Def*> def_part def const_def var_def proc_def
 %type <Expr*> expr prime_expr simple_expr term factor var_access
 %type <Expr*> constant character number bool_sym selector proc_name

@@ -9,6 +9,11 @@
 #include "Types.h"
 #include <vector>
 
+struct Vp {
+  Expr* size;
+  std::vector<std::string*>* names;
+};
+
 
 class Actions {
  public:
@@ -25,8 +30,8 @@ class Actions {
   // definition actions
   Def* def_part(Def*, Def*);
   Def* const_def(Type*, std::string*, Expr*);
-  Def* var_def(Type*, std::pair<Expr*, std::vector<std::string*>*>*);
-  std::pair<Expr*, std::vector<std::string*>*>* vprime(std::vector<std::string*>*, Expr* e = nullptr);
+  Def* var_def(Type*, Vp);
+  Vp vprime(std::vector<std::string*>*, Expr* e = nullptr);
   Def* array_def(int vars);
   Def* proc_def(Expr*, Stmt*);
   Expr* proc_name(std::string* name);
