@@ -72,12 +72,12 @@ bprime: def_part stmt_part { $$ = actions->block($1, $2); }
 /* Definitions */
 def_part: def_part def SEMI { $$ = actions->def_part($1, $2); }
   | def_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = actions->new_block(); }
+  | /* epsilon */ { $$ = nullptr; actions->new_block(); }
   ;
 
-def: const_def
-  | var_def
-  | proc_def
+def: const_def { $$ = $1; }
+  | var_def { $$ = $1; }
+  | proc_def { $$ = $1; }
   ;
 
 const_def: CONST type_sym name INIT constant { $$ = actions->const_def($2, $3, $5); }
@@ -100,14 +100,14 @@ stmt_part: stmt_part stmt SEMI { $$ = actions->stmt_part($1, $2); }
   | /* epsilon */ { $$ = actions->empty_stmt(); }
   ;
 
-stmt: write_stmt
-  | asn_stmt
-  | if_stmt
-  | loop_stmt
-  | empty_stmt
-  | block_stmt
-  | proc_stmt
-  | read_stmt
+stmt: write_stmt { $$ = $1; }
+  | asn_stmt { $$ = $1; }
+  | if_stmt { $$ = $1; }
+  | loop_stmt { $$ = $1; }
+  | empty_stmt { $$ = $1; }
+  | block_stmt { $$ = $1; }
+  | proc_stmt { $$ = $1; }
+  | read_stmt { $$ = $1; }
   ;
 
 write_stmt: WRITE expr_list { $$ = actions->io($2, symbol::WRITE); }
@@ -169,10 +169,10 @@ term: factor mult_op factor { $$ = actions->binary($2, $1, $3); }
   | factor { $$ = $1; }
   ;
 
-factor: number
-  | character 
-  | bool_sym 
-  | var_access 
+factor: number { $$ = $1; }
+  | character  { $$ = $1; }
+  | bool_sym  { $$ = $1; }
+  | var_access  { $$ = $1; }
   | LHRND expr RHRND { $$ = $2; }
   | NOT factor { $$ = actions->unary(symbol::NOT, $2); }
   ;
@@ -227,17 +227,17 @@ type_sym: INT { $$ = actions->new_type(symbol::INT); }
   | CHAR { $$ = actions->new_type(symbol::CHAR); }
   ;
 
-constant: number
-  | bool_sym 
+constant: number { $$ = $1; }
+  | bool_sym  { $$ = $1; }
   | name { $$ = actions->access($1, actions->empty_expr()); }
-  | character
+  | character { $$ = $1; }
   ;
 
 character: CHARACTER { $$ = actions->constant(symbol::CHAR, $1); }
   ;
 
 number: NUMBER DOT NUMBER { $$ = actions->constant(symbol::FLOAT, $1, $3); }
-  | NUMBER { $$ = actions->constant(symbol::INT, $1); }
+  | NUMBER { $$ = actions->constant(symbol::INT, 3333); }
   ;
 
 bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }

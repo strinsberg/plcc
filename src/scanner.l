@@ -78,8 +78,8 @@ type      { return yy::parser::token::TYPE; }
 true      { return yy::parser::token::TRUE; }
 false     { return yy::parser::token::FALSE; }
 {name}    { return yy::parser::token::NAME; }
-{number}  { return atoi(yytext); }
-'.'        { return yytext[1]; }
+{number}  { return yy::parser::token::NUMBER; }
+'.'        { return yy::parser::token::CHAR; }
 
 \n        { actions->get_admin()->newline(); }
 [ \t]     { /*Ignore Whitespace*/ }

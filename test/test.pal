@@ -1,2 +1,4 @@
 begin
+  const int x = 6;
+  const bool y = true;
 end.

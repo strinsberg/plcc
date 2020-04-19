@@ -34,8 +34,9 @@ Operator* Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 
 Def* Actions::def_part(Def* rest, Def* last) {
   admin->debug("def part");
-  // combine a rest and last into a seq.
-  return rest;
+  if (rest == nullptr)
+    return last;
+  return new DefSeq(rest, last);
 }
 
 
@@ -56,6 +57,7 @@ Def* Actions::const_def(Type* type, std::string* name, Expr* value) {
   } catch (const type_error& e) {
     admin->error("type error: " + string(e.what()), *name);
   }
+  cout << *def << endl;
   return def;
 }
 
