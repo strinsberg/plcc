@@ -359,7 +359,7 @@ Id* Actions::get_id(string name) {
   auto id = table.get(name);
 
   if (id == nullptr) {
-    admin->error("'" + name + "' is undeclared");
+    admin->error("'" + name + "' was not declared in this scope");
     stacks.push_stmt( new Stmt() );
   }
 

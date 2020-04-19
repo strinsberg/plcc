@@ -37,7 +37,7 @@ namespace yy {
 %type <std::pair<Expr*, std::vector<std::string*>*>*> vprime
 %type <Def*> def_part def const_def var_def proc_def
 %type <Expr*> expr prime_expr simple_expr term factor var_access
-%type <Expr*> constant character number bool_sym tprime selector
+%type <Expr*> constant character number bool_sym selector
 %type <std::vector<Expr*>*> expr_list var_access_list
 %type <Stmt*> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
 %type <Stmt*> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
@@ -156,12 +156,7 @@ prime_expr: prime_expr rel_op simple_expr { $$ = actions->binary($2, $1, $3); }
   | simple_expr { $$ = $1; }
   ;
 
-simple_expr: simple_expr add_op tprime { $$ = actions->binary($2, $1, $3); }
-  | tprime { $$ = $1; }
-  ;
-
-/* minus may need to be adjusted, this is a little ambiguous */
-tprime: MINUS term { $$ = actions->unary(symbol::MINUS, $2); }
+simple_expr: simple_expr add_op term { $$ = actions->binary($2, $1, $3); }
   | term { $$ = $1; }
   ;
 
@@ -175,6 +170,7 @@ factor: number { $$ = $1; }
   | var_access  { $$ = $1; }
   | LHRND expr RHRND { $$ = $2; }
   | NOT factor { $$ = actions->unary(symbol::NOT, $2); }
+  | MINUS factor { $$ = actions->unary(symbol::MINUS, $2); }
   ;
 
 

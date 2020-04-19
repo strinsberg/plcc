@@ -1,6 +1,4 @@
 begin
   int x, y, z;
-  x, y, z := x, y, z;
-  write x, y, z;
-  read x, y, z;
+  write -10 * 30 + -40;
 end.
