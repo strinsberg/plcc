@@ -14,7 +14,8 @@ begin
   proc my_proc
     int x;
     x := 30;
-    write x + i + j;
+    write x + i + -j;
+    call my_proc;
   end proc;
 
   -- Assignments
@@ -28,7 +29,7 @@ begin
       A[i] := T;
     else if T do
       A[i] := false;
-    else if false do
+    else if not false do
       skip;
     end if;
 
@@ -44,9 +45,9 @@ begin
   end;
 
   -- Write out some different expressions
-  write j * i , f / 10.0, ch;
+  write -j * i , f / 10.0, ch, -(20 * 50);
   write 1 > 2, 10 <= 10, 10 >= 9, 20 ~= 20;
-  write not true, true and false, true or false;
+  write not true and not false, true and not false or true;
 
   call my_proc;
 end .

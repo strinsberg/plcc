@@ -1,8 +1,14 @@
 %{
-#include "parser.tab.h"
+#include <string>
+#include <iostream>
+#include <vector>
 #include "Actions.h"
-#define YY_DECL extern "C" int yylex()
+#include "AstNode.h"
+#include "Symbol.h"
+#include "Types.h"
+#include "parser.tab.hh"
 
+// From parser.tab.h for admin::error() and admin::newline()
 extern Actions* actions;
 %}
 
@@ -14,72 +20,72 @@ number {digit}*
 name ({letter}|_)({letter}|digit|_)*
 character :.
 
-
+/* might be possible to use bison for single chars to reduce rules here */
 %%
-begin     { return BEG; }
-end       { return END; }
+begin         { return yy::parser::token::BEG; }
+end           { return yy::parser::token::END; }
 
-"."       { return DOT; }
-","       { return COMMA; }
-";"       { return SEMI; }
-"("       { return LHRND; }
-")"       { return RHRND; }
-"["       { return LHSQR; }
-"]"       { return RHSQR; }
+"."           { return yy::parser::token::DOT; }
+","           { return yy::parser::token::COMMA; }
+";"           { return yy::parser::token::SEMI; }
+"("           { return yy::parser::token::LHRND; }
+")"           { return yy::parser::token::RHRND; }
+"["           { return yy::parser::token::LHSQR; }
+"]"           { return yy::parser::token::RHSQR; }
 
-"+"       { return PLUS; }
-"-"       { return MINUS; }
-"*"       { return MULT; }
-"/"       { return DIV; }
-"%"       { return MOD; }
+"+"           { return yy::parser::token::PLUS; }
+"-"           { return yy::parser::token::MINUS; }
+"*"           { return yy::parser::token::MULT; }
+"/"           { return yy::parser::token::DIV; }
+"%"           { return yy::parser::token::MOD; }
 
-and       { return AND; }
-or        { return OR; }
-not       { return NOT; }
+and           { return yy::parser::token::AND; }
+or            { return yy::parser::token::OR; }
+not           { return yy::parser::token::NOT; }
 
-"=="        { return EQ; }
-"~="        { return NEQ; }
-"<"         { return LESS; }
-">"         { return GREATER; }
-"<="        { return LEQ; }
-">="        { return GEQ; }
+"=="          { return yy::parser::token::EQ; }
+"~="          { return yy::parser::token::NEQ; }
+"<"           { return yy::parser::token::LESS; }
+">"           { return yy::parser::token::GREATER; }
+"<="          { return yy::parser::token::LEQ; }
+">="          { return yy::parser::token::GEQ; }
 
-write     { return WRITE;}
-if        { return IF; }
-do        { return DO; }
-"end if"  { return ENDIF; }
-"else if" { return ELIF; }
-while     { return LOOP; }
-"end while" { return ENDLOOP; }
-"="       { return INIT; }
-":="        { return ASGN; }
-skip      { return SKIP; }
-call      { return CALL; }
-read      { return READ; }
+write         { return yy::parser::token::WRITE;}
+if            { return yy::parser::token::IF; }
+do            { return yy::parser::token::DO; }
+"end if"      { return yy::parser::token::ENDIF; }
+"else if"     { return yy::parser::token::ELIF; }
+while         { return yy::parser::token::LOOP; }
+"end while"   { return yy::parser::token::ENDLOOP; }
+"="           { return yy::parser::token::INIT; }
+":="          { return yy::parser::token::ASGN; }
+skip          { return yy::parser::token::SKIP; }
+call          { return yy::parser::token::CALL; }
+read          { return yy::parser::token::READ; }
 
-const     { return CONST; }
-int       { return INT; }
-bool      { return BOOL; }
-float     { return FLOAT; }
-char      { return CHAR; }
+const         { return yy::parser::token::CONST; }
+int           { return yy::parser::token::INT; }
+bool          { return yy::parser::token::BOOL; }
+float         { return yy::parser::token::FLOAT; }
+char          { return yy::parser::token::CHAR; }
 
-array     { return ARRAY; }
-proc      { return PROC; }
-"end proc" { return ENDPROC; }
-record    { return RECORD; }
-"end record" { return ENDREC; }
-type      { return TYPE; }
+array         { return yy::parser::token::ARRAY; }
+proc          { return yy::parser::token::PROC; }
+"end proc"    { return yy::parser::token::ENDPROC; }
+record        { return yy::parser::token::RECORD; }
+"end record"  { return yy::parser::token::ENDREC; }
+type          { return yy::parser::token::TYPE; }
 
-true      { return TRUE; }
-false     { return FALSE; }
-{name}    { return NAME; }
-{number}  { yylval = atoi(yytext); return NUMBER; }
-'.'        { yylval = yytext[1]; return CHARACTER; }
+true          { return yy::parser::token::TRUE; }
+false         { return yy::parser::token::FALSE; }
+{name}        { return yy::parser::token::NAME; }
+{number}      { return yy::parser::token::NUMBER; }
+'.'           { return yy::parser::token::CHARACTER; }
 
-\n        { actions->get_admin()->newline(); }
-[ \t]     { /*Ignore Whitespace*/ }
-<<EOF>>   { return 0; }
+\n            { actions->get_admin()->newline(); }
+[ \t]         { /*Ignore Whitespace*/ }
+<<EOF>>       { return 0; }
 
---[^\n]* { /* ignore rest of line for comments */ }
-.       { printf("Invalid Char: %c\n", *yytext); }
+--[^\n]*      { /* ignore rest of line for comments */ }
+.             { actions->get_admin()->error("bad char '" + std::string(yytext) + "'"); }
 %%

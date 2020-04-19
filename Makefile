@@ -16,8 +16,9 @@ COMPILER=plcc
 $(COMPILER): $(SRC)
 	bison -d $(SRC)/parser.y
 	flex $(SRC)/scanner.l
-	mv parser.tab.h include/parser.tab.h
-	$(CXX) $(FLAGS) -o $@ $(SRC)/*.cpp parser.tab.c lex.yy.c $(INCLUDE) $(LIBS)
+	mv parser.tab.hh include/parser.tab.hh
+	mv stack.hh include/stack.hh
+	$(CXX) $(FLAGS) -o $@ $(SRC)/*.cpp parser.tab.cc lex.yy.c $(INCLUDE) $(LIBS)
 
 .PHONY: tests
 tests: $(COMPILER)
@@ -25,4 +26,4 @@ tests: $(COMPILER)
 
 .PHONY: clean
 clean:
-	rm -rf plcc *.tab.c *.tab.h include/parser.tab.h *.yy.c
+	rm -rf plcc *.tab.cc *.tab.hh *.yy.c include/parser.tab.hh include/stack.hh
