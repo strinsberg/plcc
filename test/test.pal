@@ -1,4 +1,6 @@
 begin
-  const float x = 6.0;
-  int array[x] A,B,C;
+  int x, y, z;
+  x, y, z := x, y, z;
+  write x, y, z;
+  read x, y, z;
 end.

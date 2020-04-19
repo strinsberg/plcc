@@ -140,16 +140,17 @@ Stmt* Actions::block(Def* defs, Stmt* stmts) {
 
 Stmt* Actions::stmt_part(Stmt* rest, Stmt* last) {
   admin->debug("stmt part");
-  // create a seq of stmts from these two
-  return rest;
+  if (rest == nullptr)
+    return last; 
+  return new Seq(rest, last);
 }
 
 
 Stmt* Actions::io(std::vector<Expr*>* exprs, symbol::Tag type) {
   admin->debug("io");
-  Stmt* stmt = new IoStmt(exprs->at(0), type);
-  for (size_t i = 1; i < exprs->size(); i++) {  
-    stmt = new Seq( new IoStmt(exprs->at(i), type), stmt );
+  Stmt* stmt = new IoStmt(exprs->back(), type);
+  for (auto it = exprs->rbegin() + 1; it != exprs->rend(); it++) {  
+    stmt = new Seq( new IoStmt(*it, type), stmt );
   }
   return stmt;
 }
@@ -164,7 +165,7 @@ Stmt* Actions::assign(vector<Expr*>* vars, vector<Expr*>* values) {
 
   // pair each access with it's value
   Stmt* stmt = nullptr;
-  for (size_t i = 0; i < vars->size(); i++) {
+  for (int i = vars->size() - 1; i >= 0; i--) {
     auto acs = vars->at(i);
     auto expr = values->at(i);
 
@@ -222,10 +223,14 @@ Stmt* Actions::proc_stmt(std::string* name) {
   return stmt;
 }
 
+
 Stmt* Actions::conditions(Stmt* rest, Stmt* last) {
   // like stmt part combine these into a seq
-  return rest;
+  if (rest == nullptr)
+    return last;
+  return new Seq(rest, last);
 }
+
 
 Stmt* Actions::condition(Expr* expr, Stmt* stmts) {
   admin->debug("condition");
@@ -245,6 +250,7 @@ Stmt* Actions::condition(Expr* expr, Stmt* stmts) {
 // Expression methods /////////////////////////////////////////////////
 
 std::vector<Expr*>* Actions::expr_list(std::vector<Expr*>* rest, Expr* last) {
+  rest->push_back(last);
   return rest;
 }
 

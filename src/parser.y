@@ -97,7 +97,7 @@ proc_def: PROC name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
 /* Statements */
 stmt_part: stmt_part stmt SEMI { $$ = actions->stmt_part($1, $2); }
   | stmt_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = actions->empty_stmt(); }
+  | /* epsilon */ { $$ = nullptr; }
   ;
 
 stmt: write_stmt { $$ = $1; }
