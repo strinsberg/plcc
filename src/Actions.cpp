@@ -46,8 +46,26 @@ void Actions::def_part(int num_defs) {
 
 void Actions::const_def() {
   admin->debug("const def");
+
   auto value = stacks.pop_expr();
-  var_def(1, symbol::SCALAR, symbol::CONST, value);
+  Type type = stacks.get_type();
+  type.qual = symbol::CONST;
+
+  auto name = stacks.pop_expr();
+  auto def = new Def();
+  try {
+    auto id = new ConstId(name->get_name(), type, value);
+    bool added = table.put(name->get_name(), id);
+
+    if (!added)
+      admin->error("'" + name->get_name() + "' already declared");
+    else
+      def = new VarDef(id);
+
+  } catch (const type_error& e) {
+    admin->error("type error: " + string(e.what()), name->get_name());
+  }
+  stacks.push_def(def);
 }
 
 void Actions::array_def(int vars) {
