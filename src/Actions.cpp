@@ -65,27 +65,15 @@ Def* Actions::const_def(Type* type, std::string* name, Expr* value) {
 Def* Actions::var_def(Type* type, std::pair<Expr*, std::vector<std::string*>*>* pp) {
   admin->debug("var def");
 
-  type->kind = symbol::SCALAR;
   Expr* size = pp->first;
   vector<string*>* names = pp->second;
 
+  if (size == nullptr)
+    type->kind = symbol::SCALAR;
+  else
+    type->kind = symbol::ARRAY;
 
-  return new Def();
-}
-
-
-Def* Actions::array_def(int vars) {
-  admin->debug("array def: " + to_string(vars)); 
-
-  vector<Expr*> names(vars);
-  for (auto & n : names)
-    n = stacks.pop_expr();
-
-  Expr* size = stacks.pop_expr();
-  Type type = stacks.get_type();
-  type.kind = symbol::ARRAY;
-
-  return new Def();
+  return add_vars(names, type, size);
 }
 
 
@@ -102,7 +90,8 @@ Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
   admin->debug("add_vars");
 
   Def* def = nullptr;
-  for (auto& n : *names) {
+  for (auto it = names->rbegin(); it != names->rend(); it++) {
+    string* n = *it;
     try {
       Id* id = new Id(*n, *type, size); 
       bool added = table.put(*n, id);
@@ -128,14 +117,15 @@ Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
   return def;
 }
 
+// These might be possible to just do in the parser directly
 std::pair<Expr*, std::vector<std::string*>*>* Actions::vprime(
     std::vector<std::string*>* rest, Expr* e) {
-  // obviously just to get it compiling for now
   return new pair<Expr*, vector<string*>*>{e, rest};
 }
 
 std::vector<std::string*>* Actions::var_list(
     std::vector<std::string*>* rest, std::string* last) {
+  rest->push_back(last);
   return rest;
 }
 
