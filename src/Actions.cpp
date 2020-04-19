@@ -2,6 +2,7 @@
 #include "Admin.h"
 #include "AstStacks.h"
 #include "Symbol.h"
+#include "Types.h"
 #include "exceptions.h"
 #include <string>
 #include <iostream>
@@ -15,79 +16,63 @@ Actions::~Actions() {}
 
 // Type and Op ///////////////////////////////////////////////////
 
-void Actions::new_type(symbol::Tag type) {
+Type* Actions::new_type(symbol::Tag type) {
   admin->debug("type: " + symbol::str(type));
-  Type t;
-  t.type = type;
-  stacks.set_type(t);
+  Type* t = new Type();
+  t->type = type;
+  return t;
 };
 
-void Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
+Operator* Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
   admin->debug("op: " + symbol::str(op));
   Type t(type, symbol::OPERATOR, qual);
-  stacks.push_op( Operator(op, t) );
+  return new Operator(op, t);
 };
-
-void Actions::new_name(string n) {
-  stacks.push_expr( new Id(n, Type(), new Constant()) );
-}
 
 
 // Definitions ///////////////////////////////////////////////////
 
-void Actions::def_part(int num_defs) {
-  admin->debug("def part: " + to_string(num_defs)); 
-
-  auto def = stacks.pop_def();
-  for (int i = 0; i < num_defs - 1; i++ ) {
-    def = new DefSeq( stacks.pop_def(), def);
-  }
-  stacks.push_def(def);
+Def* Actions::def_part(Def* rest, Def* last) {
+  admin->debug("def part");
+  // combine a rest and last into a seq.
+  return rest;
 }
 
 
-void Actions::const_def() {
+Def* Actions::const_def(Type* type, std::string* name, Expr* value) {
   admin->debug("const def");
+  type->qual = symbol::CONST;
 
-  auto value = stacks.pop_expr();
-  Type type = stacks.get_type();
-  type.qual = symbol::CONST;
-
-  auto name = stacks.pop_expr();
   auto def = new Def();
   try {
-    auto id = new ConstId(name->get_name(), type, value);
-    bool added = table.put(name->get_name(), id);
+    auto id = new ConstId(*name, *type, value);
+    bool added = table.put(*name, id);
 
     if (!added)
-      admin->error("'" + name->get_name() + "' already declared");
+      admin->error("'" + *name + "' already declared");
     else
       def = new VarDef(id);
 
   } catch (const type_error& e) {
-    admin->error("type error: " + string(e.what()), name->get_name());
+    admin->error("type error: " + string(e.what()), *name);
   }
-  stacks.push_def(def);
+  return def;
 }
 
 
-void Actions::var_def(int num_vars, symbol::Tag qual) {
-  admin->debug("var def: " + symbol::str(qual) + " " + to_string(num_vars)); 
+Def* Actions::var_def(Type* type, std::pair<Expr*, std::vector<std::string*>*>* pp) {
+  admin->debug("var def");
 
-  Expr* size = new Constant();
-  Type type = stacks.get_type();
-  type.kind = symbol::SCALAR;
-  type.qual = qual;
+  type->kind = symbol::SCALAR;
+  Expr* size = pp->first;
+  vector<string*>* names = pp->second;
 
-  vector<Expr*> names(num_vars);
-  for (auto& n : names)
-    n = stacks.pop_expr();
 
-  add_vars(names, type, size);
+  return new Def();
 }
 
 
-void Actions::array_def(int vars) {
+Def* Actions::array_def(int vars) {
   admin->debug("array def: " + to_string(vars)); 
 
   vector<Expr*> names(vars);
@@ -98,41 +83,30 @@ void Actions::array_def(int vars) {
   Type type = stacks.get_type();
   type.kind = symbol::ARRAY;
 
-  add_vars(names, type, size);
+  return new Def();
 }
 
 
-void Actions::proc_name() {
-  auto name = stacks.pop_expr();
-  name->set_type( Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL) );
-
-  bool added = table.put(name->get_name(), (Id*)name);
-  if (!added)
-    admin->error("'" + name->get_name() + "' was already declared");
-
-  stacks.push_expr(name); 
-}
-
-
-void Actions::proc_def() {
+Def* Actions::proc_def(string* name, Stmt* block) {
   admin->debug("proc def");
-  auto name = stacks.pop_expr();
-  stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
+  // this will again not declare the name before the block is resolved
+  // so the rules will be adjusted again
+  return new ProcDef(new Expr(Type()), block); 
 }
 
 
 // private def helpers //
-void Actions::add_vars(vector<Expr*> names, Type type, Expr* size) {
+Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
   admin->debug("add_vars");
 
   Def* def = nullptr;
-  for (auto& n : names) {
+  for (auto& n : *names) {
     try {
-      Id* id = new Id(n->get_name(), type, size); 
-      bool added = table.put(n->get_name(), id);
+      Id* id = new Id(*n, *type, size); 
+      bool added = table.put(*n, id);
 
       if (!added) {
-        admin->error("'" + n->get_name() + "' already declared");
+        admin->error("'" + *n + "' already declared");
         delete id;
       } else {
         auto var = new VarDef(id);
@@ -142,70 +116,65 @@ void Actions::add_vars(vector<Expr*> names, Type type, Expr* size) {
           def = new DefSeq(var, def);
       }
     } catch (const type_error& e) {
-      admin->error("type error: " + string(e.what()), n->get_name());
+      admin->error("type error: " + string(e.what()), *n);
     }
-
-    delete n;
   }
 
   if (def == nullptr)
     def = new Def();
 
-  stacks.push_def(def);
+  return def;
 }
 
+std::pair<Expr*, std::vector<std::string*>*>* Actions::vprime(
+    std::vector<std::string*>* rest, Expr* e) {
+  // obviously just to get it compiling for now
+  return new pair<Expr*, vector<string*>*>{e, rest};
+}
+
+std::vector<std::string*>* Actions::var_list(
+    std::vector<std::string*>* rest, std::string* last) {
+  return rest;
+}
 
 // Statement methods //////////////////////////////////////////////////
 
-void Actions::block(int num_defs, int num_stmts) {
-  admin->debug("block: " + to_string(num_defs) + ", " + to_string(num_stmts));
-  def_part(num_defs);
-  stmt_part(num_stmts);
-  stacks.push_stmt( new Block(stacks.pop_def(), stacks.pop_stmt()) );
+Stmt* Actions::block(Def* defs, Stmt* stmts) {
+  admin->debug("block");
   table.pop_block();
+  return new Block(defs, stmts);
 }
 
 
-void Actions::stmt_part(int num_stmts) {
-  admin->debug("stmt part: " + to_string(num_stmts));
-  auto stmt = stacks.pop_stmt();
-  for (int i = 0; i < num_stmts - 1; i++) {
-    stmt = new Seq( stacks.pop_stmt(), stmt ); 
+Stmt* Actions::stmt_part(Stmt* rest, Stmt* last) {
+  admin->debug("stmt part");
+  // create a seq of stmts from these two
+  return rest;
+}
+
+
+Stmt* Actions::io(std::vector<Expr*>* exprs, symbol::Tag type) {
+  admin->debug("io");
+  Stmt* stmt = new IoStmt(exprs->at(0), type);
+  for (size_t i = 1; i < exprs->size(); i++) {  
+    stmt = new Seq( new IoStmt(exprs->at(i), type), stmt );
   }
-  stacks.push_stmt(stmt);
+  return stmt;
 }
 
 
-void Actions::io(int num_expr, symbol::Tag type) {
-  admin->debug("io: " + to_string(num_expr) + " " + symbol::str(type));
-  Stmt* stmt = new IoStmt(stacks.pop_expr(), type);
-  for (int i = 0; i < num_expr - 1; i++) {  
-    stmt = new Seq( new IoStmt(stacks.pop_expr(), type), stmt );
-  }
-  stacks.push_stmt(stmt);
-}
-
-
-void Actions::assign(int num_vars, int num_exprs) {
-  admin->debug("assign: " + to_string(num_vars) + ", " + to_string(num_exprs));
-  if (num_vars != num_exprs) {
+Stmt* Actions::assign(vector<Expr*>* vars, vector<Expr*>* values) {
+  admin->debug("assign");
+  if (vars->size() != values->size()) {
     admin->error("number of variables does not match number of exressions");
-    stacks.push_stmt(new Stmt() );
-    return;
+    return new Stmt();
   }
-
-  // get all the expressions
-  vector<Expr*> rhs(num_vars);
-  for (auto & e : rhs) e = stacks.pop_expr();
-
-  vector<Expr*> lhs(num_vars);
-  for (auto & e : lhs) e = stacks.pop_expr();
 
   // pair each access with it's value
   Stmt* stmt = nullptr;
-  for (int i = 0; i < num_vars; i++) {
-    auto acs = lhs.at(i);
-    auto expr = rhs.at(i);
+  for (size_t i = 0; i < vars->size(); i++) {
+    auto acs = vars->at(i);
+    auto expr = values->at(i);
 
     Stmt* asgn = new Stmt();
     try {
@@ -222,84 +191,81 @@ void Actions::assign(int num_vars, int num_exprs) {
 
   if (stmt == nullptr)
     stmt = new Stmt();
-  stacks.push_stmt(stmt);
+  return stmt;
 }
 
 
-void Actions::if_stmt(int num_cond) {
-  admin->debug("if: " + to_string(num_cond));
-  auto cond = stacks.pop_stmt();
-  for (int i = 0; i < num_cond - 1; i++)
-    cond = new Seq(stacks.pop_stmt(), cond);
-  stacks.push_stmt( new IfStmt(cond) );
+Stmt* Actions::if_stmt(Stmt* cond) {
+  admin->debug("if");
+  return new IfStmt(cond);
 }
 
 
-void Actions::loop() {
+Stmt* Actions::loop(Stmt* cond) {
   admin->debug("loop");
-  stacks.push_stmt( new Loop(stacks.pop_stmt()) ); 
+  return new Loop(cond);
 }
 
 
-void Actions::empty() {
+Stmt* Actions::empty_stmt() {
   admin->debug("empty");
-  stacks.push_stmt( new Stmt() );
+  return new Stmt();
 }
 
 
-void Actions::proc_stmt() {
+Stmt* Actions::proc_stmt(std::string* name) {
   admin->debug("call");
 
-  auto id = get_id();
+  auto id = get_id(*name);
   if (id == nullptr)
-    return;
+    return new Stmt();
 
   Stmt* stmt = new Stmt();
   try {
     stmt = new Proc(id);
   } catch (const exception& e) {
-    admin->error("type error: " + string(e.what()));
+    admin->error("type error: " + string(e.what()), *name);
   }
 
-  stacks.push_stmt(stmt);
+  return stmt;
 }
 
+Stmt* Actions::conditions(Stmt* rest, Stmt* last) {
+  // like stmt part combine these into a seq
+  return rest;
+}
 
-void Actions::condition(int num_stmts) {
-  admin->debug("condition: " + to_string(num_stmts));
+Stmt* Actions::condition(Expr* expr, Stmt* stmts) {
+  admin->debug("condition");
 
-  auto cond = stacks.pop_expr();
-  stmt_part(num_stmts);
-  auto stmt = stacks.pop_stmt();
-
-  Stmt* c = new Stmt();
+  Stmt* cond = new Stmt();
   try {
-    c = new Cond(cond, stmt);
+    cond = new Cond(expr, stmts);
   } catch (const exception& e) {
     admin->error("type error: " + string(e.what()) +
-                 ". actual type: " + symbol::str(cond->get_type().type));
+                 ". actual type: " + symbol::str(expr->get_type().type));
   }
 
-  stacks.push_stmt(c);
+  return cond;
 }
 
 
 // Expression methods /////////////////////////////////////////////////
 
-void Actions::access(symbol::Tag kind) {
-  admin->debug("access: " + symbol::str(kind));
+std::vector<Expr*>* Actions::expr_list(std::vector<Expr*>* rest, Expr* last) {
+  return rest;
+}
 
-  Expr* idx;
-  if (kind == symbol::ARRAY)
-    idx = stacks.pop_expr();
+Expr* Actions::access(string* name, Expr* idx) {
+  admin->debug("access");
 
-  auto id = get_id();
+  auto id = get_id(*name);
   if (id == nullptr)
-    return;
+    return new Expr(Type());
 
   Expr* acs = new Expr(Type());
   try {
-    if (kind == symbol::ARRAY) {
+    if (idx->get_type().type != symbol::EMPTY) {
       acs = new ArrayAccess(id, idx);
     } else {
       acs = new Access(id);
@@ -308,44 +274,44 @@ void Actions::access(symbol::Tag kind) {
     admin->error("type error: " + string(e.what()), id->get_name());
   }
 
-  stacks.push_expr(acs);
+  return acs;
 }
 
 
-void Actions::binary() {
+Expr* Actions::binary(Operator* op, Expr* lhs, Expr* rhs) {
   admin->debug("binary");
-  Operator op = stacks.pop_op();
-  auto rhs = stacks.pop_expr();
-  auto lhs = stacks.pop_expr();
 
   auto bin = new Expr(Type());
   try {
-    bin = new Binary(op, lhs, rhs);
+    bin = new Binary(*op, lhs, rhs);
   } catch (const type_error& e) {
-    admin->error("type error: " + string(e.what()), symbol::str(op.op));
+    admin->error("type error: " + string(e.what()), symbol::str(op->op));
   }
 
-  stacks.push_expr(bin); 
+  return bin; 
 }
 
 
-void Actions::unary() {
+Expr* Actions::unary(symbol::Tag op_type, Expr* expr) {
   admin->debug("unary");
-  Operator op = stacks.pop_op();
-  auto expr = stacks.pop_expr();
+  Operator* op;
+  if (op_type == symbol::MINUS)
+    op = new_op(symbol::MINUS, symbol::NUMBER, symbol::NUMBER);
+  else
+    op = new_op(symbol::NOT, symbol::BOOL, symbol::BOOL);
 
   auto un = new Expr(Type());
   try {
-    un = new Unary(op, expr);
+    un = new Unary(*op, expr);
   } catch (const type_error& e) {
-    admin->error("type error: " + string(e.what()), symbol::str(op.op));
+    admin->error("type error: " + string(e.what()), symbol::str(op->op));
   }
 
-  stacks.push_expr(un);
+  return un;
 }
 
 
-void Actions::constant(symbol::Tag tag, int val, double dec) {
+Expr* Actions::constant(symbol::Tag tag, int val, double dec) {
   admin->debug("constant: " + symbol::str(tag) + " " + to_string(val)); 
   Expr* con;
   Type t;
@@ -370,13 +336,12 @@ void Actions::constant(symbol::Tag tag, int val, double dec) {
   } else if (tag == symbol::CHAR) {
     t.qual = symbol::CONST;
     con = new Constant(t, val, dec);
-
   } else {
-    access(symbol::CONST);
-    return;
+    admin->error("not a valid constant type: " + symbol::str(tag));
+    con = new Expr(Type());
   }
 
-  stacks.push_expr(con);
+  return con;
 }
 
 
@@ -392,15 +357,13 @@ void Actions::display() {
 
 
 // Helpers ////////////////////////////////////////////////////////////
-Id* Actions::get_id() {
-  auto name = stacks.pop_expr();
-  auto id = table.get(name->get_name());
+Id* Actions::get_id(string name) {
+  auto id = table.get(name);
 
   if (id == nullptr) {
-    admin->error("'" + name->get_name() + "' is undeclared");
+    admin->error("'" + name + "' is undeclared");
     stacks.push_stmt( new Stmt() );
   }
 
-  delete name;
   return id;
 }

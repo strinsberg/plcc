@@ -6,6 +6,7 @@
 #include "AstStacks.h"
 #include "BlockTable.h"
 #include "Symbol.h"
+#include "Types.h"
 #include <vector>
 
 
@@ -17,38 +18,42 @@ class Actions {
   AstNode* ast() { return stacks.pop_stmt(); }
   Admin* get_admin() { return admin; }
 
-  void new_type(symbol::Tag);
-  void new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
-  void new_name(std::string);
+  Type* new_type(symbol::Tag);
+  Operator* new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
 
   // definition actions
-  void def_part(int num_defs);
-  void const_def();
-  void var_def(int vars, symbol::Tag qual=symbol::UNIVERSAL);
-  void array_def(int vars);
-  void proc_name();
-  void proc_def();
+  Def* def_part(Def*, Def*);
+  Def* const_def(Type*, std::string*, Expr*);
+  Def* var_def(Type*, std::pair<Expr*, std::vector<std::string*>*>*);
+  std::pair<Expr*, std::vector<std::string*>*>* vprime(std::vector<std::string*>*, Expr* e = nullptr);
+  Def* array_def(int vars);
+  Def* proc_def(std::string*, Stmt*);
 
   // stmt actions
-  void block(int num_defs, int num_stmts);
-  void stmt_part(int num_stmts);
-  void io(int num_expr, symbol::Tag);
-  void assign(int vars, int exprs);
-  void if_stmt(int num_cond);
-  void loop();
-  void empty();
-  void proc_stmt();
-  void condition(int num_stmts);
+  Stmt* block(Def*, Stmt*);
+  Stmt* stmt_part(Stmt*, Stmt*);
+  Stmt* io(std::vector<Expr*>*, symbol::Tag);
+  Stmt* assign(std::vector<Expr*>*, std::vector<Expr*>*);
+  Stmt* if_stmt(Stmt*);
+  Stmt* loop(Stmt*);
+  Stmt* empty_stmt();
+  Stmt* proc_stmt(std::string*);
+  Stmt* conditions(Stmt*, Stmt*);
+  Stmt* condition(Expr*, Stmt*);
 
   // expr actions
-  void access(symbol::Tag type);
-  void binary();
-  void unary();
-  void constant(symbol::Tag t, int val = 0, double dec = 0.0);
+  std::vector<Expr*>* expr_list(std::vector<Expr*>*, Expr*);
+  Expr* access(std::string*, Expr*);
+  Expr* binary(Operator*, Expr*, Expr*);
+  Expr* unary(symbol::Tag, Expr*);
+  Expr* constant(symbol::Tag t, int val = 0, double dec = 0.0);
+  Expr* empty_expr() { return new Expr(Type()); }
+
+  std::vector<std::string*>* var_list(std::vector<std::string*>* , std::string*);
 
   // helpers
   void display();
-  void new_block() { admin->debug("new_block"); table.push_block(); }
+  Def* new_block() { admin->debug("new_block"); table.push_block(); return new Def(); }
 
 
  private:
@@ -56,8 +61,8 @@ class Actions {
   BlockTable table;
   Admin* admin;
 
-  Id* get_id();
-  void add_vars(std::vector<Expr*> names, Type type, Expr* size);
+  Id* get_id(std::string);
+  Def* add_vars(std::vector<std::string*>* names, Type* type, Expr* size);
 };
 
 #endif

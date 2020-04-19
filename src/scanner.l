@@ -1,6 +1,12 @@
 %{
-#include "parser.tab.h"
+#include <string>
+#include <iostream>
+#include <vector>
 #include "Actions.h"
+#include "AstNode.h"
+#include "Symbol.h"
+#include "Types.h"
+#include "parser.tab.h"
 #define YY_DECL extern "C" int yylex()
 
 extern Actions* actions;
@@ -73,8 +79,8 @@ type      { return TYPE; }
 true      { return TRUE; }
 false     { return FALSE; }
 {name}    { return NAME; }
-{number}  { yylval.i = atoi(yytext); return NUMBER; }
-'.'        { yylval.c = yytext[1]; return CHARACTER; }
+{number}  { return atoi(yytext); }
+'.'        { return yytext[1]; }
 
 \n        { actions->get_admin()->newline(); }
 [ \t]     { /*Ignore Whitespace*/ }
