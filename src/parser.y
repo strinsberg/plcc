@@ -14,8 +14,9 @@ void yyerror(std::string);
 Actions* actions;
 %}
 
+%language "c++"
 
-%define api.value.type union
+%define api.value.type variant
 %type <int> NUMBER
 %type <char> CHARACTER
 %type <std::string*> name

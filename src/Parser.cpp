@@ -2,7 +2,7 @@
 #include "Actions.h"
 #include "Admin.h"
 #include "AstNode.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 
 // Bridges the parsers need for a global Actions object to call in the rules
 extern Actions* actions;

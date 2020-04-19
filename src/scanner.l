@@ -6,7 +6,7 @@
 #include "AstNode.h"
 #include "Symbol.h"
 #include "Types.h"
-#include "parser.tab.h"
+#include "parser.tab.hh"
 #define YY_DECL extern "C" int yylex()
 
 extern Actions* actions;
