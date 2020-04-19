@@ -39,6 +39,7 @@ Id::Id(string l, Type type, Expr* s) : Expr(type), size(s) {
   if (type.kind == symbol::ARRAY) {
     if (size->get_type().qual != symbol::CONST)
       throw type_error("array size must be a constant");
+
     if (size->get_type().type != symbol::INT)
       throw type_error("array size must be int");
   }
@@ -61,6 +62,7 @@ void Id::display(ostream& out) const {
 ConstId::ConstId(string l, Type t, Expr* c) 
     : Id(l, t, new Constant(
       Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0)), value(c) {
+
   if (t.type != value->get_type().type)
     throw type_error("constant variable type does not match value type");
 
@@ -124,6 +126,7 @@ void ArrayAccess::display(ostream& out) const {
 // Binary /////////////////////////////////////////////////////////////
 Binary::Binary(Operator o, Expr* l, Expr* r)
     : Expr(l->get_type()), op(o), lhs(l), rhs(r) {
+
   if (o.type.qual != symbol::UNIVERSAL) {
     type.type = o.type.qual;
     type.kind = symbol::UNIVERSAL;

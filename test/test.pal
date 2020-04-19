@@ -1,8 +1,5 @@
 begin
-  proc my_proc
-    int x;
-    write 5;
-  end proc;
-
-  call my_proc;
+  const float x = 9.4;
+  int array[9] A;
+  write A[1];
 end.

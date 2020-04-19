@@ -40,7 +40,10 @@ bprime: def_part stmt_part { actions->block($1, $2); }
 
 
 /* Definitions */
-def_part: def_part def SEMI { $$ = $1 + 1; actions->get_admin()->debug("def_part\n"); }
+def_part: def_part def SEMI {
+      $$ = $1 + 1;
+      actions->get_admin()->debug("def_part\n");
+    }
   | def_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = 0; actions->new_block(); }
   ;
@@ -60,13 +63,16 @@ v_prime: var_list { actions->var_def($$); }
   | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); }
   ;
 
-proc_def: PROC name { actions->proc_name(); } bprime ENDPROC { actions->proc_def(); }
+proc_def: PROC name { actions->proc_name(); }
+          bprime ENDPROC { actions->proc_def(); }
   ;
 
 
-
 /* Statements */
-stmt_part: stmt_part stmt SEMI { $$ = $1 + 1; actions->get_admin()->debug("stmt_part\n"); }
+stmt_part: stmt_part stmt SEMI {
+      $$ = $1 + 1;
+      actions->get_admin()->debug("stmt_part\n");
+    }
   | stmt_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = 0; }
   ;
@@ -93,7 +99,10 @@ if_stmt: IF conditions ENDIF { actions->if_stmt($2); }
 loop_stmt: LOOP condition ENDLOOP { actions->loop(); }
   ;
 
-conditions: conditions ELIF condition { $$ = $1 + 1; actions->get_admin()->debug("conditions"); }
+conditions: conditions ELIF condition {
+      $$ = $1 + 1;
+      actions->get_admin()->debug("conditions");
+    }
   | condition { $$ = 1; }
   ;
 
@@ -113,7 +122,10 @@ read_stmt: READ expr_list { actions->io($2, symbol::READ); }
   ;
 
 /* Expressions - All are going to be passing out nodes */
-expr_list: expr_list COMMA expr { $$ = $1 + 1; actions->get_admin()->debug("expr_list"); }
+expr_list: expr_list COMMA expr {
+      $$ = $1 + 1;
+      actions->get_admin()->debug("expr_list");
+    }
   | expr { $$ = 1; }
   | error { $$ = 0; yyerrok; }
   ;
@@ -132,7 +144,10 @@ simple_expr: simple_expr add_op t_prime { actions->binary(); }
   ;
 
 /* minus may need to be adjusted, this is a little ambiguous */
-t_prime: MINUS term { actions->new_op(symbol::MINUS, symbol::NUMBER), actions->unary(); }
+t_prime: MINUS term {
+      actions->new_op(symbol::MINUS, symbol::NUMBER);
+      actions->unary();
+    } 
   | term
   ;
 
@@ -145,23 +160,38 @@ factor: number
   | bool_sym 
   | var_access 
   | LHRND expr RHRND
-  | NOT factor { actions->new_op(symbol::NOT, symbol::BOOL); actions->unary(); }
+  | NOT factor {
+      actions->new_op(symbol::NOT, symbol::BOOL);
+      actions->unary();
+    }
   ;
 
 
 /* Variables */
-var_list: var_list COMMA name { $$ = $1 + 1; actions->get_admin()->debug("var_list"); }
-  | name { $$ = 1; actions->get_admin()->debug("var_list -> name"); }
+var_list: var_list COMMA name {
+      $$ = $1 + 1;
+      actions->get_admin()->debug("var_list");
+    }
+  | name {
+      $$ = 1;
+      actions->get_admin()->debug("var_list -> name");
+    }
   ;
 
-var_access_list: var_access_list COMMA var_access { $$ = $1 + 1; actions->get_admin()->debug("var_access_list"); }
+var_access_list: var_access_list COMMA var_access {
+      $$ = $1 + 1;
+      actions->get_admin()->debug("var_access_list");
+    }
   | var_access { $$ = 1; }
   ;
 
 var_access: name selector { actions->access((symbol::Tag)$2); }
   ;
 
-selector: LHSQR expr RHSQR { $$ = (int)symbol::ARRAY; actions->get_admin()->debug("selector -> array access"); }
+selector: LHSQR expr RHSQR {
+      $$ = (int)symbol::ARRAY;
+      actions->get_admin()->debug("selector -> array access");
+    }
   | /* epsilon */ { $$ = (int)symbol::SCALAR; }
   ;
 
@@ -213,8 +243,10 @@ bool_sym: TRUE { actions->constant(symbol::TRUE, 1); }
   | FALSE { actions->constant(symbol::FALSE, 0); }
   ;
 
-name: NAME { actions->name(std::string(yytext));
-             actions->get_admin()->debug("NAME -> " + std::string(yytext));}
+name: NAME {
+      actions->new_name(std::string(yytext));
+      actions->get_admin()->debug("NAME -> " + std::string(yytext));
+    }
   ;
 %%
 

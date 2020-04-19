@@ -15,19 +15,19 @@ class Actions {
   ~Actions();
 
   AstNode* ast() { return stacks.pop_stmt(); }
-  Admin* get_admin() {return admin; }
+  Admin* get_admin() { return admin; }
 
   void new_type(symbol::Tag);
   void new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
-  void name(std::string);
+  void new_name(std::string);
 
   // definition actions
+  void def_part(int num_defs);
   void const_def();
   void var_def(int vars, symbol::Tag qual=symbol::UNIVERSAL);
   void array_def(int vars);
-  void proc_def();
   void proc_name();
-  void def_part(int num_defs);
+  void proc_def();
 
   // stmt actions
   void block(int num_defs, int num_stmts);

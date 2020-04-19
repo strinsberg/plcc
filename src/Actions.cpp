@@ -5,15 +5,16 @@
 #include "exceptions.h"
 #include <string>
 #include <iostream>
-
 using namespace std;
+
 
 Actions::Actions(Admin* a) : admin(a) {};
 
-Actions::~Actions() {
-}
+Actions::~Actions() {}
+
 
 // Type and Op ///////////////////////////////////////////////////
+
 void Actions::new_type(symbol::Tag type) {
   admin->debug("type: " + symbol::str(type));
   Type t;
@@ -27,7 +28,7 @@ void Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
   stacks.push_op( Operator(op, t) );
 };
 
-void Actions::name(string n) {
+void Actions::new_name(string n) {
   stacks.push_expr( new Id(n, Type(), new Constant()) );
 }
 
@@ -70,21 +71,6 @@ void Actions::const_def() {
 }
 
 
-void Actions::array_def(int vars) {
-  admin->debug("array def: " + to_string(vars)); 
-
-  vector<Expr*> names(vars);
-  for (auto & n : names)
-    n = stacks.pop_expr();
-
-  Expr* size = stacks.pop_expr();
-  Type type = stacks.get_type();
-  type.kind = symbol::ARRAY;
-
-  add_vars(names, type, size);
-}
-
-
 void Actions::var_def(int num_vars, symbol::Tag qual) {
   admin->debug("var def: " + symbol::str(qual) + " " + to_string(num_vars)); 
 
@@ -96,6 +82,21 @@ void Actions::var_def(int num_vars, symbol::Tag qual) {
   vector<Expr*> names(num_vars);
   for (auto& n : names)
     n = stacks.pop_expr();
+
+  add_vars(names, type, size);
+}
+
+
+void Actions::array_def(int vars) {
+  admin->debug("array def: " + to_string(vars)); 
+
+  vector<Expr*> names(vars);
+  for (auto & n : names)
+    n = stacks.pop_expr();
+
+  Expr* size = stacks.pop_expr();
+  Type type = stacks.get_type();
+  type.kind = symbol::ARRAY;
 
   add_vars(names, type, size);
 }
@@ -126,18 +127,22 @@ void Actions::add_vars(vector<Expr*> names, Type type, Expr* size) {
 
   Def* def = nullptr;
   for (auto& n : names) {
-    Id* id = new Id(n->get_name(), type, size); 
-    bool added = table.put(n->get_name(), id);
+    try {
+      Id* id = new Id(n->get_name(), type, size); 
+      bool added = table.put(n->get_name(), id);
 
-    if (!added) {
-      admin->error("'" + n->get_name() + "' already declared");
-      delete id;
-    } else {
-      auto var = new VarDef(id);
-      if (def == nullptr)
-        def = var;
-      else
-        def = new DefSeq(var, def);
+      if (!added) {
+        admin->error("'" + n->get_name() + "' already declared");
+        delete id;
+      } else {
+        auto var = new VarDef(id);
+        if (def == nullptr)
+          def = var;
+        else
+          def = new DefSeq(var, def);
+      }
+    } catch (const type_error& e) {
+      admin->error("type error: " + string(e.what()), n->get_name());
     }
 
     delete n;
@@ -145,6 +150,7 @@ void Actions::add_vars(vector<Expr*> names, Type type, Expr* size) {
 
   if (def == nullptr)
     def = new Def();
+
   stacks.push_def(def);
 }
 
