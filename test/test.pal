@@ -1,5 +1,8 @@
 begin
-  float x, y, z;
-  bool array[true] A;
-  A[10.4] := 5;
+  proc my_proc
+    int x;
+    write 5;
+  end proc;
+
+  call my_proc;
 end.

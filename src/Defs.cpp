@@ -38,7 +38,7 @@ void DefSeq::display(std::ostream& out) const {
 
 
 // PROCDEF ////////////////////////////////////////////////////////////
-ProcDef::ProcDef(Def* d, Stmt* s) : name(d), block(s)  {}
+ProcDef::ProcDef(Expr* d, Stmt* s) : name(d), block(s)  {}
 
 ProcDef::~ProcDef() {
   delete name;

@@ -34,13 +34,13 @@ class DefSeq : public Def {
 
 class ProcDef : public Def {
  public:
-  ProcDef(Def* name, Stmt* block);
+  ProcDef(Expr* name, Stmt* block);
   virtual ~ProcDef();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
 
  protected:
-  Def* name;
+  Expr* name;
   Stmt* block;
 };
 

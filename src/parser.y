@@ -60,10 +60,7 @@ v_prime: var_list { actions->var_def($$, symbol::SCALAR); }
   | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); }
   ;
 
-proc_def: PROC name { actions->add_vars(
-                        Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL),
-                        1); }
-          bprime ENDPROC { actions->proc_def(); }
+proc_def: PROC name { actions->proc_name(); } bprime ENDPROC { actions->proc_def(); }
   ;
 
 

@@ -118,9 +118,22 @@ void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual, Expr* value)
 }
 
 
+void Actions::proc_name() {
+  auto name = stacks.pop_expr();
+  auto size = new Constant(
+    Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0
+  );
+  Type type = Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL);
+  auto id = new Id(name->get_name(), type, size);
+  bool added = table.put(name->get_name(), id);
+  if (!added)
+    admin->error("'" + name->get_name() + "' was already declared");
+  stacks.push_expr(id); 
+}
+
 void Actions::proc_def() {
   admin->debug("proc def");
-  auto name = stacks.pop_def();
+  auto name = stacks.pop_expr();
   stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
 }
 
@@ -133,20 +146,8 @@ void Actions::add_vars(Type type, int vars, Expr* value) {
   Def* def = nullptr;
   for (int i = 0; i < vars; i++) {
     auto name = stacks.pop_expr();
-    // Should probably also be doing some type checkng for proper sizes
     Id* id = new Id(name->get_name(), type, size);
 
-    if (type.qual == symbol::CONST) {
-      try {
-        id = new ConstId(name->get_name(), type, value);
-      } catch (const exception& e) {
-        admin->error("type error: " + string(e.what()), name->get_name());
-      }
-    }
-
-    // may be possible to move this to it's own function to reduce duplicate code
-    // and make future composit defs have easy access to it like array def needs
-    // give it a param for id and def and just update the def
     bool added = table.put(name->get_name(), id);
     if (!added) {
       admin->error("'" + name->get_name() + "' already declared");
