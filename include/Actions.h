@@ -44,14 +44,12 @@ class Actions {
   Stmt* condition(Expr*, Stmt*);
 
   // expr actions
-  std::vector<Expr*>* expr_list(std::vector<Expr*>*, Expr*);
   Expr* access(std::string*, Expr*);
   Expr* binary(Operator*, Expr*, Expr*);
   Expr* unary(symbol::Tag, Expr*);
   Expr* constant(symbol::Tag t, int val = 0, double dec = 0.0);
   Expr* empty_expr() { return new Expr(Type()); }
 
-  std::vector<std::string*>* var_list(std::vector<std::string*>* , std::string*);
 
   // helpers
   void display();

@@ -133,17 +133,12 @@ Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
   return def;
 }
 
-// These might be possible to just do in the parser directly
+
 std::pair<Expr*, std::vector<std::string*>*>* Actions::vprime(
     std::vector<std::string*>* rest, Expr* e) {
   return new pair<Expr*, vector<string*>*>{e, rest};
 }
 
-std::vector<std::string*>* Actions::var_list(
-    std::vector<std::string*>* rest, std::string* last) {
-  rest->push_back(last);
-  return rest;
-}
 
 // Statement methods //////////////////////////////////////////////////
 
@@ -264,11 +259,6 @@ Stmt* Actions::condition(Expr* expr, Stmt* stmts) {
 
 
 // Expression methods /////////////////////////////////////////////////
-
-std::vector<Expr*>* Actions::expr_list(std::vector<Expr*>* rest, Expr* last) {
-  rest->push_back(last);
-  return rest;
-}
 
 Expr* Actions::access(string* name, Expr* idx) {
   admin->debug("access");

@@ -146,7 +146,7 @@ read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
 
 
 /* Expressions */
-expr_list: expr_list COMMA expr { $$ = actions->expr_list($1, $3); }
+expr_list: expr_list COMMA expr { $$ = $1; $1->push_back($3); }
   | expr { $$ = new std::vector<Expr*>{$1}; }
   | error { $$ = new std::vector<Expr*>(); yyerrok; }
   ;
@@ -178,13 +178,11 @@ factor: number { $$ = $1; }
 
 
 /* Variables */
-var_list: var_list COMMA name { $$ = actions->var_list($1, $3); }
+var_list: var_list COMMA name { $$ = $1; $1->push_back($3); }
   | name { $$ = new std::vector<std::string*>{$1}; }
   ;
 
-var_access_list: var_access_list COMMA var_access {
-      $$ = actions->expr_list($1, $3);
-    }
+var_access_list: var_access_list COMMA var_access { $$ = $1; $1->push_back($3); }
   | var_access { $$ = new std::vector<Expr*>{$1}; }
   ;
 
