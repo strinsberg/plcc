@@ -37,6 +37,7 @@ void Actions::name(string n) {
 
 void Actions::def_part(int num_defs) {
   admin->debug("def part: " + to_string(num_defs)); 
+
   auto def = stacks.pop_def();
   for (int i = 0; i < num_defs - 1; i++ ) {
     def = new DefSeq( stacks.pop_def(), def);
@@ -85,6 +86,50 @@ void Actions::array_def(int vars) {
   Type type = stacks.get_type();
   type.kind = symbol::ARRAY;
 
+  add_vars(names, type, size);
+}
+
+// No longer needs a kind as arrays are defined separatedly
+void Actions::var_def(int num_vars, symbol::Tag kind, symbol::Tag qual) {
+  admin->debug("var def: " + symbol::str(kind) + " " + to_string(num_vars)); 
+  Type type = stacks.get_type();
+  type.kind = kind;
+  type.qual = qual;
+
+  Expr* size = new Constant(
+      Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0);
+
+  vector<Expr*> names(num_vars);
+  for (auto& n : names)
+    n = stacks.pop_expr();
+
+  add_vars(names, type, size);
+}
+
+
+void Actions::proc_name() {
+  auto name = stacks.pop_expr();
+  auto size = new Constant(
+    Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0
+  );
+  Type type = Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL);
+  auto id = new Id(name->get_name(), type, size);
+  bool added = table.put(name->get_name(), id);
+  if (!added)
+    admin->error("'" + name->get_name() + "' was already declared");
+  stacks.push_expr(id); 
+}
+
+void Actions::proc_def() {
+  admin->debug("proc def");
+  auto name = stacks.pop_expr();
+  stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
+}
+
+// private def helpers //
+void Actions::add_vars(vector<Expr*> names, Type type, Expr* size) {
+  admin->debug("add_vars");
+
   Def* def = nullptr;
   for (auto& n : names) {
     Id* id = new Id(n->get_name(), type, size); 
@@ -107,61 +152,6 @@ void Actions::array_def(int vars) {
   if (def == nullptr)
     def = new Def();
   stacks.push_def(def);
-}
-
-// No longer needs a kind as arrays are defined separatedly
-void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual) {
-  admin->debug("var def: " + symbol::str(kind) + " " + to_string(vars)); 
-  Type type = stacks.get_type();
-  type.kind = kind;
-  type.qual = qual;
-
-  Expr* size = new Constant(
-      Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0);
-
-  Def* def = nullptr;
-  for (int i = 0; i < vars; i++) {
-    auto name = stacks.pop_expr();
-    Id* id = new Id(name->get_name(), type, size);
-
-    bool added = table.put(name->get_name(), id);
-    if (!added) {
-      admin->error("'" + name->get_name() + "' already declared");
-      delete id;
-    } else {
-      auto var = new VarDef(id);
-      if (def == nullptr)
-        def = var;
-      else
-        def = new DefSeq(var, def);
-    }
-
-    delete name;
-  }
-
-  if (def == nullptr)
-    def = new Def();
-  stacks.push_def(def);
-}
-
-
-void Actions::proc_name() {
-  auto name = stacks.pop_expr();
-  auto size = new Constant(
-    Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0
-  );
-  Type type = Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL);
-  auto id = new Id(name->get_name(), type, size);
-  bool added = table.put(name->get_name(), id);
-  if (!added)
-    admin->error("'" + name->get_name() + "' was already declared");
-  stacks.push_expr(id); 
-}
-
-void Actions::proc_def() {
-  admin->debug("proc def");
-  auto name = stacks.pop_expr();
-  stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
 }
 
 

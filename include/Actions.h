@@ -57,6 +57,7 @@ class Actions {
   Admin* admin;
 
   Id* get_id();
+  void add_vars(std::vector<Expr*> names, Type type, Expr* size);
 };
 
 #endif
