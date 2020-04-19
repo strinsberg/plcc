@@ -17,7 +17,7 @@ int yylex();
 %define api.value.type variant
 %type <int> num
 %type <std::string> name
-%type <std::vector<std::string>*> var_list
+%type <std::vector<std::string>> var_list
 %type <Vp> vprime
 %type <Def*> def_part def const_def var_def proc_def
 %type <Expr*> expr prime_expr simple_expr term factor var_access
@@ -25,8 +25,8 @@ int yylex();
 %type <std::vector<Expr*>*> expr_list var_access_list
 %type <Stmt*> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
 %type <Stmt*> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
-%type <Operator*> prim_op rel_op add_op mult_op
-%type <Type*> type_sym
+%type <Operator> prim_op rel_op add_op mult_op
+%type <Type> type_sym
 
 
 %token BEG END
@@ -189,8 +189,8 @@ factor: number { $$ = $1; }
 
 
 /* Variables */
-var_list: var_list COMMA name { $$ = $1; $1->push_back($3); }
-  | name { $$ = new std::vector<std::string>{$1}; }
+var_list: var_list COMMA name { $$ = $1; $1.push_back($3); }
+  | name { $$ = std::vector<std::string>{$1}; }
   ;
 
 var_access_list: var_access_list COMMA var_access { $$ = $1; $1->push_back($3); }

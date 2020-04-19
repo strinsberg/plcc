@@ -16,17 +16,17 @@ Actions::~Actions() {}
 
 // Type and Op ///////////////////////////////////////////////////
 
-Type* Actions::new_type(symbol::Tag type) {
+Type Actions::new_type(symbol::Tag type) {
   admin->debug("type: " + symbol::str(type));
-  Type* t = new Type();
-  t->type = type;
+  Type t;
+  t.type = type;
   return t;
 };
 
-Operator* Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
+Operator Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
   admin->debug("op: " + symbol::str(op));
   Type t(type, symbol::OPERATOR, qual);
-  return new Operator(op, t);
+  return Operator(op, t);
 };
 
 
@@ -40,13 +40,13 @@ Def* Actions::def_part(Def* rest, Def* last) {
 }
 
 
-Def* Actions::const_def(Type* type, std::string name, Expr* value) {
+Def* Actions::const_def(Type type, std::string name, Expr* value) {
   admin->debug("const def");
-  type->qual = symbol::CONST;
+  type.qual = symbol::CONST;
 
   auto def = new Def();
   try {
-    auto id = new ConstId(name, *type, value);
+    auto id = new ConstId(name, type, value);
     bool added = table.put(name, id);
 
     if (!added)
@@ -62,13 +62,13 @@ Def* Actions::const_def(Type* type, std::string name, Expr* value) {
 }
 
 
-Def* Actions::var_def(Type* type, Vp pp) {
+Def* Actions::var_def(Type type, Vp pp) {
   admin->debug("var def");
 
   if (pp.size == nullptr)
-    type->kind = symbol::SCALAR;
+    type.kind = symbol::SCALAR;
   else
-    type->kind = symbol::ARRAY;
+    type.kind = symbol::ARRAY;
 
   return add_vars(pp.names, type, pp.size);
 }
@@ -99,14 +99,14 @@ Expr* Actions::proc_name(std::string name) {
 
 
 // private def helpers //
-Def* Actions::add_vars(vector<string>* names, Type* type, Expr* size) {
+Def* Actions::add_vars(vector<string> names, Type type, Expr* size) {
   admin->debug("add_vars");
 
   Def* def = nullptr;
-  for (auto it = names->rbegin(); it != names->rend(); it++) {
+  for (auto it = names.rbegin(); it != names.rend(); it++) {
     string n = *it;
     try {
-      Id* id = new Id(n, *type, size); 
+      Id* id = new Id(n, type, size); 
       bool added = table.put(n, id);
 
       if (!added) {
@@ -131,7 +131,7 @@ Def* Actions::add_vars(vector<string>* names, Type* type, Expr* size) {
 }
 
 
-Vp Actions::vprime(std::vector<std::string>* names, Expr* size) {
+Vp Actions::vprime(std::vector<std::string> names, Expr* size) {
   Vp result;
   result.size = size;
   result.names = names;
@@ -281,14 +281,14 @@ Expr* Actions::access(string name, Expr* idx) {
 }
 
 
-Expr* Actions::binary(Operator* op, Expr* lhs, Expr* rhs) {
+Expr* Actions::binary(Operator op, Expr* lhs, Expr* rhs) {
   admin->debug("binary");
 
   auto bin = new Expr(Type());
   try {
-    bin = new Binary(*op, lhs, rhs);
+    bin = new Binary(op, lhs, rhs);
   } catch (const type_error& e) {
-    admin->error("type error: " + string(e.what()), symbol::str(op->op));
+    admin->error("type error: " + string(e.what()), symbol::str(op.op));
   }
 
   return bin; 
@@ -297,7 +297,7 @@ Expr* Actions::binary(Operator* op, Expr* lhs, Expr* rhs) {
 
 Expr* Actions::unary(symbol::Tag op_type, Expr* expr) {
   admin->debug("unary");
-  Operator* op;
+  Operator op;
   if (op_type == symbol::MINUS)
     op = new_op(symbol::MINUS, symbol::NUMBER, symbol::NUMBER);
   else
@@ -305,9 +305,9 @@ Expr* Actions::unary(symbol::Tag op_type, Expr* expr) {
 
   auto un = new Expr(Type());
   try {
-    un = new Unary(*op, expr);
+    un = new Unary(op, expr);
   } catch (const type_error& e) {
-    admin->error("type error: " + string(e.what()), symbol::str(op->op));
+    admin->error("type error: " + string(e.what()), symbol::str(op.op));
   }
 
   return un;
