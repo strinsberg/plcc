@@ -7,6 +7,7 @@
 #include "Symbol.h"
 #include "Types.h"
 
+// From scanner.l
 extern char* yytext;
 int yylex();
 %}
@@ -14,6 +15,7 @@ int yylex();
 
 %language "c++"
 
+/* Non-terminal type definitions */
 %define api.value.type variant
 %type <int> num
 %type <std::string> name
@@ -29,6 +31,7 @@ int yylex();
 %type <Type> type_sym
 
 
+/* Token definitions */
 %token BEG END
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
@@ -42,6 +45,7 @@ int yylex();
 %token EMPTY NEWLINE
 
 
+/* Code for C++ yylex and yyerror definitions */
 %code {
 
 Actions* actions;
@@ -51,7 +55,7 @@ int my_lex() { return yylex(); }
 namespace yy {
   static int temp_num = 0;
   static char temp_ch = '\0';
-  
+ 
   int yylex(parser::semantic_type*) {
     int token = my_lex();
     if (token == parser::token::NUMBER)
@@ -157,7 +161,7 @@ read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
 
 
 /* Expressions */
-expr_list: expr_list COMMA expr { $$ = $1; $1.push_back($3); }
+expr_list: expr_list COMMA expr { $1.push_back($3); $$ = $1; }
   | expr { $$ = std::vector<Expr*>{$1}; }
   | error { $$ = std::vector<Expr*>(); yyerrok; }
   ;
@@ -189,11 +193,11 @@ factor: number { $$ = $1; }
 
 
 /* Variables */
-var_list: var_list COMMA name { $$ = $1; $1.push_back($3); }
+var_list: var_list COMMA name { $1.push_back($3); $$ = $1; }
   | name { $$ = std::vector<std::string>{$1}; }
   ;
 
-var_access_list: var_access_list COMMA var_access { $$ = $1; $1.push_back($3); }
+var_access_list: var_access_list COMMA var_access { $1.push_back($3); $$ = $1; }
   | var_access { $$ = std::vector<Expr*>{$1}; }
   ;
 
@@ -205,7 +209,7 @@ selector: LHSQR expr RHSQR { $$ = $2; }
   ;
 
 
-/* Operators */
+/* Operators Terminals */
 prim_op: AND { $$ = actions->new_op(symbol::AND, symbol::BOOL, symbol::BOOL); }
   | OR { $$ = actions->new_op(symbol::OR, symbol::BOOL, symbol::BOOL); }
   ;
@@ -228,7 +232,7 @@ mult_op: MULT { $$ = actions->new_op(symbol::MULT, symbol::NUMBER); }
   ;
 
 
-/* Terminals */
+/* Value Based Terminals */
 type_sym: INT { $$ = actions->new_type(symbol::INT); }
   | FLOAT { $$ = actions->new_type(symbol::FLOAT); }
   | BOOL { $$ = actions->new_type(symbol::BOOL); }

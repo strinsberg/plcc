@@ -8,6 +8,7 @@
 #include "Types.h"
 #include "parser.tab.hh"
 
+// From parser.tab.h for admin::error() and admin::newline()
 extern Actions* actions;
 %}
 
@@ -86,5 +87,5 @@ false         { return yy::parser::token::FALSE; }
 <<EOF>>       { return 0; }
 
 --[^\n]*      { /* ignore rest of line for comments */ }
-.             { printf("Invalid Char: %c\n", *yytext); }
+.             { actions->get_admin()->error("bad char '" + std::string(yytext) + "'"); }
 %%

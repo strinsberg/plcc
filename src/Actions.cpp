@@ -76,8 +76,6 @@ Def* Actions::var_def(Type type, Vp pp) {
 
 Def* Actions::proc_def(Expr* id, Stmt* block) {
   admin->debug("proc def");
-  // this will again not declare the name before the block is resolved
-  // so the rules will be adjusted again
   return new ProcDef(id, block); 
 }
 
