@@ -144,13 +144,13 @@ proc_stmt: CALL name { $$ = actions->proc_stmt($2); }
 read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
   ;
 
-/* Expressions - All are going to be passing out nodes */
+
+/* Expressions */
 expr_list: expr_list COMMA expr { $$ = actions->expr_list($1, $3); }
   | expr { $$ = new std::vector<Expr*>{$1}; }
   | error { $$ = new std::vector<Expr*>(); yyerrok; }
   ;
 
-/* Should all be nothing if only 1 and run a binary expr function if op expr */
 expr: expr prim_op prime_expr { $$ = actions->binary($2, $1, $3); }
   | prime_expr { $$ = $1; }
   ;
