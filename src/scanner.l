@@ -73,8 +73,8 @@ type      { return TYPE; }
 true      { return TRUE; }
 false     { return FALSE; }
 {name}    { return NAME; }
-{number}  { yylval = atoi(yytext); return NUMBER; }
-'.'        { yylval = yytext[1]; return CHARACTER; }
+{number}  { yylval.i = atoi(yytext); return NUMBER; }
+'.'        { yylval.c = yytext[1]; return CHARACTER; }
 
 \n        { actions->get_admin()->newline(); }
 [ \t]     { /*Ignore Whitespace*/ }

@@ -1,8 +1,8 @@
 %{
-#include <stdio.h>
 #include <string>
 #include <iostream>
 #include "Actions.h"
+#include "AstNode.h"
 #include "Symbol.h"
 #include "Types.h"
 
@@ -13,6 +13,33 @@ void yyerror(std::string);
 Actions* actions;
 %}
 
+%union {
+  int i;
+  char c;
+  std::string str;
+  std::vector<std::string> var_list;
+  Def* def;
+  Expr* expr;
+  Stmt* stmt;
+  Operator op;
+  Type type;
+  std::vector<Expr*> expr_list;
+  std::pair<Expr*, std::vector<Expr*>> peel;
+}
+
+%type <i> NUMBER
+%type <c> CHARACTER
+%type <str> name
+%type <var_list> var_list
+%type <def> def_part def const_def var_def proc_def
+%type <expr> expr prime_expr simple_expr term factor var_access
+%type <expr> constant char number bool_sym tprime selector
+%type <expr_list> expr_list var_access_list
+%type <peel> vprime
+%type <stmt> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
+%type <stmt> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
+%type <op> prim_op rel_op add_op mult_op
+%type <type> type_sym
 
 %token BEG END
 %token COMMA DOT SEMI
@@ -28,24 +55,21 @@ Actions* actions;
 
 
 %%
-program:  /* nothing for bison */
-  | block DOT
+program:  /* nothing for bison */ { $$ = actions->empty_stmt(); }
+  | block DOT { $$ = $1; }
   ;
 
-block: BEG bprime END 
+block: BEG bprime END { $$ = $2; }
   ;
 
-bprime: def_part stmt_part { actions->block($1, $2); }
+bprime: def_part stmt_part { $$ = actions->block($1, $2); }
   ;
 
 
 /* Definitions */
-def_part: def_part def SEMI {
-      $$ = $1 + 1;
-      actions->get_admin()->debug("def_part\n");
-    }
+def_part: def_part def SEMI { $$ = actions->def_part($1, $2); }
   | def_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = 0; actions->new_block(); }
+  | /* epsilon */ { $$ = actions->new_block(); }
   ;
 
 def: const_def
@@ -53,28 +77,24 @@ def: const_def
   | proc_def
   ;
 
-const_def: CONST type_sym name INIT constant { actions->const_def(); }
+const_def: CONST type_sym name INIT constant { $$ = actions->const_def(); }
   ;
 
-var_def: type_sym v_prime
+var_def: type_sym vprime { $$ = actions->var_def($1, $2); }
   ;
 
-v_prime: var_list { actions->var_def($$); }
-  | ARRAY LHSQR constant RHSQR var_list { actions->array_def($5); }
+vprime: var_list { $$ = actions->vprime($1) }
+  | ARRAY LHSQR constant RHSQR var_list { $$ = actions->vprime($5, $3); }
   ;
 
-proc_def: PROC name { actions->proc_name(); }
-          bprime ENDPROC { actions->proc_def(); }
+proc_def: PROC name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
   ;
 
 
 /* Statements */
-stmt_part: stmt_part stmt SEMI {
-      $$ = $1 + 1;
-      actions->get_admin()->debug("stmt_part\n");
-    }
+stmt_part: stmt_part stmt SEMI { $$ = stmt_part($1, $2); }
   | stmt_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = 0; }
+  | /* epsilon */ { $$ = actions->empty(); }
   ;
 
 stmt: write_stmt
@@ -87,166 +107,141 @@ stmt: write_stmt
   | read_stmt
   ;
 
-write_stmt: WRITE expr_list { actions->io($2, symbol::WRITE); }
+write_stmt: WRITE expr_list { $$ = actions->io($2, symbol::WRITE); }
   ;
 
-asn_stmt: var_access_list ASGN expr_list { actions->assign($1, $3);; }
+asn_stmt: var_access_list ASGN expr_list { $$ = actions->assign($1, $3); }
   ;
 
-if_stmt: IF conditions ENDIF { actions->if_stmt($2); }
+if_stmt: IF conditions ENDIF { $$ = actions->if_stmt($2); }
   ;
 
-loop_stmt: LOOP condition ENDLOOP { actions->loop(); }
+loop_stmt: LOOP condition ENDLOOP { $$ = actions->loop($2); }
   ;
 
-conditions: conditions ELIF condition {
-      $$ = $1 + 1;
-      actions->get_admin()->debug("conditions");
-    }
-  | condition { $$ = 1; }
+conditions: conditions ELIF condition { $$ = conditions($1, $3); }
+  | condition { $$ = $1; }
   ;
 
-condition: expr DO stmt_part { actions->condition($3); }
+condition: expr DO stmt_part { $$ = actions->condition($1, $3); }
   ;
 
-empty_stmt: SKIP { actions->empty(); }
+empty_stmt: SKIP { $$ = actions->empty_stmt(); }
   ;
 
-block_stmt: block 
+block_stmt: block { $$ = $1; }
   ;
 
-proc_stmt: CALL name { actions->proc_stmt(); }
+proc_stmt: CALL name { $$ = actions->proc_stmt($2); }
   ;
 
-read_stmt: READ expr_list { actions->io($2, symbol::READ); }
+read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
   ;
 
 /* Expressions - All are going to be passing out nodes */
-expr_list: expr_list COMMA expr {
-      $$ = $1 + 1;
-      actions->get_admin()->debug("expr_list");
-    }
-  | expr { $$ = 1; }
-  | error { $$ = 0; yyerrok; }
+expr_list: expr_list COMMA expr { $$ = actions->expr_list($1, $3); }
+  | expr { $$ = std::vector<Expr*>{$1}; }
+  | error { $$ = actions->empty_expr(); yyerrok; }
   ;
 
 /* Should all be nothing if only 1 and run a binary expr function if op expr */
-expr: expr prim_op prime_expr { actions->binary(); }
-  | prime_expr
+expr: expr prim_op prime_expr { $$ = actions->binary($2, $1, $3); }
+  | prime_expr { $$ = $1; }
   ;
 
-prime_expr: prime_expr rel_op simple_expr { actions->binary(); }
-  | simple_expr
+prime_expr: prime_expr rel_op simple_expr { $$ = actions->binary($2, $1, $3); }
+  | simple_expr { $$ = $1; }
   ;
 
-simple_expr: simple_expr add_op t_prime { actions->binary(); }
-  | t_prime
+simple_expr: simple_expr add_op tprime { $$ = actions->binary($2, $1, $3); }
+  | tprime { $$ = $1; }
   ;
 
 /* minus may need to be adjusted, this is a little ambiguous */
-t_prime: MINUS term {
-      actions->new_op(symbol::MINUS, symbol::NUMBER);
-      actions->unary();
-    } 
-  | term
+tprime: MINUS term { $$ = actions->unary(symbol::MINUS, $2); }
+  | term { $$ = $1; }
   ;
 
-term: factor mult_op factor { actions->binary(); }
-  | factor
+term: factor mult_op factor { $$ = actions->binary($2, $1, $3); }
+  | factor { $$ = $1; }
   ;
 
 factor: number
   | char 
   | bool_sym 
   | var_access 
-  | LHRND expr RHRND
-  | NOT factor {
-      actions->new_op(symbol::NOT, symbol::BOOL);
-      actions->unary();
-    }
+  | LHRND expr RHRND { $$ = $2; }
+  | NOT factor { $$ == actions->unary(symbol::NOT, $2); }
   ;
 
 
 /* Variables */
-var_list: var_list COMMA name {
-      $$ = $1 + 1;
-      actions->get_admin()->debug("var_list");
-    }
-  | name {
-      $$ = 1;
-      actions->get_admin()->debug("var_list -> name");
-    }
+var_list: var_list COMMA name { $$ = actions->var_list($1, $3); }
+  | name { $$ = std::vector<string>{$1}; }
   ;
 
 var_access_list: var_access_list COMMA var_access {
-      $$ = $1 + 1;
-      actions->get_admin()->debug("var_access_list");
+      $$ = actions->expr_list($1, $3);
     }
-  | var_access { $$ = 1; }
+  | var_access { $$ = std::vector<Expr*>{$1}; }
   ;
 
-var_access: name selector { actions->access((symbol::Tag)$2); }
+var_access: name selector { $$ = actions->access($1, $2); }
   ;
 
-selector: LHSQR expr RHSQR {
-      $$ = (int)symbol::ARRAY;
-      actions->get_admin()->debug("selector -> array access");
-    }
-  | /* epsilon */ { $$ = (int)symbol::SCALAR; }
+selector: LHSQR expr RHSQR { $$ = $2; }
+  | /* epsilon */ { $$ = actions->empty_expr(); }
   ;
 
 
 /* Operators */
-prim_op: AND { actions->new_op(symbol::AND, symbol::BOOL, symbol::BOOL); }
-  | OR { actions->new_op(symbol::OR, symbol::BOOL, symbol::BOOL); }
+prim_op: AND { $$ = actions->new_op(symbol::AND, symbol::BOOL, symbol::BOOL); }
+  | OR { $$ = actions->new_op(symbol::OR, symbol::BOOL, symbol::BOOL); }
   ;
 
-rel_op: EQ { actions->new_op(symbol::EQ, symbol::UNIVERSAL, symbol::BOOL); }
-  | NEQ { actions->new_op(symbol::NEQ, symbol::UNIVERSAL, symbol::BOOL); }
-  | LESS { actions->new_op(symbol::LESS, symbol::NUMBER, symbol::BOOL); }
-  | GREATER { actions->new_op(symbol::GREATER, symbol::NUMBER, symbol::BOOL); }
-  | LEQ { actions->new_op(symbol::LEQ, symbol::NUMBER, symbol::BOOL); }
-  | GEQ { actions->new_op(symbol::GEQ, symbol::NUMBER, symbol::BOOL); }
+rel_op: EQ { $$ = actions->new_op(symbol::EQ, symbol::UNIVERSAL, symbol::BOOL); }
+  | NEQ { $$ = actions->new_op(symbol::NEQ, symbol::UNIVERSAL, symbol::BOOL); }
+  | LESS { $$ = actions->new_op(symbol::LESS, symbol::NUMBER, symbol::BOOL); }
+  | GREATER { $$ = actions->new_op(symbol::GREATER, symbol::NUMBER, symbol::BOOL); }
+  | LEQ { $$ = actions->new_op(symbol::LEQ, symbol::NUMBER, symbol::BOOL); }
+  | GEQ { $$ = actions->new_op(symbol::GEQ, symbol::NUMBER, symbol::BOOL); }
   ;
 
-add_op: PLUS { actions->new_op(symbol::PLUS, symbol::NUMBER); }
-  | MINUS { actions->new_op(symbol::MINUS, symbol::NUMBER); }
+add_op: PLUS { $$ = actions->new_op(symbol::PLUS, symbol::NUMBER); }
+  | MINUS { $$ = actions->new_op(symbol::MINUS, symbol::NUMBER); }
   ;
 
-mult_op: MULT { actions->new_op(symbol::MULT, symbol::NUMBER); }
-  | DIV { actions->new_op(symbol::DIV, symbol::NUMBER); }
-  | MOD { actions->new_op(symbol::MOD, symbol::INT); }
+mult_op: MULT { $$ = actions->new_op(symbol::MULT, symbol::NUMBER); }
+  | DIV { $$ = actions->new_op(symbol::DIV, symbol::NUMBER); }
+  | MOD { $$ = actions->new_op(symbol::MOD, symbol::INT); }
   ;
 
 
 /* Terminals */
-type_sym: INT { actions->new_type(symbol::INT); }
-  | FLOAT { actions->new_type(symbol::FLOAT); }
-  | BOOL { actions->new_type(symbol::BOOL); }
-  | CHAR { actions->new_type(symbol::CHAR); }
+type_sym: INT { $$ = actions->new_type(symbol::INT); }
+  | FLOAT { $$ = actions->new_type(symbol::FLOAT); }
+  | BOOL { $$ = actions->new_type(symbol::BOOL); }
+  | CHAR { $$ = actions->new_type(symbol::CHAR); }
   ;
 
 constant: number
   | bool_sym 
-  | name { actions->constant(symbol::NAME); }
+  | name { $$ = actions->access($1, actions->empty_expr()); }
   | char
   ;
 
-char: CHARACTER { actions->constant(symbol::CHAR, $1); }
+char: CHARACTER { $$ = actions->constant(symbol::CHAR, $1); }
   ;
 
-number: NUMBER DOT NUMBER { actions->constant(symbol::FLOAT, $1, $3); }
-  | NUMBER { actions->constant(symbol::INT, $1); }
+number: NUMBER DOT NUMBER { $$ = actions->constant(symbol::FLOAT, $1, $3); }
+  | NUMBER { $$ = actions->constant(symbol::INT, $1); }
   ;
 
-bool_sym: TRUE { actions->constant(symbol::TRUE, 1); }
-  | FALSE { actions->constant(symbol::FALSE, 0); }
+bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }
+  | FALSE { $$ = actions->constant(symbol::FALSE, 0); }
   ;
 
-name: NAME {
-      actions->new_name(std::string(yytext));
-      actions->get_admin()->debug("NAME -> " + std::string(yytext));
-    }
+name: NAME { $$ = std::string(yytext); }
   ;
 %%
 
