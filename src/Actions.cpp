@@ -9,7 +9,7 @@
 using namespace std;
 
 
-Actions::Actions(Admin* a) : admin(a) {};
+Actions::Actions(Admin* a) : admin(a), ast(empty_stmt()) {};
 
 Actions::~Actions() {}
 

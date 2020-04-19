@@ -58,8 +58,8 @@ namespace yy {
 
 
 %%
-program:  /* nothing for bison */ { $$ = actions->empty_stmt(); }
-  | block DOT { $$ = $1; }
+program:  /* nothing for bison */ { actions->set_ast(actions->empty_stmt()); }
+  | block DOT { actions->set_ast($1); }
   ;
 
 block: BEG bprime END { $$ = $2; }

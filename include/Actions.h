@@ -15,7 +15,8 @@ class Actions {
   Actions(Admin* admin);
   ~Actions();
 
-  AstNode* ast() { return stacks.pop_stmt(); }
+  AstNode* get_ast() { return ast; }
+  void set_ast(AstNode* a) { ast = a; }
   Admin* get_admin() { return admin; }
 
   Type* new_type(symbol::Tag);
@@ -60,6 +61,7 @@ class Actions {
   AstStacks stacks;
   BlockTable table;
   Admin* admin;
+  AstNode* ast;
 
   Id* get_id(std::string);
   Def* add_vars(std::vector<std::string*>* names, Type* type, Expr* size);

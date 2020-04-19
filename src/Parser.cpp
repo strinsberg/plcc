@@ -18,6 +18,5 @@ Parser::~Parser() {
 AstNode* Parser::parse() {
   yy::parser parser;
   parser.parse();
-  act->display();
-  return act->ast(); 
+  return act->get_ast(); 
 };

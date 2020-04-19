@@ -1,5 +1,2 @@
 begin
-  const float x = 9.4;
-  int array[9] A;
-  write A[1];
 end.
