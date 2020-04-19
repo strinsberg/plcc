@@ -1,6 +1,5 @@
 #include "Actions.h"
 #include "Admin.h"
-#include "AstStacks.h"
 #include "Symbol.h"
 #include "Types.h"
 #include "exceptions.h"

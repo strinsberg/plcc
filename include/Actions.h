@@ -3,7 +3,9 @@
 
 #include "Admin.h"
 #include "AstNode.h"
-#include "AstStacks.h"
+#include "Defs.h"
+#include "Exprs.h"
+#include "Stmts.h"
 #include "BlockTable.h"
 #include "Symbol.h"
 #include "Types.h"
