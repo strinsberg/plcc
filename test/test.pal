@@ -1,4 +1,9 @@
 begin
   int x, y, z;
-  write -10 * 30 + -40;
+  proc my_proc
+    int a,b,c;
+    write a + x, b + y, z + c;
+    call my_proc;
+  end proc;
+  call my_proc;
 end.

@@ -77,11 +77,27 @@ Def* Actions::var_def(Type* type, std::pair<Expr*, std::vector<std::string*>*>* 
 }
 
 
-Def* Actions::proc_def(string* name, Stmt* block) {
+Def* Actions::proc_def(Expr* id, Stmt* block) {
   admin->debug("proc def");
   // this will again not declare the name before the block is resolved
   // so the rules will be adjusted again
-  return new ProcDef(new Expr(Type()), block); 
+  return new ProcDef(id, block); 
+}
+
+
+Expr* Actions::proc_name(std::string* name) {
+  Type type = Type(symbol::UNIVERSAL, symbol::PROC, symbol::UNIVERSAL);
+  Expr* size = new Constant();
+  Id* id = new Id(*name, type, size);
+
+  bool added = table.put(*name, id);
+  if (!added) {
+    admin->error("'" + *name + "' was not declared in this scope");
+    delete id;
+    return empty_expr();
+  }
+
+  return id;
 }
 
 

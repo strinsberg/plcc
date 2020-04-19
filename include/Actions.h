@@ -28,7 +28,8 @@ class Actions {
   Def* var_def(Type*, std::pair<Expr*, std::vector<std::string*>*>*);
   std::pair<Expr*, std::vector<std::string*>*>* vprime(std::vector<std::string*>*, Expr* e = nullptr);
   Def* array_def(int vars);
-  Def* proc_def(std::string*, Stmt*);
+  Def* proc_def(Expr*, Stmt*);
+  Expr* proc_name(std::string* name);
 
   // stmt actions
   Stmt* block(Def*, Stmt*);

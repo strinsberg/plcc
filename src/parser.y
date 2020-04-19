@@ -37,7 +37,7 @@ namespace yy {
 %type <std::pair<Expr*, std::vector<std::string*>*>*> vprime
 %type <Def*> def_part def const_def var_def proc_def
 %type <Expr*> expr prime_expr simple_expr term factor var_access
-%type <Expr*> constant character number bool_sym selector
+%type <Expr*> constant character number bool_sym selector proc_name
 %type <std::vector<Expr*>*> expr_list var_access_list
 %type <Stmt*> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
 %type <Stmt*> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
@@ -90,7 +90,10 @@ vprime: var_list { $$ = actions->vprime($1); }
   | ARRAY LHSQR constant RHSQR var_list { $$ = actions->vprime($5, $3); }
   ;
 
-proc_def: PROC name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
+proc_def: PROC proc_name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
+  ;
+
+proc_name: name { $$ = actions->proc_name($1); }
   ;
 
 
