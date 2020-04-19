@@ -39,8 +39,8 @@ class Actions {
   // stmt actions
   Stmt* block(Def*, Stmt*);
   Stmt* stmt_part(Stmt*, Stmt*);
-  Stmt* io(std::vector<Expr*>*, symbol::Tag);
-  Stmt* assign(std::vector<Expr*>*, std::vector<Expr*>*);
+  Stmt* io(std::vector<Expr*>, symbol::Tag);
+  Stmt* assign(std::vector<Expr*>, std::vector<Expr*>);
   Stmt* if_stmt(Stmt*);
   Stmt* loop(Stmt*);
   Stmt* empty_stmt();

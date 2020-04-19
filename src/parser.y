@@ -22,7 +22,7 @@ int yylex();
 %type <Def*> def_part def const_def var_def proc_def
 %type <Expr*> expr prime_expr simple_expr term factor var_access
 %type <Expr*> constant character number bool_sym selector proc_name
-%type <std::vector<Expr*>*> expr_list var_access_list
+%type <std::vector<Expr*>> expr_list var_access_list
 %type <Stmt*> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
 %type <Stmt*> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
 %type <Operator> prim_op rel_op add_op mult_op
@@ -157,9 +157,9 @@ read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
 
 
 /* Expressions */
-expr_list: expr_list COMMA expr { $$ = $1; $1->push_back($3); }
-  | expr { $$ = new std::vector<Expr*>{$1}; }
-  | error { $$ = new std::vector<Expr*>(); yyerrok; }
+expr_list: expr_list COMMA expr { $$ = $1; $1.push_back($3); }
+  | expr { $$ = std::vector<Expr*>{$1}; }
+  | error { $$ = std::vector<Expr*>(); yyerrok; }
   ;
 
 expr: expr prim_op prime_expr { $$ = actions->binary($2, $1, $3); }
@@ -193,8 +193,8 @@ var_list: var_list COMMA name { $$ = $1; $1.push_back($3); }
   | name { $$ = std::vector<std::string>{$1}; }
   ;
 
-var_access_list: var_access_list COMMA var_access { $$ = $1; $1->push_back($3); }
-  | var_access { $$ = new std::vector<Expr*>{$1}; }
+var_access_list: var_access_list COMMA var_access { $$ = $1; $1.push_back($3); }
+  | var_access { $$ = std::vector<Expr*>{$1}; }
   ;
 
 var_access: name selector { $$ = actions->access($1, $2); }

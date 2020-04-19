@@ -156,28 +156,28 @@ Stmt* Actions::stmt_part(Stmt* rest, Stmt* last) {
 }
 
 
-Stmt* Actions::io(std::vector<Expr*>* exprs, symbol::Tag type) {
+Stmt* Actions::io(std::vector<Expr*> exprs, symbol::Tag type) {
   admin->debug("io");
-  Stmt* stmt = new IoStmt(exprs->back(), type);
-  for (auto it = exprs->rbegin() + 1; it != exprs->rend(); it++) {  
+  Stmt* stmt = new IoStmt(exprs.back(), type);
+  for (auto it = exprs.rbegin() + 1; it != exprs.rend(); it++) {  
     stmt = new Seq( new IoStmt(*it, type), stmt );
   }
   return stmt;
 }
 
 
-Stmt* Actions::assign(vector<Expr*>* vars, vector<Expr*>* values) {
+Stmt* Actions::assign(vector<Expr*> vars, vector<Expr*> values) {
   admin->debug("assign");
-  if (vars->size() != values->size()) {
+  if (vars.size() != values.size()) {
     admin->error("number of variables does not match number of exressions");
     return new Stmt();
   }
 
   // pair each access with it's value
   Stmt* stmt = nullptr;
-  for (int i = vars->size() - 1; i >= 0; i--) {
-    auto acs = vars->at(i);
-    auto expr = values->at(i);
+  for (int i = vars.size() - 1; i >= 0; i--) {
+    auto acs = vars.at(i);
+    auto expr = values.at(i);
 
     Stmt* asgn = new Stmt();
     try {
@@ -194,6 +194,7 @@ Stmt* Actions::assign(vector<Expr*>* vars, vector<Expr*>* values) {
 
   if (stmt == nullptr)
     stmt = new Stmt();
+
   return stmt;
 }
 
