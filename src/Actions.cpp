@@ -70,6 +70,7 @@ void Actions::const_def() {
 
 void Actions::array_def(int vars) {
   admin->debug("array def: " + to_string(vars)); 
+
   vector<Expr*> names(vars);
   for (auto & n : names)
     n = stacks.pop_expr();
@@ -109,37 +110,12 @@ void Actions::array_def(int vars) {
 }
 
 // No longer needs a kind as arrays are defined separatedly
-void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual, Expr* value) {
+void Actions::var_def(int vars, symbol::Tag kind, symbol::Tag qual) {
   admin->debug("var def: " + symbol::str(kind) + " " + to_string(vars)); 
   Type type = stacks.get_type();
   type.kind = kind;
   type.qual = qual;
-  add_vars(type, vars, value);
-}
 
-
-void Actions::proc_name() {
-  auto name = stacks.pop_expr();
-  auto size = new Constant(
-    Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0
-  );
-  Type type = Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL);
-  auto id = new Id(name->get_name(), type, size);
-  bool added = table.put(name->get_name(), id);
-  if (!added)
-    admin->error("'" + name->get_name() + "' was already declared");
-  stacks.push_expr(id); 
-}
-
-void Actions::proc_def() {
-  admin->debug("proc def");
-  auto name = stacks.pop_expr();
-  stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
-}
-
-
-void Actions::add_vars(Type type, int vars, Expr* value) {
-  admin->debug("add vars: " + symbol::str(type.type) + " " + to_string(vars)); 
   Expr* size = new Constant(
       Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0);
 
@@ -166,6 +142,26 @@ void Actions::add_vars(Type type, int vars, Expr* value) {
   if (def == nullptr)
     def = new Def();
   stacks.push_def(def);
+}
+
+
+void Actions::proc_name() {
+  auto name = stacks.pop_expr();
+  auto size = new Constant(
+    Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0
+  );
+  Type type = Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL);
+  auto id = new Id(name->get_name(), type, size);
+  bool added = table.put(name->get_name(), id);
+  if (!added)
+    admin->error("'" + name->get_name() + "' was already declared");
+  stacks.push_expr(id); 
+}
+
+void Actions::proc_def() {
+  admin->debug("proc def");
+  auto name = stacks.pop_expr();
+  stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
 }
 
 
