@@ -11,7 +11,7 @@
 
 struct Vp {
   Expr* size;
-  std::vector<std::string*>* names;
+  std::vector<std::string>* names;
 };
 
 
@@ -29,12 +29,12 @@ class Actions {
 
   // definition actions
   Def* def_part(Def*, Def*);
-  Def* const_def(Type*, std::string*, Expr*);
+  Def* const_def(Type*, std::string, Expr*);
   Def* var_def(Type*, Vp);
-  Vp vprime(std::vector<std::string*>*, Expr* e = nullptr);
+  Vp vprime(std::vector<std::string>*, Expr* e = nullptr);
   Def* array_def(int vars);
   Def* proc_def(Expr*, Stmt*);
-  Expr* proc_name(std::string* name);
+  Expr* proc_name(std::string name);
 
   // stmt actions
   Stmt* block(Def*, Stmt*);
@@ -44,12 +44,12 @@ class Actions {
   Stmt* if_stmt(Stmt*);
   Stmt* loop(Stmt*);
   Stmt* empty_stmt();
-  Stmt* proc_stmt(std::string*);
+  Stmt* proc_stmt(std::string);
   Stmt* conditions(Stmt*, Stmt*);
   Stmt* condition(Expr*, Stmt*);
 
   // expr actions
-  Expr* access(std::string*, Expr*);
+  Expr* access(std::string, Expr*);
   Expr* binary(Operator*, Expr*, Expr*);
   Expr* unary(symbol::Tag, Expr*);
   Expr* constant(symbol::Tag t, int val = 0, double dec = 0.0);
@@ -68,7 +68,7 @@ class Actions {
   AstNode* ast;
 
   Id* get_id(std::string);
-  Def* add_vars(std::vector<std::string*>* names, Type* type, Expr* size);
+  Def* add_vars(std::vector<std::string>* names, Type* type, Expr* size);
 };
 
 #endif

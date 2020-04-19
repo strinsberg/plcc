@@ -16,8 +16,8 @@ int yylex();
 
 %define api.value.type variant
 %type <int> num
-%type <std::string*> name
-%type <std::vector<std::string*>*> var_list
+%type <std::string> name
+%type <std::vector<std::string>*> var_list
 %type <Vp> vprime
 %type <Def*> def_part def const_def var_def proc_def
 %type <Expr*> expr prime_expr simple_expr term factor var_access
@@ -190,7 +190,7 @@ factor: number { $$ = $1; }
 
 /* Variables */
 var_list: var_list COMMA name { $$ = $1; $1->push_back($3); }
-  | name { $$ = new std::vector<std::string*>{$1}; }
+  | name { $$ = new std::vector<std::string>{$1}; }
   ;
 
 var_access_list: var_access_list COMMA var_access { $$ = $1; $1->push_back($3); }
@@ -255,7 +255,7 @@ bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }
   | FALSE { $$ = actions->constant(symbol::FALSE, 0); }
   ;
 
-name: NAME { $$ = new std::string(yytext); }
+name: NAME { $$ = std::string(yytext); }
   ;
 %%
 

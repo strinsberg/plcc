@@ -40,22 +40,22 @@ Def* Actions::def_part(Def* rest, Def* last) {
 }
 
 
-Def* Actions::const_def(Type* type, std::string* name, Expr* value) {
+Def* Actions::const_def(Type* type, std::string name, Expr* value) {
   admin->debug("const def");
   type->qual = symbol::CONST;
 
   auto def = new Def();
   try {
-    auto id = new ConstId(*name, *type, value);
-    bool added = table.put(*name, id);
+    auto id = new ConstId(name, *type, value);
+    bool added = table.put(name, id);
 
     if (!added)
-      admin->error("'" + *name + "' already declared");
+      admin->error("'" + name + "' already declared");
     else
       def = new VarDef(id);
 
   } catch (const type_error& e) {
-    admin->error("type error: " + string(e.what()), *name);
+    admin->error("type error: " + string(e.what()), name);
   }
   cout << *def << endl;
   return def;
@@ -82,14 +82,14 @@ Def* Actions::proc_def(Expr* id, Stmt* block) {
 }
 
 
-Expr* Actions::proc_name(std::string* name) {
+Expr* Actions::proc_name(std::string name) {
   Type type = Type(symbol::UNIVERSAL, symbol::PROC, symbol::UNIVERSAL);
   Expr* size = new Constant();
-  Id* id = new Id(*name, type, size);
+  Id* id = new Id(name, type, size);
 
-  bool added = table.put(*name, id);
+  bool added = table.put(name, id);
   if (!added) {
-    admin->error("'" + *name + "' was not declared in this scope");
+    admin->error("'" + name + "' was not declared in this scope");
     delete id;
     return empty_expr();
   }
@@ -99,18 +99,18 @@ Expr* Actions::proc_name(std::string* name) {
 
 
 // private def helpers //
-Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
+Def* Actions::add_vars(vector<string>* names, Type* type, Expr* size) {
   admin->debug("add_vars");
 
   Def* def = nullptr;
   for (auto it = names->rbegin(); it != names->rend(); it++) {
-    string* n = *it;
+    string n = *it;
     try {
-      Id* id = new Id(*n, *type, size); 
-      bool added = table.put(*n, id);
+      Id* id = new Id(n, *type, size); 
+      bool added = table.put(n, id);
 
       if (!added) {
-        admin->error("'" + *n + "' already declared");
+        admin->error("'" + n + "' already declared");
         delete id;
       } else {
         auto var = new VarDef(id);
@@ -120,7 +120,7 @@ Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
           def = new DefSeq(var, def);
       }
     } catch (const type_error& e) {
-      admin->error("type error: " + string(e.what()), *n);
+      admin->error("type error: " + string(e.what()), n);
     }
   }
 
@@ -131,7 +131,7 @@ Def* Actions::add_vars(vector<string*>* names, Type* type, Expr* size) {
 }
 
 
-Vp Actions::vprime(std::vector<std::string*>* names, Expr* size) {
+Vp Actions::vprime(std::vector<std::string>* names, Expr* size) {
   Vp result;
   result.size = size;
   result.names = names;
@@ -216,10 +216,10 @@ Stmt* Actions::empty_stmt() {
 }
 
 
-Stmt* Actions::proc_stmt(std::string* name) {
+Stmt* Actions::proc_stmt(std::string name) {
   admin->debug("call");
 
-  auto id = get_id(*name);
+  auto id = get_id(name);
   if (id == nullptr)
     return new Stmt();
 
@@ -227,7 +227,7 @@ Stmt* Actions::proc_stmt(std::string* name) {
   try {
     stmt = new Proc(id);
   } catch (const exception& e) {
-    admin->error("type error: " + string(e.what()), *name);
+    admin->error("type error: " + string(e.what()), name);
   }
 
   return stmt;
@@ -259,10 +259,10 @@ Stmt* Actions::condition(Expr* expr, Stmt* stmts) {
 
 // Expression methods /////////////////////////////////////////////////
 
-Expr* Actions::access(string* name, Expr* idx) {
+Expr* Actions::access(string name, Expr* idx) {
   admin->debug("access");
 
-  auto id = get_id(*name);
+  auto id = get_id(name);
   if (id == nullptr)
     return new Expr(Type());
 
@@ -274,7 +274,7 @@ Expr* Actions::access(string* name, Expr* idx) {
       acs = new Access(id);
     }
   } catch (const exception& e) {
-    admin->error("type error: " + string(e.what()), id->get_name());
+    admin->error("type error: " + string(e.what()), name);
   }
 
   return acs;
