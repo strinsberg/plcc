@@ -237,8 +237,8 @@ type_sym: INT { $$ = actions->new_type(symbol::INT); }
 
 constant: number { $$ = $1; }
   | bool_sym  { $$ = $1; }
-  | name { $$ = actions->access($1, actions->empty_expr()); }
   | character { $$ = $1; }
+  | name { $$ = actions->access($1, actions->empty_expr()); }
   ;
 
 character: CHARACTER { $$ = actions->constant(symbol::CHAR, temp_ch); }
