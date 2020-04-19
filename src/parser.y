@@ -8,11 +8,24 @@
 #include "Types.h"
 
 extern char* yytext;
-extern "C" int yylex(void);
-
+int yylex();
 void yyerror(std::string);
 Actions* actions;
 %}
+
+%code {
+int lex() { return yylex(); }
+
+namespace yy {
+  int yylex(parser::semantic_type*) {
+    return lex();
+  }
+
+  void parser::error(const std::string& s) {
+    actions->get_admin()->error(s, yytext);
+  }
+}
+}
 
 %language "c++"
 
@@ -236,6 +249,3 @@ name: NAME { $$ = new std::string(yytext); }
 %%
 
 
-void yyerror(std::string s) {
-  actions->get_admin()->error(s, yytext);
-}
