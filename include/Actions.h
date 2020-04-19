@@ -23,7 +23,7 @@ class Actions {
 
   // definition actions
   void const_def();
-  void var_def(int vars, symbol::Tag kind, symbol::Tag qual=symbol::UNIVERSAL);
+  void var_def(int vars, symbol::Tag qual=symbol::UNIVERSAL);
   void array_def(int vars);
   void proc_def();
   void proc_name();

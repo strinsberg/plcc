@@ -10,6 +10,7 @@
 
 class Constant : public Expr {
  public:
+  Constant();
   Constant(Type type, int value = 0, double dec = 0.0);
   virtual ~Constant();
   virtual void visit(CodeGen* generator);

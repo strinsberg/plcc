@@ -7,6 +7,10 @@ using namespace std;
 
 
 // Constant ///////////////////////////////////////////////////////////
+Constant::Constant()
+    : Expr( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST) ),
+      value(1), dec(0.0) {}
+
 Constant::Constant(Type t, int v, double d)
     : Expr(t), value(v), dec(d) {}
 
@@ -30,6 +34,14 @@ void Constant::display(ostream& out) const {
 // Id /////////////////////////////////////////////////////////////////
 Id::Id(string l, Type type, Expr* s) : Expr(type), size(s) {
   name = l;
+
+  // array ids must have a const int size
+  if (type.kind == symbol::ARRAY) {
+    if (size->get_type().qual != symbol::CONST)
+      throw type_error("array size must be a constant");
+    if (size->get_type().type != symbol::INT)
+      throw type_error("array size must be int");
+  }
 }
 
 Id::~Id() {}

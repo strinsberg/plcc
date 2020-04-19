@@ -28,8 +28,7 @@ void Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 };
 
 void Actions::name(string n) {
-  // temp id to hold the name on exprssion stack
-  stacks.push_expr( new Id(n, Type(), new Expr(Type())) );
+  stacks.push_expr( new Id(n, Type(), new Constant()) );
 }
 
 
@@ -44,6 +43,7 @@ void Actions::def_part(int num_defs) {
   }
   stacks.push_def(def);
 }
+
 
 void Actions::const_def() {
   admin->debug("const def");
@@ -69,6 +69,7 @@ void Actions::const_def() {
   stacks.push_def(def);
 }
 
+
 void Actions::array_def(int vars) {
   admin->debug("array def: " + to_string(vars)); 
 
@@ -77,27 +78,20 @@ void Actions::array_def(int vars) {
     n = stacks.pop_expr();
 
   Expr* size = stacks.pop_expr();
-  // Should be added to a def node. Probably to the standard id.
-  if (size->get_type().qual != symbol::CONST)
-    admin->error("array size must be a constant");
-  if (size->get_type().type != symbol::INT)
-    admin->error("array size must be int");
-
   Type type = stacks.get_type();
   type.kind = symbol::ARRAY;
 
   add_vars(names, type, size);
 }
 
-// No longer needs a kind as arrays are defined separatedly
-void Actions::var_def(int num_vars, symbol::Tag kind, symbol::Tag qual) {
-  admin->debug("var def: " + symbol::str(kind) + " " + to_string(num_vars)); 
-  Type type = stacks.get_type();
-  type.kind = kind;
-  type.qual = qual;
 
-  Expr* size = new Constant(
-      Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0);
+void Actions::var_def(int num_vars, symbol::Tag qual) {
+  admin->debug("var def: " + symbol::str(qual) + " " + to_string(num_vars)); 
+
+  Expr* size = new Constant();
+  Type type = stacks.get_type();
+  type.kind = symbol::SCALAR;
+  type.qual = qual;
 
   vector<Expr*> names(num_vars);
   for (auto& n : names)
@@ -109,22 +103,22 @@ void Actions::var_def(int num_vars, symbol::Tag kind, symbol::Tag qual) {
 
 void Actions::proc_name() {
   auto name = stacks.pop_expr();
-  auto size = new Constant(
-    Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0
-  );
-  Type type = Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL);
-  auto id = new Id(name->get_name(), type, size);
-  bool added = table.put(name->get_name(), id);
+  name->set_type( Type(symbol::EMPTY, symbol::PROC, symbol::UNIVERSAL) );
+
+  bool added = table.put(name->get_name(), (Id*)name);
   if (!added)
     admin->error("'" + name->get_name() + "' was already declared");
-  stacks.push_expr(id); 
+
+  stacks.push_expr(name); 
 }
+
 
 void Actions::proc_def() {
   admin->debug("proc def");
   auto name = stacks.pop_expr();
   stacks.push_def( new ProcDef(name, stacks.pop_stmt()) ); 
 }
+
 
 // private def helpers //
 void Actions::add_vars(vector<Expr*> names, Type type, Expr* size) {
@@ -165,6 +159,7 @@ void Actions::block(int num_defs, int num_stmts) {
   table.pop_block();
 }
 
+
 void Actions::stmt_part(int num_stmts) {
   admin->debug("stmt part: " + to_string(num_stmts));
   auto stmt = stacks.pop_stmt();
@@ -174,6 +169,7 @@ void Actions::stmt_part(int num_stmts) {
   stacks.push_stmt(stmt);
 }
 
+
 void Actions::io(int num_expr, symbol::Tag type) {
   admin->debug("io: " + to_string(num_expr) + " " + symbol::str(type));
   Stmt* stmt = new IoStmt(stacks.pop_expr(), type);
@@ -182,6 +178,7 @@ void Actions::io(int num_expr, symbol::Tag type) {
   }
   stacks.push_stmt(stmt);
 }
+
 
 void Actions::assign(int num_vars, int num_exprs) {
   admin->debug("assign: " + to_string(num_vars) + ", " + to_string(num_exprs));
@@ -222,6 +219,7 @@ void Actions::assign(int num_vars, int num_exprs) {
   stacks.push_stmt(stmt);
 }
 
+
 void Actions::if_stmt(int num_cond) {
   admin->debug("if: " + to_string(num_cond));
   auto cond = stacks.pop_stmt();
@@ -230,15 +228,18 @@ void Actions::if_stmt(int num_cond) {
   stacks.push_stmt( new IfStmt(cond) );
 }
 
+
 void Actions::loop() {
   admin->debug("loop");
   stacks.push_stmt( new Loop(stacks.pop_stmt()) ); 
 }
 
+
 void Actions::empty() {
   admin->debug("empty");
   stacks.push_stmt( new Stmt() );
 }
+
 
 void Actions::proc_stmt() {
   admin->debug("call");
@@ -257,6 +258,7 @@ void Actions::proc_stmt() {
   stacks.push_stmt(stmt);
 }
 
+
 void Actions::condition(int num_stmts) {
   admin->debug("condition: " + to_string(num_stmts));
 
@@ -274,6 +276,7 @@ void Actions::condition(int num_stmts) {
 
   stacks.push_stmt(c);
 }
+
 
 // Expression methods /////////////////////////////////////////////////
 
@@ -302,6 +305,7 @@ void Actions::access(symbol::Tag kind) {
   stacks.push_expr(acs);
 }
 
+
 void Actions::binary() {
   admin->debug("binary");
   Operator op = stacks.pop_op();
@@ -318,6 +322,7 @@ void Actions::binary() {
   stacks.push_expr(bin); 
 }
 
+
 void Actions::unary() {
   admin->debug("unary");
   Operator op = stacks.pop_op();
@@ -332,6 +337,7 @@ void Actions::unary() {
 
   stacks.push_expr(un);
 }
+
 
 void Actions::constant(symbol::Tag tag, int val, double dec) {
   admin->debug("constant: " + symbol::str(tag) + " " + to_string(val)); 
@@ -361,7 +367,6 @@ void Actions::constant(symbol::Tag tag, int val, double dec) {
 
   } else {
     access(symbol::CONST);
-    // need to check for const here or in access somehow
     return;
   }
 
