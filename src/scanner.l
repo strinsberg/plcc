@@ -79,7 +79,7 @@ true      { return yy::parser::token::TRUE; }
 false     { return yy::parser::token::FALSE; }
 {name}    { return yy::parser::token::NAME; }
 {number}  { return yy::parser::token::NUMBER; }
-'.'        { return yy::parser::token::CHAR; }
+'.'        { return yy::parser::token::CHARACTER; }
 
 \n        { actions->get_admin()->newline(); }
 [ \t]     { /*Ignore Whitespace*/ }

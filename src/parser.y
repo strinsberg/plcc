@@ -9,29 +9,13 @@
 
 extern char* yytext;
 int yylex();
-void yyerror(std::string);
-Actions* actions;
 %}
 
-%code {
-int lex() { return yylex(); }
-
-namespace yy {
-  int yylex(parser::semantic_type*) {
-    return lex();
-  }
-
-  void parser::error(const std::string& s) {
-    actions->get_admin()->error(s, yytext);
-  }
-}
-}
 
 %language "c++"
 
 %define api.value.type variant
-%type <int> NUMBER
-%type <char> CHARACTER
+%type <int> num
 %type <std::string*> name
 %type <std::vector<std::string*>*> var_list
 %type <std::pair<Expr*, std::vector<std::string*>*>*> vprime
@@ -44,6 +28,7 @@ namespace yy {
 %type <Operator*> prim_op rel_op add_op mult_op
 %type <Type*> type_sym
 
+
 %token BEG END
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
@@ -55,6 +40,32 @@ namespace yy {
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
 %token EMPTY NEWLINE
+
+
+%code {
+
+Actions* actions;
+
+int my_lex() { return yylex(); }
+
+namespace yy {
+  static int temp_num = 0;
+  static char temp_ch = '\0';
+  
+  int yylex(parser::semantic_type*) {
+    int token = my_lex();
+    if (token == parser::token::NUMBER)
+      temp_num = atoi(yytext);
+    else if (token == parser::token::CHARACTER)
+      temp_ch = yytext[1];
+    return token;
+  }
+
+  void parser::error(const std::string& s) {
+    actions->get_admin()->error(s, yytext);
+  }
+}
+}
 
 
 %%
@@ -230,11 +241,14 @@ constant: number { $$ = $1; }
   | character { $$ = $1; }
   ;
 
-character: CHARACTER { $$ = actions->constant(symbol::CHAR, $1); }
+character: CHARACTER { $$ = actions->constant(symbol::CHAR, temp_ch); }
   ;
 
-number: NUMBER DOT NUMBER { $$ = actions->constant(symbol::FLOAT, $1, $3); }
-  | NUMBER { $$ = actions->constant(symbol::INT, 3333); }
+number: num DOT num { $$ = actions->constant(symbol::FLOAT, $1, $3); }
+  | num { $$ = actions->constant(symbol::INT, $1); }
+  ;
+
+num: NUMBER { $$ = temp_num; }
   ;
 
 bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }
@@ -244,5 +258,4 @@ bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }
 name: NAME { $$ = new std::string(yytext); }
   ;
 %%
-
 
