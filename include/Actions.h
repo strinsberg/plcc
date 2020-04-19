@@ -20,12 +20,11 @@ class Actions {
   Actions(Admin* admin);
   ~Actions();
 
+  // Accessors
   AstNode* get_ast() { return ast; }
   void set_ast(AstNode* a) { ast = a; }
   Admin* get_admin() { return admin; }
 
-  Type new_type(symbol::Tag);
-  Operator new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
 
   // definition actions
   Def* def_part(Def*, Def*);
@@ -36,7 +35,7 @@ class Actions {
   Def* proc_def(Expr*, Stmt*);
   Expr* proc_name(std::string name);
 
-  // stmt actions
+  // statement actions
   Stmt* block(Def*, Stmt*);
   Stmt* stmt_part(Stmt*, Stmt*);
   Stmt* io(std::vector<Expr*>, symbol::Tag);
@@ -48,21 +47,19 @@ class Actions {
   Stmt* conditions(Stmt*, Stmt*);
   Stmt* condition(Expr*, Stmt*);
 
-  // expr actions
+  // expression actions
   Expr* access(std::string, Expr*);
   Expr* binary(Operator, Expr*, Expr*);
   Expr* unary(symbol::Tag, Expr*);
   Expr* constant(symbol::Tag t, int val = 0, double dec = 0.0);
   Expr* empty_expr() { return new Expr(Type()); }
 
-
   // helpers
-  void display();
+  Type new_type(symbol::Tag);
+  Operator new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
   Def* new_block() { admin->debug("new_block"); table.push_block(); return new Def(); }
 
-
  private:
-  AstStacks stacks;
   BlockTable table;
   Admin* admin;
   AstNode* ast;

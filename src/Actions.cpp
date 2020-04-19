@@ -14,22 +14,6 @@ Actions::Actions(Admin* a) : admin(a), ast(empty_stmt()) {};
 Actions::~Actions() {}
 
 
-// Type and Op ///////////////////////////////////////////////////
-
-Type Actions::new_type(symbol::Tag type) {
-  admin->debug("type: " + symbol::str(type));
-  Type t;
-  t.type = type;
-  return t;
-};
-
-Operator Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
-  admin->debug("op: " + symbol::str(op));
-  Type t(type, symbol::OPERATOR, qual);
-  return Operator(op, t);
-};
-
-
 // Definitions ///////////////////////////////////////////////////
 
 Def* Actions::def_part(Def* rest, Def* last) {
@@ -347,25 +331,27 @@ Expr* Actions::constant(symbol::Tag tag, int val, double dec) {
 }
 
 
-// Display methods ////////////////////////////////////////////////////
-
-void Actions::display() {
-  stacks.print_nodes();
-
-  cout << endl;
-  cout << "=== BlockTable Nodes ===" << endl;
-  table.print();
-}
-
-
 // Helpers ////////////////////////////////////////////////////////////
+
+Type Actions::new_type(symbol::Tag type) {
+  admin->debug("type: " + symbol::str(type));
+  Type t;
+  t.type = type;
+  return t;
+};
+
+
+Operator Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
+  admin->debug("op: " + symbol::str(op));
+  Type t(type, symbol::OPERATOR, qual);
+  return Operator(op, t);
+};
+
+
 Id* Actions::get_id(string name) {
   auto id = table.get(name);
-
-  if (id == nullptr) {
+  if (id == nullptr)
     admin->error("'" + name + "' was not declared in this scope");
-    stacks.push_stmt( new Stmt() );
-  }
 
   return id;
 }

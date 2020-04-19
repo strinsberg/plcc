@@ -20,13 +20,17 @@ int yylex();
 %type <int> num
 %type <std::string> name
 %type <std::vector<std::string>> var_list
+
 %type <Vp> vprime
 %type <Def*> def_part def const_def var_def proc_def
+
 %type <Expr*> expr prime_expr simple_expr term factor var_access
 %type <Expr*> constant character number bool_sym selector proc_name
 %type <std::vector<Expr*>> expr_list var_access_list
+
 %type <Stmt*> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
 %type <Stmt*> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
+
 %type <Operator> prim_op rel_op add_op mult_op
 %type <Type> type_sym
 
@@ -48,23 +52,31 @@ int yylex();
 /* Code for C++ yylex and yyerror definitions */
 %code {
 
+/* Actions object to perform actions and allow access to admin.
+   The actual object is created and deleted by the Parser class */
 Actions* actions;
 
+/* Wrapper function to call scanners yylex function */
 int my_lex() { return yylex(); }
 
 namespace yy {
+  /* Temp variables to hold actual number and char values */
   static int temp_num = 0;
   static char temp_ch = '\0';
  
+  /* C++ lexing function that handles numbers and char values */
   int yylex(parser::semantic_type*) {
     int token = my_lex();
+
     if (token == parser::token::NUMBER)
       temp_num = atoi(yytext);
     else if (token == parser::token::CHARACTER)
       temp_ch = yytext[1];
+
     return token;
   }
 
+  /* C++ error function calls admin::error */
   void parser::error(const std::string& s) {
     actions->get_admin()->error(s, yytext);
   }
