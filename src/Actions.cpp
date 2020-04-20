@@ -41,7 +41,6 @@ shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> valu
   } catch (const type_error& e) {
     admin->error("type error: " + string(e.what()), name);
   }
-  cout << *def << endl;
   return def;
 }
 
