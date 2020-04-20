@@ -14,12 +14,15 @@ class AstNode {
   virtual ~AstNode();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& os) const;
+  bool is_null() { return null; }
+  void set_null(bool n) { null = n; }
   std::string get_name() { return name; }
   void set_name(std::string n) { name = n; }
   friend std::ostream& operator<< (std::ostream& out, const AstNode& node);
 
  protected:
   std::string name;
+  bool null;
 };
 
 

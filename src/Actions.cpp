@@ -18,7 +18,7 @@ Actions::~Actions() {}
 
 shared_ptr<Def> Actions::def_part(shared_ptr<Def> rest, shared_ptr<Def> last) {
   admin->debug("def part");
-  if (rest == nullptr)
+  if (rest->is_null())
     return last;
   return make_shared<DefSeq>(rest, last);
 }
@@ -130,7 +130,7 @@ shared_ptr<Stmt> Actions::block(shared_ptr<Def> defs, shared_ptr<Stmt> stmts) {
 
 shared_ptr<Stmt> Actions::stmt_part(shared_ptr<Stmt> rest, shared_ptr<Stmt> last) {
   admin->debug("stmt part");
-  if (rest == nullptr)
+  if (rest->is_null())
     return last; 
   return make_shared<Seq>(rest, last);
 }
@@ -217,7 +217,7 @@ shared_ptr<Stmt> Actions::proc_stmt(string name) {
 
 shared_ptr<Stmt> Actions::conditions(shared_ptr<Stmt> rest, shared_ptr<Stmt> last) {
   // like stmt part combine these into a seq
-  if (rest == nullptr)
+  if (rest->is_null())
     return last;
   return make_shared<Seq>(rest, last);
 }
@@ -346,9 +346,12 @@ Operator Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 };
 
 
-void Actions::new_block() {
+shared_ptr<Def> Actions::new_block() {
   admin->debug("new_block");
   table.push_block();
+  auto def = make_shared<Def>();
+  def->set_null(true);
+  return def;
 }
 
 

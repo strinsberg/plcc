@@ -65,7 +65,7 @@ class Actions {
   // helpers
   Type new_type(symbol::Tag);
   Operator new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
-  void new_block();
+  std::shared_ptr<Def> new_block();
 
  private:
   BlockTable table;

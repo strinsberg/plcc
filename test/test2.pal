@@ -14,8 +14,8 @@ begin
   proc my_proc
     int x;
     x := 30;
-    write x + i + -j;
-    call my_proc;
+    write x + i + -j;  -- can access outside variables
+    call my_proc;  -- recursive call is in scope
   end proc;
 
   -- Assignments
@@ -45,6 +45,7 @@ begin
   end;
 
   -- Write out some different expressions
+  -- Also some operator precendence
   write -j * i , f / 10.0, ch, -(20 * 50);
   write 1 > 2, 10 <= 10, 10 >= 9, 20 ~= 20;
   write not true and not false, true and not false or true;

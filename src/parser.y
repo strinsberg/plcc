@@ -100,7 +100,7 @@ bprime: def_part stmt_part { $$ = actions->block($1, $2); }
 /* Definitions */
 def_part: def_part def SEMI { $$ = actions->def_part($1, $2); }
   | def_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = nullptr; actions->new_block(); }
+  | /* epsilon */ { $$ = actions->new_block(); }
   ;
 
 def: const_def { $$ = $1; }
@@ -128,7 +128,8 @@ proc_name: name { $$ = actions->proc_name($1); }
 /* Statements */
 stmt_part: stmt_part stmt SEMI { $$ = actions->stmt_part($1, $2); }
   | stmt_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = nullptr; }
+  | /* epsilon */
+    { auto stmt = actions->empty_stmt(); stmt->set_null(true); $$ = stmt; }
   ;
 
 stmt: write_stmt { $$ = $1; }
@@ -218,7 +219,8 @@ var_access: name selector { $$ = actions->access($1, $2); }
   ;
 
 selector: LHSQR expr RHSQR { $$ = $2; }
-  | /* epsilon */ { $$ = actions->empty_expr(); }
+  | /* epsilon */
+    { auto expr = actions->empty_expr(); expr->set_null(true); $$ = expr; }
   ;
 
 

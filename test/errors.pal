@@ -1,5 +1,3 @@
 begin
-  const int x = 20;
-  int array[x] A;
-  write 5 + 10.0;
+  const bool x = true;
 end.
