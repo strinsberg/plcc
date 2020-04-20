@@ -138,9 +138,12 @@ shared_ptr<Stmt> Actions::stmt_part(shared_ptr<Stmt> rest, shared_ptr<Stmt> last
 
 shared_ptr<Stmt> Actions::io(vector<shared_ptr<Expr>> exprs, symbol::Tag type) {
   admin->debug("io");
-  shared_ptr<Stmt> stmt = make_shared<IoStmt>(exprs.back(), type);
-  for (auto it = exprs.rbegin() + 1; it != exprs.rend(); it++) {  
-    stmt = make_shared<Seq>( make_shared<IoStmt>(*it, type), stmt );
+  auto stmt = make_shared<Stmt>();
+  if (exprs.size()) {
+    stmt = make_shared<IoStmt>(exprs.back(), type);
+    for (auto it = exprs.rbegin() + 1; it != exprs.rend(); it++) {  
+      stmt = make_shared<Seq>( make_shared<IoStmt>(*it, type), stmt );
+    }
   }
   return stmt;
 }
