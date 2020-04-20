@@ -3,15 +3,19 @@
 #include "AstNode.h"
 #include <iostream>
 #include <string>
+#include <memory>
 using namespace std;
 
 
+// Type ///////////////////////////////////////////////////////////////
 
 Type::Type() : type(symbol::EMPTY), kind(symbol::UNIVERSAL),
     qual(symbol::UNIVERSAL) {}
 
+
 Type::Type(symbol::Tag t, symbol::Tag k, symbol::Tag q) 
     : type(t), kind(k), qual(q) {}
+
 
 bool Type::operator==(const Type& other) {
   if (type != other.type)
@@ -29,9 +33,9 @@ bool Type::operator==(const Type& other) {
 }
 
 
+// Operator ///////////////////////////////////////////////////////////
 
-
-bool Operator::accepts(Expr* expr) {
+bool Operator::accepts(shared_ptr<Expr> expr) {
   symbol::Tag t = expr->get_type().type;
 
   if (type.type == symbol::UNIVERSAL)

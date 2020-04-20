@@ -3,8 +3,9 @@
 
 #include "Symbol.h"
 #include <string>
-
+#include <memory>
 class Expr;
+
 
 struct Type {
   Type();
@@ -14,10 +15,11 @@ struct Type {
   symbol::Tag type, kind, qual;
 };
 
+
 struct Operator {
   Operator() : op(symbol::EMPTY) {}
   Operator(symbol::Tag o, Type t) : op(o), type(t) {}
-  bool accepts(Expr* expr);
+  bool accepts(std::shared_ptr<Expr> expr);
 
   symbol::Tag op;
   Type type;

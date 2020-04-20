@@ -3,16 +3,16 @@
 #include "Exprs.h"
 #include "exceptions.h"
 #include <iostream>
+#include <memory>
 using namespace std;
 
 
 // SEQ ////////////////////////////////////////////////////////////////
-Seq::Seq(Stmt* f, Stmt* r) : Stmt(), first(f), rest(r) {}
 
-Seq::~Seq() {
-  delete first;
-  delete rest;
-}
+Seq::Seq(shared_ptr<Stmt> f, shared_ptr<Stmt> r)
+    : Stmt(), first(f), rest(r) {}
+
+Seq::~Seq() {}
 
 void Seq::visit(CodeGen* generator) {
   generator->visit(this);
@@ -24,12 +24,11 @@ void Seq::display(ostream& out) const {
 
 
 // Block //////////////////////////////////////////////////////////////
-Block::Block(Def* d, Stmt* s) : Stmt(), defs(d), stmts(s) {}
 
-Block::~Block() {
-  delete defs;
-  delete stmts;
-}
+Block::Block(shared_ptr<Def> d, shared_ptr<Stmt> s)
+    : Stmt(), defs(d), stmts(s) {}
+
+Block::~Block() {}
 
 void Block::visit(CodeGen* generator) {
   generator->visit(this);
@@ -44,7 +43,9 @@ void Block::display(ostream& out) const {
 
 
 // ASGN ///////////////////////////////////////////////////////////////
-Asgn::Asgn(Expr* a, Expr* e) : Stmt(), acs(a), expr(e) {
+
+Asgn::Asgn(shared_ptr<Expr> a, shared_ptr<Expr> e) : Stmt(), acs(a), expr(e) {
+
   if (!(acs->get_type().type == expr->get_type().type))
     throw type_error("assignment variable type does not match expression type");
 
@@ -52,10 +53,7 @@ Asgn::Asgn(Expr* a, Expr* e) : Stmt(), acs(a), expr(e) {
     throw type_error("cannot assign to a constant");
 }
 
-Asgn::~Asgn() {
-  delete acs;
-  delete expr;
-}
+Asgn::~Asgn() {}
 
 void Asgn::visit(CodeGen* generator) {
   generator->visit(this);
@@ -65,12 +63,13 @@ void Asgn::display(ostream& out) const {
   out << *acs << " := " << *expr;
 }
 
-// WRITE //////////////////////////////////////////////////////////////
-IoStmt::IoStmt(Expr* e, symbol::Tag t) : Stmt(), expr(e), type(t) {}
 
-IoStmt::~IoStmt() {
-  delete expr;
-}
+// WRITE //////////////////////////////////////////////////////////////
+
+IoStmt::IoStmt(shared_ptr<Expr> e, symbol::Tag t)
+    : Stmt(), expr(e), type(t) {}
+
+IoStmt::~IoStmt() {}
 
 void IoStmt::visit(CodeGen* generator) {
   generator->visit(this);
@@ -82,15 +81,14 @@ void IoStmt::display(ostream& out) const {
 
 
 // COND ///////////////////////////////////////////////////////////////
-Cond::Cond(Expr* c, Stmt* s) : Stmt(), cond(c), stmts(s) {
+
+Cond::Cond(shared_ptr<Expr> c, shared_ptr<Stmt> s)
+    : Stmt(), cond(c), stmts(s) {
   if (cond->get_type().type != symbol::BOOL)
     throw type_error("condition must be boolean expression");
 }
 
-Cond::~Cond() {
-  delete cond;
-  delete stmts;
-}
+Cond::~Cond() {}
 
 void Cond::visit(CodeGen* generator) {
   generator->visit(this);
@@ -103,11 +101,10 @@ void Cond::display(ostream& out) const {
 
 
 // LOOP ///////////////////////////////////////////////////////////////
-Loop::Loop(Stmt* c) : Stmt(), cond(c) {}
 
-Loop::~Loop() {
-  delete cond;
-}
+Loop::Loop(shared_ptr<Stmt> c) : Stmt(), cond(c) {}
+
+Loop::~Loop() {}
 
 void Loop::visit(CodeGen* generator) {
   generator->visit(this);
@@ -119,11 +116,10 @@ void Loop::display(ostream& out) const {
 
 
 // IF /////////////////////////////////////////////////////////////////
-IfStmt::IfStmt(Stmt* c) : Stmt(), conds(c) {}
 
-IfStmt::~IfStmt() {
-  delete conds;
-}
+IfStmt::IfStmt(shared_ptr<Stmt> c) : Stmt(), conds(c) {}
+
+IfStmt::~IfStmt() {}
 
 void IfStmt::visit(CodeGen* generator) {
   generator->visit(this);
@@ -135,7 +131,8 @@ void IfStmt::display(ostream& out) const {
 
 
 // PROC ///////////////////////////////////////////////////////////////
-Proc::Proc(Id* i) : Stmt(), id(i) {
+
+Proc::Proc(shared_ptr<Id> i) : Stmt(), id(i) {
   if (i->get_type().kind != symbol::PROC)
     throw type_error("variable is not a procedure");
 }
@@ -148,6 +145,6 @@ void Proc::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-void Proc::display(std::ostream& out) const {
+void Proc::display(ostream& out) const {
   out << "Call: " << *id;
 }

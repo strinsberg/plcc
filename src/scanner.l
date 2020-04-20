@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "Actions.h"
 #include "AstNode.h"
 #include "Symbol.h"
@@ -9,7 +10,7 @@
 #include "parser.tab.hh"
 
 // From parser.tab.h for admin::error() and admin::newline()
-extern Actions* actions;
+extern std::shared_ptr<Actions> actions;
 %}
 
 %option nounput noyywrap
@@ -52,6 +53,7 @@ not           { return yy::parser::token::NOT; }
 
 write         { return yy::parser::token::WRITE;}
 if            { return yy::parser::token::IF; }
+then          { return yy::parser::token::THEN; }
 do            { return yy::parser::token::DO; }
 "end if"      { return yy::parser::token::ENDIF; }
 "else if"     { return yy::parser::token::ELIF; }

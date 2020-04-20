@@ -4,18 +4,19 @@
 #include "AstNode.h"
 #include "Actions.h"
 #include "Admin.h"
+#include <memory>
 
 
 class Parser {
  public:
-  Parser(Admin* admin);
+  Parser(std::shared_ptr<Admin> admin);
   ~Parser();
 
-  AstNode* parse();
+  std::shared_ptr<AstNode> parse();
 
  private:
-  Actions* act;
-  Admin* admin;
+  std::shared_ptr<Actions> act;
+  std::shared_ptr<Admin> admin;
 };
 
 #endif

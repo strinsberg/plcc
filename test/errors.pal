@@ -1,5 +1,21 @@
 begin
-  const int x = 20;
-  int array[x] A;
-  write 5 + 10.0;
+  int x;
+  const int N = 10;
+  proc abc
+    int x;
+
+    if N < 3 do skip;
+    else if true do skip;
+    end if;
+
+    call lmnop;
+  end proc;
+
+  while 5.0 < 3 do
+    write x + x;
+  end while;
+
+  begin
+    int
+  end;
 end.

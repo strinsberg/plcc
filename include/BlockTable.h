@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <memory>
 
 
 class BlockTable {
@@ -12,8 +13,8 @@ class BlockTable {
   BlockTable();
   ~BlockTable();
 
-  bool put(std::string lexeme, Id* id);
-  Id* get(std::string lexeme);
+  bool put(std::string lexeme, std::shared_ptr<Id> id);
+  std::shared_ptr<Id> get(std::string lexeme);
   void push_block();
   void pop_block();
   int get_level();
@@ -21,10 +22,8 @@ class BlockTable {
   void print();
 
  private:
-  std::vector<std::map<std::string, Id*>> blocks;
+  std::vector<std::map<std::string, std::shared_ptr<Id>>> blocks;
   int level;
-
-  void del_block(std::map<std::string, Id*>& block);
 };
 
 #endif

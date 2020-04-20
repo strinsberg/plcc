@@ -6,106 +6,107 @@
 #include "CodeGen.h"
 #include "Symbol.h"
 #include <string>
+#include <memory>
 
 
 class Seq : public Stmt {
  public:
-  Seq(Stmt* first, Stmt* rest);
+  Seq(std::shared_ptr<Stmt> first, std::shared_ptr<Stmt> rest);
   virtual ~Seq();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Stmt* first;
-  Stmt* rest;
+  std::shared_ptr<Stmt> first;
+  std::shared_ptr<Stmt> rest;
 };
 
 
 class Block : public Stmt {
  public:
-  Block(Def* defs, Stmt* stmts);
+  Block(std::shared_ptr<Def> defs, std::shared_ptr<Stmt> stmts);
   virtual ~Block();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Def* defs;
-  Stmt* stmts;
+  std::shared_ptr<Def> defs;
+  std::shared_ptr<Stmt> stmts;
 };
 
 
 class Asgn : public Stmt {
  public:
-  Asgn(Expr* access, Expr* expr);
+  Asgn(std::shared_ptr<Expr> access, std::shared_ptr<Expr> expr);
   virtual ~Asgn();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Expr* acs;
-  Expr* expr;
+  std::shared_ptr<Expr> acs;
+  std::shared_ptr<Expr> expr;
 };
 
 
 class IoStmt : public Stmt {
  public:
-  IoStmt(Expr* expr, symbol::Tag type);
+  IoStmt(std::shared_ptr<Expr> expr, symbol::Tag type);
   virtual ~IoStmt();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Expr* expr;
+  std::shared_ptr<Expr> expr;
   symbol::Tag type;
 };
 
 
 class Cond : public Stmt {
  public:
-  Cond(Expr* condition, Stmt* stmts);
+  Cond(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> stmts);
   virtual ~Cond();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Expr* cond;
-  Stmt* stmts;
+  std::shared_ptr<Expr> cond;
+  std::shared_ptr<Stmt> stmts;
 };
 
 
 class Loop : public Stmt {
  public:
-  Loop(Stmt* condition);
+  Loop(std::shared_ptr<Stmt> condition);
   virtual ~Loop();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Stmt* cond;
+  std::shared_ptr<Stmt> cond;
 };
 
 
 class IfStmt : public Stmt {
  public:
-  IfStmt(Stmt* conditions);
+  IfStmt(std::shared_ptr<Stmt> conditions);
   virtual ~IfStmt();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Stmt* conds;
+  std::shared_ptr<Stmt> conds;
 };
 
 
 class Proc : public Stmt {
  public:
-  Proc(Id* id);
+  Proc(std::shared_ptr<Id> id);
   virtual ~Proc();
   virtual void visit(CodeGen* generator);
   virtual void display(std::ostream& out) const;
 
  protected:
-  Id* id;
+  std::shared_ptr<Id> id;
 };
 #endif
 

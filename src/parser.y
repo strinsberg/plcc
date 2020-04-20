@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <memory>
 #include "Actions.h"
 #include "AstNode.h"
 #include "Symbol.h"
@@ -21,15 +22,18 @@ int yylex();
 %type <std::string> name
 %type <std::vector<std::string>> var_list
 
-%type <Vp> vprime
-%type <Def*> def_part def const_def var_def proc_def
+%type <Vars> vprime
+%type <std::shared_ptr<Def>> def_part def const_def var_def proc_def
 
-%type <Expr*> expr prime_expr simple_expr term factor var_access
-%type <Expr*> constant character number bool_sym selector proc_name
-%type <std::vector<Expr*>> expr_list var_access_list
+%type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
+%type <std::shared_ptr<Expr>> factor var_access selector proc_name
+%type <std::shared_ptr<Expr>> constant character number bool_sym
+%type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <Stmt*> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
-%type <Stmt*> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
+%type <std::shared_ptr<Stmt>> program block bprime stmt_part stmt
+%type <std::shared_ptr<Stmt>> write_stmt read_stmt empty_stmt
+%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt block_stmt
+%type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
 
 %type <Operator> prim_op rel_op add_op mult_op
 %type <Type> type_sym
@@ -39,7 +43,7 @@ int yylex();
 %token BEG END
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
-%token WRITE ASGN IF DO ELIF ENDIF LOOP ENDLOOP SKIP CALL READ
+%token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
@@ -54,7 +58,7 @@ int yylex();
 
 /* Actions object to perform actions and allow access to admin.
    The actual object is created and deleted by the Parser class */
-Actions* actions;
+std::shared_ptr<Actions> actions;
 
 /* Wrapper function to call scanners yylex function */
 int my_lex() { return yylex(); }
@@ -99,7 +103,7 @@ bprime: def_part stmt_part { $$ = actions->block($1, $2); }
 /* Definitions */
 def_part: def_part def SEMI { $$ = actions->def_part($1, $2); }
   | def_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = nullptr; actions->new_block(); }
+  | /* epsilon */ { $$ = actions->new_block(); }
   ;
 
 def: const_def { $$ = $1; }
@@ -127,7 +131,8 @@ proc_name: name { $$ = actions->proc_name($1); }
 /* Statements */
 stmt_part: stmt_part stmt SEMI { $$ = actions->stmt_part($1, $2); }
   | stmt_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = nullptr; }
+  | /* epsilon */
+    { auto stmt = actions->empty_stmt(); stmt->set_null(true); $$ = stmt; }
   ;
 
 stmt: write_stmt { $$ = $1; }
@@ -149,14 +154,17 @@ asn_stmt: var_access_list ASGN expr_list { $$ = actions->assign($1, $3); }
 if_stmt: IF conditions ENDIF { $$ = actions->if_stmt($2); }
   ;
 
-loop_stmt: LOOP condition ENDLOOP { $$ = actions->loop($2); }
+conditions: conditions ELIF then_cond { $$ = actions->conditions($1, $3); }
+  | then_cond { $$ = $1; }
   ;
 
-conditions: conditions ELIF condition { $$ = actions->conditions($1, $3); }
-  | condition { $$ = $1; }
+then_cond: expr THEN stmt_part { $$ = actions->condition($1, $3); }
   ;
 
-condition: expr DO stmt_part { $$ = actions->condition($1, $3); }
+loop_stmt: LOOP do_cond ENDLOOP { $$ = actions->loop($2); }
+  ;
+
+do_cond: expr DO stmt_part { $$ = actions->condition($1, $3); }
   ;
 
 empty_stmt: SKIP { $$ = actions->empty_stmt(); }
@@ -174,8 +182,8 @@ read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
 
 /* Expressions */
 expr_list: expr_list COMMA expr { $1.push_back($3); $$ = $1; }
-  | expr { $$ = std::vector<Expr*>{$1}; }
-  | error { $$ = std::vector<Expr*>(); yyerrok; }
+  | expr { $$ = std::vector<std::shared_ptr<Expr>>{$1}; }
+  | error { $$ = std::vector<std::shared_ptr<Expr>>(); yyerrok; }
   ;
 
 expr: expr prim_op prime_expr { $$ = actions->binary($2, $1, $3); }
@@ -210,14 +218,15 @@ var_list: var_list COMMA name { $1.push_back($3); $$ = $1; }
   ;
 
 var_access_list: var_access_list COMMA var_access { $1.push_back($3); $$ = $1; }
-  | var_access { $$ = std::vector<Expr*>{$1}; }
+  | var_access { $$ = std::vector<std::shared_ptr<Expr>>{$1}; }
   ;
 
 var_access: name selector { $$ = actions->access($1, $2); }
   ;
 
 selector: LHSQR expr RHSQR { $$ = $2; }
-  | /* epsilon */ { $$ = actions->empty_expr(); }
+  | /* epsilon */
+    { auto expr = actions->empty_expr(); expr->set_null(true); $$ = expr; }
   ;
 
 

@@ -1,55 +1,53 @@
 #include "Defs.h"
 #include "Exprs.h"
 #include <iostream>
+#include <memory>
 using namespace std;
 
 
 // VARDEF /////////////////////////////////////////////////////////////
-VarDef::VarDef(Id* i) : id(i) {}
 
-VarDef::~VarDef() {
-  delete id;
-}
+VarDef::VarDef(shared_ptr<Id> i) : id(i) {}
+
+VarDef::~VarDef() {}
 
 void VarDef::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-void VarDef::display(std::ostream& out) const {
+void VarDef::display(ostream& out) const {
   out << *id;
 }
 
 
 // DEFSEQ /////////////////////////////////////////////////////////////
-DefSeq::DefSeq(Def* f, Def* r) : first(f), rest(r) {}
 
-DefSeq::~DefSeq() {
-  delete first;
-  delete rest;
-}
+DefSeq::DefSeq(shared_ptr<Def> f, shared_ptr<Def> r)
+    : first(f), rest(r) {}
+
+DefSeq::~DefSeq() {}
 
 void DefSeq::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-void DefSeq::display(std::ostream& out) const {
+void DefSeq::display(ostream& out) const {
   out << *first << endl << *rest;
 }
 
 
 // PROCDEF ////////////////////////////////////////////////////////////
-ProcDef::ProcDef(Expr* d, Stmt* s) : name(d), block(s)  {}
 
-ProcDef::~ProcDef() {
-  delete name;
-  delete block;
-}
+ProcDef::ProcDef(shared_ptr<Expr> d, shared_ptr<Stmt> s)
+    : name(d), block(s)  {}
+
+ProcDef::~ProcDef() {}
 
 void ProcDef::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-void ProcDef::display(std::ostream& out) const {
+void ProcDef::display(ostream& out) const {
   out << endl << "PROC" << endl << *name;
   out << *block << "ENDPROC";
 }

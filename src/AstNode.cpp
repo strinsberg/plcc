@@ -3,7 +3,7 @@
 using namespace std;
 
 // AST ////////////////////////////////////////////////////////////////
-AstNode::AstNode() : name("Ast Node") {}
+AstNode::AstNode() : name("Ast Node"), null(false) {}
 
 AstNode::~AstNode() {}
 
