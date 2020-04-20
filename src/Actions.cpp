@@ -301,37 +301,17 @@ shared_ptr<Expr> Actions::unary(symbol::Tag op_type, shared_ptr<Expr> expr) {
 }
 
 
-shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, double dec) {
+shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, int dec) {
   admin->debug("constant: " + symbol::str(tag) + " " + to_string(val)); 
-  shared_ptr<Expr> con;
+
   Type t;
   t.type = tag;
+  t.qual = symbol::CONST;
 
-  if (tag == symbol::TRUE or tag == symbol::FALSE) {
+  if (tag == symbol::TRUE or tag == symbol::FALSE)
     t.type = symbol::BOOL;
-    t.qual = symbol::CONST;
-    con = make_shared<Constant>(t, val, dec);
 
-  } else if (tag == symbol::INT) {
-    t.qual = symbol::CONST;
-    con = make_shared<Constant>(t, val, dec);
-
-  } else if (tag == symbol::FLOAT) {
-    t.qual = symbol::CONST;
-    int size = to_string((int)dec).size();
-    for (int i = 0; i < size; i++)
-      dec /= 10;
-    con = make_shared<Constant>(t, 0, val + dec);
-
-  } else if (tag == symbol::CHAR) {
-    t.qual = symbol::CONST;
-    con = make_shared<Constant>(t, val, dec);
-  } else {
-    admin->error("not a valid constant type: " + symbol::str(tag));
-    con = make_shared<Expr>(Type());
-  }
-
-  return con;
+  return make_shared<Constant>(t, val, dec);
 }
 
 

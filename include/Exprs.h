@@ -12,14 +12,14 @@
 class Constant : public Expr {
  public:
   Constant();
-  Constant(Type type, int value = 0, double dec = 0.0);
+  Constant(Type type, int value = 0, int dec = 0);
   virtual ~Constant();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
  private:
   int value;
-  double dec;
+  int dec;
 };
 
 

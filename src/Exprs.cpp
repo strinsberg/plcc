@@ -12,9 +12,9 @@ using namespace std;
 
 Constant::Constant()
     : Expr( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST) ),
-      value(1), dec(0.0) {}
+      value(1), dec(0) {}
 
-Constant::Constant(Type t, int v, double d)
+Constant::Constant(Type t, int v, int d)
     : Expr(t), value(v), dec(d) {}
 
 Constant::~Constant() {}
@@ -24,12 +24,14 @@ void Constant::visit(TreeWalker& walker) {
 }
 
 void Constant::display(ostream& out) const {
-  if (type.type == symbol::FLOAT)
-    out << dec;
-  else if (type.type == symbol::CHAR)
+  if (type.type == symbol::CHAR) {
     out << (char)value;
-  else
+  } else {
     out << value;
+
+    if (type.type == symbol::FLOAT)
+      out << "." << dec;
+  }
   Expr::display(out);
 }
 
