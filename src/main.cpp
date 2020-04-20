@@ -11,7 +11,8 @@ int main() {
 
   std::cout << std::endl;
   std::cout << "==== Syntax Tree ====" << std::endl;
-  std::cout << *ast << std::endl;
+  TreeWalker walker;
+  walker.walk(*ast);
 
   return 0;
 }

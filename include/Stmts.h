@@ -3,7 +3,7 @@
 
 #include "AstNode.h"
 #include "Exprs.h"
-#include "CodeGen.h"
+#include "TreeWalker.h"
 #include "Symbol.h"
 #include <string>
 #include <memory>
@@ -13,7 +13,7 @@ class Seq : public Stmt {
  public:
   Seq(std::shared_ptr<Stmt> first, std::shared_ptr<Stmt> rest);
   virtual ~Seq();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:
@@ -26,7 +26,7 @@ class Block : public Stmt {
  public:
   Block(std::shared_ptr<Def> defs, std::shared_ptr<Stmt> stmts);
   virtual ~Block();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:
@@ -39,7 +39,7 @@ class Asgn : public Stmt {
  public:
   Asgn(std::shared_ptr<Expr> access, std::shared_ptr<Expr> expr);
   virtual ~Asgn();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:
@@ -52,7 +52,7 @@ class IoStmt : public Stmt {
  public:
   IoStmt(std::shared_ptr<Expr> expr, symbol::Tag type);
   virtual ~IoStmt();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:
@@ -65,7 +65,7 @@ class Cond : public Stmt {
  public:
   Cond(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> stmts);
   virtual ~Cond();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:
@@ -78,7 +78,7 @@ class Loop : public Stmt {
  public:
   Loop(std::shared_ptr<Stmt> condition);
   virtual ~Loop();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:
@@ -90,7 +90,7 @@ class IfStmt : public Stmt {
  public:
   IfStmt(std::shared_ptr<Stmt> conditions);
   virtual ~IfStmt();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:
@@ -102,7 +102,7 @@ class Proc : public Stmt {
  public:
   Proc(std::shared_ptr<Id> id);
   virtual ~Proc();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
  protected:

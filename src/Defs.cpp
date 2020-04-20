@@ -1,5 +1,6 @@
 #include "Defs.h"
 #include "Exprs.h"
+#include "TreeWalker.h"
 #include <iostream>
 #include <memory>
 using namespace std;
@@ -11,8 +12,8 @@ VarDef::VarDef(shared_ptr<Id> i) : id(i) {}
 
 VarDef::~VarDef() {}
 
-void VarDef::visit(CodeGen* generator) {
-  generator->visit(this);
+void VarDef::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void VarDef::display(ostream& out) const {
@@ -27,8 +28,8 @@ DefSeq::DefSeq(shared_ptr<Def> f, shared_ptr<Def> r)
 
 DefSeq::~DefSeq() {}
 
-void DefSeq::visit(CodeGen* generator) {
-  generator->visit(this);
+void DefSeq::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void DefSeq::display(ostream& out) const {
@@ -43,8 +44,8 @@ ProcDef::ProcDef(shared_ptr<Expr> d, shared_ptr<Stmt> s)
 
 ProcDef::~ProcDef() {}
 
-void ProcDef::visit(CodeGen* generator) {
-  generator->visit(this);
+void ProcDef::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void ProcDef::display(ostream& out) const {

@@ -1,5 +1,6 @@
 #include "Exprs.h"
 #include "Types.h"
+#include "TreeWalker.h"
 #include "Symbol.h"
 #include "exceptions.h"
 #include <iostream>
@@ -18,8 +19,8 @@ Constant::Constant(Type t, int v, double d)
 
 Constant::~Constant() {}
 
-void Constant::visit(CodeGen* generator) {
-  generator->visit(this);
+void Constant::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Constant::display(ostream& out) const {
@@ -50,8 +51,8 @@ Id::Id(string l, Type type, shared_ptr<Expr> s) : Expr(type), size(s) {
 
 Id::~Id() {}
 
-void Id::visit(CodeGen* generator) {
-  generator->visit(this);
+void Id::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Id::display(ostream& out) const {
@@ -75,8 +76,8 @@ ConstId::ConstId(string l, Type t, shared_ptr<Expr> c)
 
 ConstId::~ConstId() {}
 
-void ConstId::visit(CodeGen* generator) {
-  generator->visit(this);
+void ConstId::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void ConstId::display(ostream& out) const {
@@ -93,8 +94,8 @@ Access::Access(shared_ptr<Id> i) : Expr( i->get_type() ) , id(i) {
 
 Access::~Access() {}
 
-void Access::visit(CodeGen* generator) {
-  generator->visit(this);
+void Access::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Access::display(ostream& out) const {
@@ -115,8 +116,8 @@ ArrayAccess::ArrayAccess(shared_ptr<Id> i, shared_ptr<Expr> idx)
 
 ArrayAccess::~ArrayAccess() {}
 
-void ArrayAccess::visit(CodeGen* generator) {
-  generator->visit(this);
+void ArrayAccess::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void ArrayAccess::display(ostream& out) const {
@@ -143,8 +144,8 @@ Binary::Binary(Operator o, shared_ptr<Expr> l, shared_ptr<Expr> r)
 
 Binary::~Binary() {}
 
-void Binary::visit(CodeGen* generator) {
-  generator->visit(this);
+void Binary::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Binary::display(ostream& out) const {
@@ -162,8 +163,8 @@ Unary::Unary(Operator o, shared_ptr<Expr> e)
 
 Unary::~Unary() {}
 
-void Unary::visit(CodeGen* generator) {
-  generator->visit(this);
+void Unary::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Unary::display(ostream& out) const {

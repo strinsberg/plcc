@@ -1,6 +1,7 @@
 #include "Stmts.h"
 #include "AstNode.h"
 #include "Exprs.h"
+#include "TreeWalker.h"
 #include "exceptions.h"
 #include <iostream>
 #include <memory>
@@ -14,8 +15,8 @@ Seq::Seq(shared_ptr<Stmt> f, shared_ptr<Stmt> r)
 
 Seq::~Seq() {}
 
-void Seq::visit(CodeGen* generator) {
-  generator->visit(this);
+void Seq::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Seq::display(ostream& out) const {
@@ -30,8 +31,8 @@ Block::Block(shared_ptr<Def> d, shared_ptr<Stmt> s)
 
 Block::~Block() {}
 
-void Block::visit(CodeGen* generator) {
-  generator->visit(this);
+void Block::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Block::display(ostream& out) const {
@@ -55,8 +56,8 @@ Asgn::Asgn(shared_ptr<Expr> a, shared_ptr<Expr> e) : Stmt(), acs(a), expr(e) {
 
 Asgn::~Asgn() {}
 
-void Asgn::visit(CodeGen* generator) {
-  generator->visit(this);
+void Asgn::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Asgn::display(ostream& out) const {
@@ -71,8 +72,8 @@ IoStmt::IoStmt(shared_ptr<Expr> e, symbol::Tag t)
 
 IoStmt::~IoStmt() {}
 
-void IoStmt::visit(CodeGen* generator) {
-  generator->visit(this);
+void IoStmt::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void IoStmt::display(ostream& out) const {
@@ -90,8 +91,8 @@ Cond::Cond(shared_ptr<Expr> c, shared_ptr<Stmt> s)
 
 Cond::~Cond() {}
 
-void Cond::visit(CodeGen* generator) {
-  generator->visit(this);
+void Cond::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Cond::display(ostream& out) const {
@@ -106,8 +107,8 @@ Loop::Loop(shared_ptr<Stmt> c) : Stmt(), cond(c) {}
 
 Loop::~Loop() {}
 
-void Loop::visit(CodeGen* generator) {
-  generator->visit(this);
+void Loop::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Loop::display(ostream& out) const {
@@ -121,8 +122,8 @@ IfStmt::IfStmt(shared_ptr<Stmt> c) : Stmt(), conds(c) {}
 
 IfStmt::~IfStmt() {}
 
-void IfStmt::visit(CodeGen* generator) {
-  generator->visit(this);
+void IfStmt::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void IfStmt::display(ostream& out) const {
@@ -141,8 +142,8 @@ Proc::~Proc() {
   // The id is owned by a def node. Do Not Delete it!
 }
 
-void Proc::visit(CodeGen* generator) {
-  generator->visit(this);
+void Proc::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Proc::display(ostream& out) const {
