@@ -35,7 +35,7 @@ plcc
 # flex and bison
 *.tab*
 *.yy*
-*stacks.hh
+stack.hh
 
 # text editors
 *~
