@@ -53,6 +53,7 @@ not           { return yy::parser::token::NOT; }
 
 write         { return yy::parser::token::WRITE;}
 if            { return yy::parser::token::IF; }
+then          { return yy::parser::token::THEN; }
 do            { return yy::parser::token::DO; }
 "end if"      { return yy::parser::token::ENDIF; }
 "else if"     { return yy::parser::token::ELIF; }

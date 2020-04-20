@@ -25,11 +25,11 @@ begin
 
   -- Loop and if statements
   while i < N do
-    if i % 2 == 0 do
+    if i % 2 == 0 then
       A[i] := T;
-    else if T do
+    else if T then
       A[i] := false;
-    else if not false do
+    else if not false then
       skip;
     end if;
 

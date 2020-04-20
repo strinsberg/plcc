@@ -25,12 +25,15 @@ int yylex();
 %type <Vars> vprime
 %type <std::shared_ptr<Def>> def_part def const_def var_def proc_def
 
-%type <std::shared_ptr<Expr>> expr prime_expr simple_expr term factor var_access
-%type <std::shared_ptr<Expr>> constant character number bool_sym selector proc_name
+%type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
+%type <std::shared_ptr<Expr>> factor var_access selector proc_name
+%type <std::shared_ptr<Expr>> constant character number bool_sym
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <std::shared_ptr<Stmt>> program block bprime stmt_part stmt write_stmt read_stmt empty_stmt
-%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt block_stmt asn_stmt conditions condition
+%type <std::shared_ptr<Stmt>> program block bprime stmt_part stmt
+%type <std::shared_ptr<Stmt>> write_stmt read_stmt empty_stmt
+%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt block_stmt
+%type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
 
 %type <Operator> prim_op rel_op add_op mult_op
 %type <Type> type_sym
@@ -40,7 +43,7 @@ int yylex();
 %token BEG END
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
-%token WRITE ASGN IF DO ELIF ENDIF LOOP ENDLOOP SKIP CALL READ
+%token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
@@ -151,14 +154,17 @@ asn_stmt: var_access_list ASGN expr_list { $$ = actions->assign($1, $3); }
 if_stmt: IF conditions ENDIF { $$ = actions->if_stmt($2); }
   ;
 
-loop_stmt: LOOP condition ENDLOOP { $$ = actions->loop($2); }
+conditions: conditions ELIF then_cond { $$ = actions->conditions($1, $3); }
+  | then_cond { $$ = $1; }
   ;
 
-conditions: conditions ELIF condition { $$ = actions->conditions($1, $3); }
-  | condition { $$ = $1; }
+then_cond: expr THEN stmt_part { $$ = actions->condition($1, $3); }
   ;
 
-condition: expr DO stmt_part { $$ = actions->condition($1, $3); }
+loop_stmt: LOOP do_cond ENDLOOP { $$ = actions->loop($2); }
+  ;
+
+do_cond: expr DO stmt_part { $$ = actions->condition($1, $3); }
   ;
 
 empty_stmt: SKIP { $$ = actions->empty_stmt(); }

@@ -17,7 +17,7 @@ Actions::~Actions() {}
 // Definitions ///////////////////////////////////////////////////
 
 shared_ptr<Def> Actions::def_part(shared_ptr<Def> rest, shared_ptr<Def> last) {
-  admin->debug("def part");
+  admin->debug("def part\n");
   if (rest->is_null())
     return last;
   return make_shared<DefSeq>(rest, last);
@@ -65,6 +65,7 @@ shared_ptr<Def> Actions::proc_def(shared_ptr<Expr> id, shared_ptr<Stmt> block) {
 
 
 shared_ptr<Expr> Actions::proc_name(string name) {
+  admin->debug("proc name");
   Type type = Type(symbol::UNIVERSAL, symbol::PROC, symbol::UNIVERSAL);
   auto size = make_shared<Constant>();
   auto id = make_shared<Id>(name, type, size);
@@ -112,6 +113,7 @@ shared_ptr<Def> Actions::add_vars(vector<string> names, Type type, shared_ptr<Ex
 
 
 Vars Actions::vprime(vector<string> names, shared_ptr<Expr> size) {
+  admin->debug("v prime");
   Vars result;
   result.size = size;
   result.names = names;
@@ -129,7 +131,7 @@ shared_ptr<Stmt> Actions::block(shared_ptr<Def> defs, shared_ptr<Stmt> stmts) {
 
 
 shared_ptr<Stmt> Actions::stmt_part(shared_ptr<Stmt> rest, shared_ptr<Stmt> last) {
-  admin->debug("stmt part");
+  admin->debug("stmt part\n");
   if (rest->is_null())
     return last; 
   return make_shared<Seq>(rest, last);
@@ -149,7 +151,9 @@ shared_ptr<Stmt> Actions::io(vector<shared_ptr<Expr>> exprs, symbol::Tag type) {
 }
 
 
-shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars, vector<shared_ptr<Expr>> values) {
+shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
+    vector<shared_ptr<Expr>> values) {
+
   admin->debug("assign");
   if (vars.size() != values.size()) {
     admin->error("number of variables does not match number of exressions");
@@ -219,7 +223,7 @@ shared_ptr<Stmt> Actions::proc_stmt(string name) {
 
 
 shared_ptr<Stmt> Actions::conditions(shared_ptr<Stmt> rest, shared_ptr<Stmt> last) {
-  // like stmt part combine these into a seq
+  admin->debug("conditions");
   if (rest->is_null())
     return last;
   return make_shared<Seq>(rest, last);
@@ -227,7 +231,7 @@ shared_ptr<Stmt> Actions::conditions(shared_ptr<Stmt> rest, shared_ptr<Stmt> las
 
 
 shared_ptr<Stmt> Actions::condition(shared_ptr<Expr> expr, shared_ptr<Stmt> stmts) {
-  admin->debug("condition");
+  admin->debug("cond");
 
   auto cond = make_shared<Stmt>();
   try {
