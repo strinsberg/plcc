@@ -198,7 +198,7 @@ shared_ptr<Stmt> Actions::loop(shared_ptr<Stmt> cond) {
 
 
 shared_ptr<Stmt> Actions::empty_stmt() {
-  admin->debug("empty");
+  admin->debug("empty stmt");
   return make_shared<Stmt>();
 }
 

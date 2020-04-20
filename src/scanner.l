@@ -11,9 +11,10 @@
 
 // From parser.tab.h for admin::error() and admin::newline()
 extern std::shared_ptr<Actions> actions;
+extern FILE* yyin;
 %}
 
-%option nounput noyywrap
+%option nounput noyywrap noinput batch
 
 letter [a-zA-Z]                                                                
 digit [0-9]                                                                    
@@ -86,7 +87,7 @@ false         { return yy::parser::token::FALSE; }
 
 \n            { actions->get_admin()->newline(); }
 [ \t]         { /*Ignore Whitespace*/ }
-<<EOF>>       { return 0; }
+<<EOF>>       { yyterminate(); return 0; }
 
 --[^\n]*      { /* ignore rest of line for comments */ }
 .             { actions->get_admin()->error("bad char '" + std::string(yytext) + "'"); }

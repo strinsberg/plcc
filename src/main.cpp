@@ -23,34 +23,23 @@ int main(int argc, char** argv) {
         verbose = true;
         break;
       default:
-        cerr << "Invalid Argument: " << (char)opt << endl;
+        cerr << "error: invalid option: " << (char)opt << endl;
         return EXIT_FAILURE;
     }
   }
 
-  /* For when there is a way to read from a file
   // Check if there was an argument given for the source file to compile
   if (optind >= argc) {
-    cerr << "No filename given" << endl;
+    cerr << "error: no filename given" << endl;
     return EXIT_FAILURE;
   }
 
   // Open up the file to read from
   string filename(argv[optind]);
-  ifstream fs(filename);
-
-  if (!fs.is_open()) {
-    cerr << "Invalid input file: " << filename << endl;
-    return EXIT_FAILURE;
-  }
-  */
-
-  // Maybe create a compiler class that can take a couple arguments and
-  // set up and run the compilation.
 
   // Create necessary components
   auto admin = make_shared<Admin>(verbose);
-  Parser p(admin);
+  Parser p(admin, filename);
   shared_ptr<AstNode> ast = p.parse();
 
   // Display the tree
@@ -64,28 +53,24 @@ int main(int argc, char** argv) {
   // If there are errors then quit. If MAX_ERRORS are reached the admin will
   // exit(EXIT_FAILURE) during parsing.
   if (admin->get_errors() > 0) {
-    cout << "***Compilation failure***" << endl;
+    cout << endl;
+    cout << "***compilation failure***" << endl;
+    cout << "number of errors: " << admin->get_errors() << endl;
     return EXIT_FAILURE;
   }
 
-  /* For code generation
-  // Open up the file to write to
-  if (outfile == "")
-    outfile = "pl.out";
-  ofstream ofs(outfile);
+  // Here we would walk the ast with the code generator
+  // It will take an output file to write the code into
 
-  // Open the input file to read from
-  ifstream ifs("pl.asm");
-
-  // Run the assembler 
-  Assembler assembler(ifs, ofs);
-  assembler.firstPass();
-  ifs.seekg(0);
-  assembler.secondPass();
-
-  ifs.close();
-  ofs.close();
-  */
+  // After this would bw were interfacing with other systems would be
+  // done to assemble the code. For PL it would be the PL_assembler.
+  // In the future if LLVM is used we would either find a way to
+  // call a program to compile the LLVM to machine code or just
+  // skip the step and let the user compile on their own. Maybe
+  // even write a python script for this to interface more easily
+  // with other external programs after the assembly is done.
+  // This could even be set up to allow compilation and interpretation
+  // for PL in one step.
 
   return 0;
 }

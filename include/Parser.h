@@ -9,7 +9,7 @@
 
 class Parser {
  public:
-  Parser(std::shared_ptr<Admin> admin);
+  Parser(std::shared_ptr<Admin> admin, const std::string& filename); 
   ~Parser();
 
   std::shared_ptr<AstNode> parse();
@@ -17,6 +17,11 @@ class Parser {
  private:
   std::shared_ptr<Actions> act;
   std::shared_ptr<Admin> admin;
+  std::string filename;
+  FILE* source;
+
+  bool set_up();
+  void clean_up();
 };
 
 #endif

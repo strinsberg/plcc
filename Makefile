@@ -22,7 +22,7 @@ $(COMPILER): $(SRC)
 
 .PHONY: tests
 tests: $(COMPILER)
-	./plcc -v < test/test2.pal
+	./plcc -v test/test2.pal
 
 .PHONY: clean
 clean:
