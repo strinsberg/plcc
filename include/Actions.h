@@ -12,7 +12,8 @@
 #include <vector>
 #include <memory>
 
-struct Vp {
+
+struct Vars {
   std::shared_ptr<Expr> size;
   std::vector<std::string> names;
 };
@@ -32,8 +33,8 @@ class Actions {
   // definition actions
   std::shared_ptr<Def> def_part(std::shared_ptr<Def>, std::shared_ptr<Def>);
   std::shared_ptr<Def> const_def(Type, std::string, std::shared_ptr<Expr>);
-  std::shared_ptr<Def> var_def(Type, Vp);
-  Vp vprime(std::vector<std::string>, std::shared_ptr<Expr> e = nullptr);
+  std::shared_ptr<Def> var_def(Type, Vars);
+  Vars vprime(std::vector<std::string>, std::shared_ptr<Expr> e = nullptr);
   std::shared_ptr<Def> array_def(int vars);
   std::shared_ptr<Def> proc_def(std::shared_ptr<Expr>, std::shared_ptr<Stmt>);
   std::shared_ptr<Expr> proc_name(std::string name);
@@ -59,7 +60,7 @@ class Actions {
   );
   std::shared_ptr<Expr> unary(symbol::Tag, std::shared_ptr<Expr>);
   std::shared_ptr<Expr> constant(symbol::Tag t, int val = 0, double dec = 0.0);
-  std::shared_ptr<Expr> empty_expr() { return std::make_shared<Expr>( Expr(Type()) ); }
+  std::shared_ptr<Expr> empty_expr() { return std::make_shared<Expr>(Type()); }
 
   // helpers
   Type new_type(symbol::Tag);

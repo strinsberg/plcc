@@ -8,6 +8,7 @@ using namespace std;
 
 
 // Constant ///////////////////////////////////////////////////////////
+
 Constant::Constant()
     : Expr( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST) ),
       value(1), dec(0.0) {}
@@ -33,7 +34,8 @@ void Constant::display(ostream& out) const {
 
 
 // Id /////////////////////////////////////////////////////////////////
-Id::Id(string l, Type type, std::shared_ptr<Expr> s) : Expr(type), size(s) {
+
+Id::Id(string l, Type type, shared_ptr<Expr> s) : Expr(type), size(s) {
   name = l;
 
   // array ids must have a const int size
@@ -61,10 +63,8 @@ void Id::display(ostream& out) const {
 
 // Id /////////////////////////////////////////////////////////////////
 
-ConstId::ConstId(string l, Type t, std::shared_ptr<Expr> c) 
-    : Id(l, t, make_shared<Expr>(
-        Constant( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST), 1, 0))
-      ), value(c) {  // This is gross
+ConstId::ConstId(string l, Type t, shared_ptr<Expr> c) 
+    : Id(l, t, make_shared<Constant>()), value(c) {
 
   if (t.type != value->get_type().type)
     throw type_error("constant variable type does not match value type");
@@ -86,7 +86,8 @@ void ConstId::display(ostream& out) const {
 
 
 // Access /////////////////////////////////////////////////////////////
-Access::Access(std::shared_ptr<Id> i) : Expr( i->get_type() ) , id(i) {
+
+Access::Access(shared_ptr<Id> i) : Expr( i->get_type() ) , id(i) {
   name = id->get_name();
 }
 
@@ -102,7 +103,9 @@ void Access::display(ostream& out) const {
 
 
 // ArrayAccess ////////////////////////////////////////////////////////
-ArrayAccess::ArrayAccess(std::shared_ptr<Id> i, std::shared_ptr<Expr> idx) : Access(i), index(idx) {
+
+ArrayAccess::ArrayAccess(shared_ptr<Id> i, shared_ptr<Expr> idx)
+    : Access(i), index(idx) {
   if (i->get_type().kind != symbol::ARRAY)
     throw type_error("variable must be array");
 
@@ -122,7 +125,8 @@ void ArrayAccess::display(ostream& out) const {
 
 
 // Binary /////////////////////////////////////////////////////////////
-Binary::Binary(Operator o, std::shared_ptr<Expr> l, std::shared_ptr<Expr> r)
+
+Binary::Binary(Operator o, shared_ptr<Expr> l, shared_ptr<Expr> r)
     : Expr(l->get_type()), op(o), lhs(l), rhs(r) {
 
   if (o.type.qual != symbol::UNIVERSAL) {
@@ -149,7 +153,9 @@ void Binary::display(ostream& out) const {
 
 
 // Unary //////////////////////////////////////////////////////////////
-Unary::Unary(Operator o, std::shared_ptr<Expr> e) : Expr(e->get_type()), op(o), expr(e) {
+
+Unary::Unary(Operator o, shared_ptr<Expr> e)
+    : Expr(e->get_type()), op(o), expr(e) {
   if (!op.accepts(e))
     throw type_error("invalid type for unary operator");
 }

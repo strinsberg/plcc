@@ -4,8 +4,8 @@
 #include "Symbol.h"
 #include <string>
 #include <memory>
-
 class Expr;
+
 
 struct Type {
   Type();
@@ -14,6 +14,7 @@ struct Type {
 
   symbol::Tag type, kind, qual;
 };
+
 
 struct Operator {
   Operator() : op(symbol::EMPTY) {}

@@ -22,7 +22,7 @@ int yylex();
 %type <std::string> name
 %type <std::vector<std::string>> var_list
 
-%type <Vp> vprime
+%type <Vars> vprime
 %type <std::shared_ptr<Def>> def_part def const_def var_def proc_def
 
 %type <std::shared_ptr<Expr>> expr prime_expr simple_expr term factor var_access
@@ -55,7 +55,7 @@ int yylex();
 
 /* Actions object to perform actions and allow access to admin.
    The actual object is created and deleted by the Parser class */
-Actions* actions;
+std::shared_ptr<Actions> actions;
 
 /* Wrapper function to call scanners yylex function */
 int my_lex() { return yylex(); }

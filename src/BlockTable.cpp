@@ -5,7 +5,6 @@
 #include <map>
 #include <vector>
 #include <memory>
-
 using namespace std;
 
 
@@ -23,6 +22,7 @@ bool BlockTable::put(string lexeme, shared_ptr<Id> id) {
   return true;
 }
 
+
 shared_ptr<Id> BlockTable::get(std::string lexeme) {
   for (auto it = blocks.rbegin(); it != blocks.rend(); ++it) {
     auto item = it->find(lexeme);
@@ -32,19 +32,23 @@ shared_ptr<Id> BlockTable::get(std::string lexeme) {
   return nullptr;
 }
 
+
 void BlockTable::push_block() {
   blocks.push_back( map<string, shared_ptr<Id>>() );
   level++;
 }
+
 
 void BlockTable::pop_block() {
   blocks.pop_back();
   level--;
 }
 
+
 int BlockTable::get_level() {
   return level;
 }
+
 
 void BlockTable::print() {
   int i = 1;

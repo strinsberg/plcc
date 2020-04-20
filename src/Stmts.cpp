@@ -8,7 +8,9 @@ using namespace std;
 
 
 // SEQ ////////////////////////////////////////////////////////////////
-Seq::Seq(std::shared_ptr<Stmt> f, std::shared_ptr<Stmt> r) : Stmt(), first(f), rest(r) {}
+
+Seq::Seq(shared_ptr<Stmt> f, shared_ptr<Stmt> r)
+    : Stmt(), first(f), rest(r) {}
 
 Seq::~Seq() {}
 
@@ -22,7 +24,9 @@ void Seq::display(ostream& out) const {
 
 
 // Block //////////////////////////////////////////////////////////////
-Block::Block(std::shared_ptr<Def> d, std::shared_ptr<Stmt> s) : Stmt(), defs(d), stmts(s) {}
+
+Block::Block(shared_ptr<Def> d, shared_ptr<Stmt> s)
+    : Stmt(), defs(d), stmts(s) {}
 
 Block::~Block() {}
 
@@ -39,7 +43,9 @@ void Block::display(ostream& out) const {
 
 
 // ASGN ///////////////////////////////////////////////////////////////
-Asgn::Asgn(std::shared_ptr<Expr> a, std::shared_ptr<Expr> e) : Stmt(), acs(a), expr(e) {
+
+Asgn::Asgn(shared_ptr<Expr> a, shared_ptr<Expr> e) : Stmt(), acs(a), expr(e) {
+
   if (!(acs->get_type().type == expr->get_type().type))
     throw type_error("assignment variable type does not match expression type");
 
@@ -57,8 +63,11 @@ void Asgn::display(ostream& out) const {
   out << *acs << " := " << *expr;
 }
 
+
 // WRITE //////////////////////////////////////////////////////////////
-IoStmt::IoStmt(std::shared_ptr<Expr> e, symbol::Tag t) : Stmt(), expr(e), type(t) {}
+
+IoStmt::IoStmt(shared_ptr<Expr> e, symbol::Tag t)
+    : Stmt(), expr(e), type(t) {}
 
 IoStmt::~IoStmt() {}
 
@@ -72,7 +81,9 @@ void IoStmt::display(ostream& out) const {
 
 
 // COND ///////////////////////////////////////////////////////////////
-Cond::Cond(std::shared_ptr<Expr> c, std::shared_ptr<Stmt> s) : Stmt(), cond(c), stmts(s) {
+
+Cond::Cond(shared_ptr<Expr> c, shared_ptr<Stmt> s)
+    : Stmt(), cond(c), stmts(s) {
   if (cond->get_type().type != symbol::BOOL)
     throw type_error("condition must be boolean expression");
 }
@@ -90,7 +101,8 @@ void Cond::display(ostream& out) const {
 
 
 // LOOP ///////////////////////////////////////////////////////////////
-Loop::Loop(std::shared_ptr<Stmt> c) : Stmt(), cond(c) {}
+
+Loop::Loop(shared_ptr<Stmt> c) : Stmt(), cond(c) {}
 
 Loop::~Loop() {}
 
@@ -104,7 +116,8 @@ void Loop::display(ostream& out) const {
 
 
 // IF /////////////////////////////////////////////////////////////////
-IfStmt::IfStmt(std::shared_ptr<Stmt> c) : Stmt(), conds(c) {}
+
+IfStmt::IfStmt(shared_ptr<Stmt> c) : Stmt(), conds(c) {}
 
 IfStmt::~IfStmt() {}
 
@@ -118,7 +131,8 @@ void IfStmt::display(ostream& out) const {
 
 
 // PROC ///////////////////////////////////////////////////////////////
-Proc::Proc(std::shared_ptr<Id> i) : Stmt(), id(i) {
+
+Proc::Proc(shared_ptr<Id> i) : Stmt(), id(i) {
   if (i->get_type().kind != symbol::PROC)
     throw type_error("variable is not a procedure");
 }
@@ -131,6 +145,6 @@ void Proc::visit(CodeGen* generator) {
   generator->visit(this);
 }
 
-void Proc::display(std::ostream& out) const {
+void Proc::display(ostream& out) const {
   out << "Call: " << *id;
 }
