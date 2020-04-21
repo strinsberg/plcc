@@ -91,6 +91,15 @@ void CodeGenPL::visit(Access& node) {
   node.get_id().visit(*this);
 }
 
+void CodeGenPL::visit(Binary& node) {
+  // Has an op, lhs, rhs
+  admin->debug("binary");
+  *out << symbol::str(node.get_op().type.type) << endl;
+  node.get_lhs().visit(*this);
+  node.get_rhs().visit(*this);
+}
+
+
 // Stmt nodes
 void CodeGenPL::visit(Block& node) {
   // Has Defs and Stmts. Both could be Seq, singular, or empty?
@@ -140,3 +149,21 @@ void CodeGenPL::visit(Asgn& node) {
   *out << "ASSIGN" << endl;
   *out << 1 << endl;
 }
+
+
+void CodeGenPL::visit(Cond& node) {
+  // has an cond and stmts
+  admin->debug("cond");
+  node.get_cond().visit(*this);
+  node.get_stmts().visit(*this);
+}
+
+
+void CodeGenPL::visit(CondSeq& node) {
+  // has a first and rest like seq
+  admin->debug("cond seq");
+  node.get_first().visit(*this);
+  node.get_rest().visit(*this);
+}
+
+

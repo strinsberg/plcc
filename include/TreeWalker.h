@@ -4,7 +4,7 @@
 #include <memory>
 #include <iostream>
 
-// To avoid circular includes
+// Declar Node Classes to avoid circular includes
 class AstNode;
 class DefSeq;
 class VarDef;
@@ -16,6 +16,9 @@ class Seq;
 class Write;
 class IoStmt;
 class Asgn;
+class CondSeq;
+class Cond;
+class Binary;
 
 
 class TreeWalker {
@@ -33,12 +36,16 @@ class TreeWalker {
   virtual void visit(Id& node) {}
   virtual void visit(Constant& node) {}
   virtual void visit(Access& node) {}
+  virtual void visit(Binary& node) {}
 
   // Stmt nodes
   virtual void visit(Block& node) {}
   virtual void visit(Seq& node) {}
   virtual void visit(IoStmt& node) {}
   virtual void visit(Asgn& node) {}
+  virtual void visit(Cond& node) {}
+  virtual void visit(CondSeq& node) {}
+
 };
 
 #endif

@@ -88,6 +88,9 @@ class Cond : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
+  Expr& get_cond() { return *cond; }
+  Stmt& get_stmts() { return *stmts; }
+
  protected:
   std::shared_ptr<Expr> cond;
   std::shared_ptr<Stmt> stmts;
