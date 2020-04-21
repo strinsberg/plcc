@@ -44,6 +44,7 @@ class CodeGenPL : public TreeWalker {
   void visit(Asgn& node);
 
  private:
+
   std::shared_ptr<Admin> admin;
   std::ostream* out;
 
@@ -51,7 +52,8 @@ class CodeGenPL : public TreeWalker {
   std::vector<int> var_lengths;
   std::vector< std::map<std::string, TableEntry> > table;
 
-  bool is_access;
+  enum Acs{DEF, VAR, VAL};
+  Acs access;
 };
 
 #endif

@@ -64,6 +64,9 @@ class IoStmt : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
+  Expr& get_expr() { return *expr; }
+  symbol::Tag get_io_type() { return type; }
+
  protected:
   std::shared_ptr<Expr> expr;
   symbol::Tag type;
