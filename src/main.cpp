@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
   // It will take an output file to write the code into
   if (verbose)
     cout << endl << "Generating Code... " << endl << endl;
-  CodeGenPL gen(&cout);
+  CodeGenPL gen(admin, &cout);
   gen.walk(*ast);
 
   // After this would bw were interfacing with other systems would be

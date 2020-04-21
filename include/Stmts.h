@@ -29,6 +29,9 @@ class Block : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
+  Def& get_defs() { return *defs; }
+  Stmt& get_stmts() { return *stmts; }
+
  protected:
   std::shared_ptr<Def> defs;
   std::shared_ptr<Stmt> stmts;

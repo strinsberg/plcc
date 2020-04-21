@@ -28,6 +28,9 @@ class DefSeq : public Def {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
+  Def& get_first() { return *first; }
+  Def& get_rest() { return *rest; }
+
  protected:
   std::shared_ptr<Def> first;
   std::shared_ptr<Def> rest;

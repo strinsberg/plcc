@@ -6,12 +6,24 @@
 #include "Defs.h"
 #include "Exprs.h"
 #include "Stmts.h"
+#include "Admin.h"
+#include "Symbol.h"
 #include <iostream>
+#include <vector>
+#include <map>
+
+
+struct TableEntry {
+  int address = 0;
+  int block = 0;
+  int displace = 0;
+  symbol::Tag type = symbol::EMPTY;
+};
 
 
 class CodeGenPL : public TreeWalker {
  public:
-  CodeGenPL(std::ostream* out);
+  CodeGenPL(std::shared_ptr<Admin> admin, std::ostream* out);
   virtual ~CodeGenPL();
   void walk(AstNode& node);
   void visit(AstNode& node);
@@ -30,7 +42,14 @@ class CodeGenPL : public TreeWalker {
   void visit(IoStmt& node);
 
  private:
+  std::shared_ptr<Admin> admin;
   std::ostream* out;
+
+  int current_address;
+  std::vector<int> var_lengths;
+  std::vector< std::map<std::string, TableEntry> > table;
+
+  bool is_access;
 };
 
 #endif
