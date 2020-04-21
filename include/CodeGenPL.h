@@ -43,6 +43,7 @@ class CodeGenPL : public TreeWalker {
   void visit(Seq& node);
   void visit(IoStmt& node);
   void visit(Asgn& node);
+  void visit(IfStmt& node);
   void visit(Cond& node);
   void visit(CondSeq& node);
 

@@ -151,6 +151,12 @@ void CodeGenPL::visit(Asgn& node) {
 }
 
 
+void CodeGenPL::visit(IfStmt& node) {
+  admin->debug("if");
+  node.get_conds().visit(*this);
+}
+
+
 void CodeGenPL::visit(Cond& node) {
   // has an cond and stmts
   admin->debug("cond");

@@ -16,6 +16,7 @@ class Seq;
 class Write;
 class IoStmt;
 class Asgn;
+class IfStmt;
 class CondSeq;
 class Cond;
 class Binary;
@@ -43,6 +44,7 @@ class TreeWalker {
   virtual void visit(Seq& node) {}
   virtual void visit(IoStmt& node) {}
   virtual void visit(Asgn& node) {}
+  virtual void visit(IfStmt& node) {}
   virtual void visit(Cond& node) {}
   virtual void visit(CondSeq& node) {}
 

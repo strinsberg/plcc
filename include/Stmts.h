@@ -116,6 +116,8 @@ class IfStmt : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
+  Stmt& get_conds() { return *conds; }
+
  protected:
   std::shared_ptr<Stmt> conds;
 };
