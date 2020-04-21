@@ -39,6 +39,7 @@ void CodeGenPL::visit(DefSeq& node) {
 void CodeGenPL::visit(VarDef& node) {
   // Has an Id member
   admin->debug("var def");
+  node.get_id().visit(*this);
   var_lengths.back()++;
 }
 
@@ -46,16 +47,17 @@ void CodeGenPL::visit(VarDef& node) {
 // Expr nodes
 void CodeGenPL::visit(Id& node) {
   // Has a name, type, size(Constant)
-  admin->debug("id");
+  string name = node.get_name();
+  admin->debug("id = " + name);
 
   if (!is_access) {
     TableEntry ent;
     ent.address = current_address;
     ent.block = table.size() - 1;
-    ent.displace = var_lengths.back() + 2;
+    ent.displace = var_lengths.back() + 3;
     ent.type = node.get_type().type;
 
-    table.back()[node.get_name()] = ent; 
+    table.back()[name] = ent; 
   }
 }
 
@@ -64,15 +66,20 @@ void CodeGenPL::visit(Constant& node) {
   admin->debug("constant");
 }
 
+void CodeGenPL::visit(Access& node) {
+  // Has a type, value, dec 
+  admin->debug("access");
+}
 
 // Stmt nodes
 void CodeGenPL::visit(Block& node) {
   // Has Defs and Stmts. Both could be Seq, singular, or empty?
   admin->debug("block");
+
   if (current_address == 0)
     *out << "PROG" << endl;
-  current_address += 3;
 
+  current_address += 3;
   var_lengths.push_back(0);
   table.push_back(map<string, TableEntry>());
 
@@ -90,9 +97,18 @@ void CodeGenPL::visit(Block& node) {
 void CodeGenPL::visit(Seq& node) {
   // Has a first and rest like DefSeq
   admin->debug("seq");
+  node.get_first().visit(*this);
+  node.get_rest().visit(*this);
 }
 
 void CodeGenPL::visit(IoStmt& node) {
   // Has an expr and a type tag
   admin->debug("io");
+}
+
+void CodeGenPL::visit(Asgn& node) {
+  // Has an access and expr
+  admin->debug("assign");
+  node.get_acs().visit(*this);
+  node.get_expr().visit(*this);
 }

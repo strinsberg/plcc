@@ -29,6 +29,9 @@ class Id : public Expr {
   virtual ~Id();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+
+  Expr& get_size() { return *size; }
+
  protected:
   std::shared_ptr<Expr> size;
 };

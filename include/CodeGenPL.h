@@ -35,11 +35,13 @@ class CodeGenPL : public TreeWalker {
   // Expr nodes
   void visit(Id& node);
   void visit(Constant& node);
+  void visit(Access& node);
 
   // Stmt nodes
   void visit(Block& node);
   void visit(Seq& node);
   void visit(IoStmt& node);
+  void visit(Asgn& node);
 
  private:
   std::shared_ptr<Admin> admin;

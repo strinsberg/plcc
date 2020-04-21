@@ -16,6 +16,8 @@ class VarDef : public Def {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
+  Id& get_id() { return *id; }
+
  protected:
   std::shared_ptr<Id> id;
 };

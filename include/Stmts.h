@@ -16,6 +16,9 @@ class Seq : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
+  Stmt& get_first() { return *first; }
+  Stmt& get_rest() { return *rest; }
+
  protected:
   std::shared_ptr<Stmt> first;
   std::shared_ptr<Stmt> rest;
@@ -44,6 +47,9 @@ class Asgn : public Stmt {
   virtual ~Asgn();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
+
+  Expr& get_acs() { return *acs; }
+  Expr& get_expr() { return *expr; }
 
  protected:
   std::shared_ptr<Expr> acs;

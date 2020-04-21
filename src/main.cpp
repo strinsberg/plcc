@@ -64,8 +64,11 @@ int main(int argc, char** argv) {
   // It will take an output file to write the code into
   if (verbose)
     cout << endl << "Generating Code... " << endl << endl;
-  CodeGenPL gen(admin, &cout);
+
+  ofstream ofs("pal.byte");
+  CodeGenPL gen(admin, &ofs);
   gen.walk(*ast);
+  ofs.close();
 
   // After this would bw were interfacing with other systems would be
   // done to assemble the code. For PL it would be the PL_assembler.
