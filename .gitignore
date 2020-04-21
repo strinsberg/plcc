@@ -47,3 +47,4 @@ stack.hh
 *.out
 *.pl
 *.asm
+*.byte

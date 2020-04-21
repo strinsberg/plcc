@@ -17,6 +17,9 @@ class Constant : public Expr {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
+  int get_value() { return value; }
+  int get_dec() { return dec; }
+
  private:
   int value;
   int dec;

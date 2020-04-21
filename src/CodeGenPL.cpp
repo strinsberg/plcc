@@ -20,8 +20,10 @@ CodeGenPL::~CodeGenPL() {}
 
 
 void CodeGenPL::walk(AstNode& node) {
+  *out << "PROG" << endl;
+  current_address += 3;
   node.visit(*this);
-  *out << "ENDPROG" << endl;
+  *out << "ENDPROG" << endl;  // The OP_NAMES need to be converted to numbers
 }
 
 void CodeGenPL::visit(AstNode& node) {
@@ -76,6 +78,11 @@ void CodeGenPL::visit(Id& node) {
 void CodeGenPL::visit(Constant& node) {
   // Has a type, value, dec 
   admin->debug("constant");
+  // will need to access type when we do more than ints
+
+  int value = node.get_value();
+  *out << "CONSTANT" << endl;
+  *out << value << endl;
 }
 
 void CodeGenPL::visit(Access& node) {
@@ -89,10 +96,6 @@ void CodeGenPL::visit(Block& node) {
   // Has Defs and Stmts. Both could be Seq, singular, or empty?
   admin->debug("block");
 
-  if (current_address == 0)
-    *out << "PROG" << endl;
-
-  current_address += 3;
   var_lengths.push_back(0);
   table.push_back(map<string, TableEntry>());
 
