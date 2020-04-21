@@ -1,6 +1,7 @@
 #include "Parser.h"
 #include "Admin.h"
 #include "AstNode.h"
+#include "CodeGenPL.h"
 #include <iostream>
 #include <memory>
 #include <getopt.h>
@@ -61,6 +62,10 @@ int main(int argc, char** argv) {
 
   // Here we would walk the ast with the code generator
   // It will take an output file to write the code into
+  if (verbose)
+    cout << endl << "Generating Code... " << endl << endl;
+  CodeGenPL gen(&cout);
+  gen.walk(*ast);
 
   // After this would bw were interfacing with other systems would be
   // done to assemble the code. For PL it would be the PL_assembler.

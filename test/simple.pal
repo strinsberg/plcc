@@ -1,0 +1,5 @@
+begin
+  int x,y,z;  -- integer for pl_compiler
+  x,y,z:=1,2,3;
+  write x,y,z;
+end.
