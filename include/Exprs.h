@@ -84,6 +84,10 @@ class Binary : public Expr {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
+  Operator& get_op() { return op; }
+  Expr& get_lhs() { return *lhs; }
+  Expr& get_rhs() { return *rhs; }
+
  protected:
   Operator op;
   std::shared_ptr<Expr> lhs;

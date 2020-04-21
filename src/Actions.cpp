@@ -225,7 +225,7 @@ shared_ptr<Stmt> Actions::conditions(shared_ptr<Stmt> rest, shared_ptr<Stmt> las
   admin->debug("conditions");
   if (rest->is_null())
     return last;
-  return make_shared<Seq>(rest, last);
+  return make_shared<CondSeq>(rest, last);
 }
 
 

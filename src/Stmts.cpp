@@ -81,6 +81,17 @@ void IoStmt::display(ostream& out) const {
 }
 
 
+// SEQ ////////////////////////////////////////////////////////////////
+
+CondSeq::CondSeq(shared_ptr<Stmt> f, shared_ptr<Stmt> r) : Seq(f, r) {}
+
+CondSeq::~CondSeq() {}
+
+void CondSeq::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+
 // COND ///////////////////////////////////////////////////////////////
 
 Cond::Cond(shared_ptr<Expr> c, shared_ptr<Stmt> s)

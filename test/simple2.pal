@@ -1,0 +1,7 @@
+begin
+  if 33 < 99 -> 
+    write 1;
+  [] 33 > 99 ->
+    write 0;
+  fi;
+end .

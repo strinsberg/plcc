@@ -73,6 +73,14 @@ class IoStmt : public Stmt {
 };
 
 
+class CondSeq : public Seq {
+ public:
+  CondSeq(std::shared_ptr<Stmt> first, std::shared_ptr<Stmt> rest);
+  virtual ~CondSeq();
+  virtual void visit(TreeWalker& walker);
+};
+
+
 class Cond : public Stmt {
  public:
   Cond(std::shared_ptr<Expr> condition, std::shared_ptr<Stmt> stmts);
