@@ -10,6 +10,7 @@ class DefSeq;
 class VarDef;
 class Constant;
 class Id;
+class ConstId;
 class Access;
 class ArrayAccess;
 class Block;
@@ -37,6 +38,7 @@ class TreeWalker {
 
   // Expr nodes
   virtual void visit(Id& node) {}
+  virtual void visit(ConstId& node) {}
   virtual void visit(Constant& node) {}
   virtual void visit(Access& node) {}
   virtual void visit(ArrayAccess& node) {}

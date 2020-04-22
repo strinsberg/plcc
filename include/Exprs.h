@@ -46,6 +46,9 @@ class ConstId : public Id {
   virtual ~ConstId();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+
+  Expr& get_value() { return *value; }
+
  protected:
   std::shared_ptr<Expr> value;
 };

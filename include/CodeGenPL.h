@@ -35,6 +35,7 @@ class CodeGenPL : public TreeWalker {
 
   // Expr nodes
   void visit(Id& node);
+  void visit(ConstId& node);
   void visit(Constant& node);
   void visit(Access& node);
   void visit(ArrayAccess& node);
@@ -60,7 +61,7 @@ class CodeGenPL : public TreeWalker {
   std::vector<int> var_lengths;
   std::vector< std::map<std::string, TableEntry> > table;
 
-  enum Acs{DEF, VAR, VAL};
+  enum Acs{DEF, VAR, VAL, SIZE};
   Acs access;
 };
 

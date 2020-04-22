@@ -47,11 +47,11 @@ void CodeGenPL::visit(VarDef& node) {
   admin->debug("var def");
   access = DEF;
   node.get_id().visit(*this);
-  admin->debug("after id");
 
-  // To increase the var_lengths based on data size
-  // could be constant or access of constant id
-  node.get_id().get_size().visit(*this);
+  if (node.get_id().get_type().qual != symbol::CONST) {
+    access = SIZE;
+    node.get_id().get_size().visit(*this);  // access the size member
+  }
 }
 
 
@@ -84,12 +84,33 @@ void CodeGenPL::visit(Id& node) {
   }
 }
 
+void CodeGenPL::visit(ConstId& node) {
+  string name = node.get_name();
+  admin->debug("id = " + name);
+
+  if (access == DEF) {
+    // If we are defining a scalar constant just put it in the table
+    TableEntry ent;
+    ent.address = current_address;
+    ent.block = table.size() - 1;
+    ent.displace = var_lengths.back() + 3;
+    ent.type = node.get_type().type;
+
+    table.back()[name] = ent;  
+  } else {
+    // for DEF it is an array size
+    // In all other situations we just want to treat it as it's value
+    node.get_value().visit(*this);
+  }
+}
+
 void CodeGenPL::visit(Constant& node) {
   // Has a type, value, dec 
   admin->debug("constant");
 
-  if (access == DEF) {
+  if (access == SIZE) {
     var_lengths.back() += node.get_value();
+    admin->debug(to_string(node.get_value()));
     // What to do about different datatypes???
     // Should be value * datatype size
     return;

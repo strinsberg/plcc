@@ -1,8 +1,9 @@
 begin
-  int array[5] A;
+  const int x = 5;
+  int array[x] A;
   int i;
   i := 0;
-  while i < 5 do
+  while i < x do
     A[i] := i;
   end while;
 end.
