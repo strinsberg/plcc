@@ -37,6 +37,7 @@ class CodeGenPL : public TreeWalker {
   void visit(Id& node);
   void visit(Constant& node);
   void visit(Access& node);
+  void visit(ArrayAccess& node);
   void visit(Binary& node);
 
   // Stmt nodes

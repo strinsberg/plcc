@@ -72,6 +72,8 @@ class ArrayAccess : public Access {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
+  Expr& get_index() { return *index; }
+
  protected:
   std::shared_ptr<Expr> index;
 };

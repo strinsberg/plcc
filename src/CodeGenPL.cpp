@@ -93,6 +93,10 @@ void CodeGenPL::visit(Constant& node) {
     // What to do about different datatypes???
     // Should be value * datatype size
     return;
+  } else if (access == VAR) {
+    // Array bounds for array indexing
+    ops.push_back( to_string(node.get_value()) );
+    return;
   }
 
   // will need to access type when we do more than ints
@@ -103,10 +107,26 @@ void CodeGenPL::visit(Constant& node) {
 }
 
 void CodeGenPL::visit(Access& node) {
-  // Has a type, value, dec 
+  // Has an id 
   admin->debug("access");
   node.get_id().visit(*this);
 }
+
+void CodeGenPL::visit(ArrayAccess& node) {
+  // Has an id and index
+  admin->debug("array access");
+  node.get_id().visit(*this);
+
+  access = VAL;
+  node.get_index().visit(*this);
+
+  ops.push_back("INDEX");
+  access = VAR;
+  node.get_id().get_size().visit(*this);  // To add size for bounds
+  ops.push_back("-1");  // Supposed to be line number for interpreter error
+  current_address += 3;
+}
+
 
 void CodeGenPL::visit(Binary& node) {
   // Has an op, lhs, rhs
@@ -189,6 +209,12 @@ void CodeGenPL::visit(IfStmt& node) {
 
 void CodeGenPL::visit(Loop& node) {
   admin->debug("loop");
+  int start = current_address;
+
+  node.get_cond().visit(*this);
+  ops.back() = to_string(start);
+
+  jumps.pop_back();  // Remove the jump address added for condition end
 }
 
 void CodeGenPL::visit(Cond& node) {

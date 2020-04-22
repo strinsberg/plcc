@@ -104,6 +104,8 @@ class Loop : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
+  Stmt& get_cond() { return *cond; }
+
  protected:
   std::shared_ptr<Stmt> cond;
 };

@@ -11,6 +11,7 @@ class VarDef;
 class Constant;
 class Id;
 class Access;
+class ArrayAccess;
 class Block;
 class Seq;
 class Write;
@@ -38,6 +39,7 @@ class TreeWalker {
   virtual void visit(Id& node) {}
   virtual void visit(Constant& node) {}
   virtual void visit(Access& node) {}
+  virtual void visit(ArrayAccess& node) {}
   virtual void visit(Binary& node) {}
 
   // Stmt nodes
