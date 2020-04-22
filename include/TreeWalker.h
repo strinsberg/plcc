@@ -20,6 +20,7 @@ class IfStmt;
 class CondSeq;
 class Cond;
 class Binary;
+class Loop;
 
 
 class TreeWalker {
@@ -45,6 +46,7 @@ class TreeWalker {
   virtual void visit(IoStmt& node) {}
   virtual void visit(Asgn& node) {}
   virtual void visit(IfStmt& node) {}
+  virtual void visit(Loop& node) {}
   virtual void visit(Cond& node) {}
   virtual void visit(CondSeq& node) {}
 

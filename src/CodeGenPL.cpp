@@ -47,7 +47,11 @@ void CodeGenPL::visit(VarDef& node) {
   admin->debug("var def");
   access = DEF;
   node.get_id().visit(*this);
-  var_lengths.back()++;
+  admin->debug("after id");
+
+  // To increase the var_lengths based on data size
+  // could be constant or access of constant id
+  node.get_id().get_size().visit(*this);
 }
 
 
@@ -64,7 +68,7 @@ void CodeGenPL::visit(Id& node) {
     ent.displace = var_lengths.back() + 3;
     ent.type = node.get_type().type;
 
-    table.back()[name] = ent; 
+    table.back()[name] = ent;  
   } else {
     TableEntry ent = table.back()[name];
 
@@ -83,8 +87,15 @@ void CodeGenPL::visit(Id& node) {
 void CodeGenPL::visit(Constant& node) {
   // Has a type, value, dec 
   admin->debug("constant");
-  // will need to access type when we do more than ints
 
+  if (access == DEF) {
+    var_lengths.back() += node.get_value();
+    // What to do about different datatypes???
+    // Should be value * datatype size
+    return;
+  }
+
+  // will need to access type when we do more than ints
   int value = node.get_value();
   ops.push_back("CONSTANT");
   ops.push_back(to_string(value));
@@ -121,7 +132,6 @@ void CodeGenPL::visit(Block& node) {
 
   node.get_stmts().visit(*this);
 
-  admin->debug(to_string(var_lengths.back()));
   table.pop_back();
   var_lengths.pop_back();
 }
@@ -177,6 +187,9 @@ void CodeGenPL::visit(IfStmt& node) {
   }
 }
 
+void CodeGenPL::visit(Loop& node) {
+  admin->debug("loop");
+}
 
 void CodeGenPL::visit(Cond& node) {
   // has an cond and stmts

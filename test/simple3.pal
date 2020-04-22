@@ -1,0 +1,8 @@
+begin
+  int array[5] A;
+  int i;
+  i := 0;
+  while i < 5 do
+    A[i] := i;
+  end while;
+end.

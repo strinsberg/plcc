@@ -48,10 +48,12 @@ shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> valu
 shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
   admin->debug("var def");
 
-  if (pp.size == nullptr)
+  if (pp.size == nullptr) {
     type.kind = symbol::SCALAR;
-  else
+    pp.size = make_shared<Constant>();
+  } else {
     type.kind = symbol::ARRAY;
+  }
 
   return add_vars(pp.names, type, pp.size);
 }
