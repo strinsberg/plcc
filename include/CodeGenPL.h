@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <sstream>
 
 
 struct TableEntry {
@@ -48,11 +49,12 @@ class CodeGenPL : public TreeWalker {
   void visit(CondSeq& node);
 
  private:
-
   std::shared_ptr<Admin> admin;
   std::ostream* out;
 
   int current_address;
+  std::vector<std::string> ops;  // Make int once all instructions are numbers
+  std::vector<int> jumps;
   std::vector<int> var_lengths;
   std::vector< std::map<std::string, TableEntry> > table;
 

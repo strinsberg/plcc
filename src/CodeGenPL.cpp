@@ -20,10 +20,13 @@ CodeGenPL::~CodeGenPL() {}
 
 
 void CodeGenPL::walk(AstNode& node) {
-  *out << "PROG" << endl;
+  ops.push_back("PROG");
   current_address += 3;
   node.visit(*this);
-  *out << "ENDPROG" << endl;  // The OP_NAMES need to be converted to numbers
+  ops.push_back("ENDPROG");  // The OP_NAMES need to be converted to numbers
+
+  for (auto & op : ops)
+    *out << op << endl;
 }
 
 void CodeGenPL::visit(AstNode& node) {
@@ -65,12 +68,14 @@ void CodeGenPL::visit(Id& node) {
   } else {
     TableEntry ent = table.back()[name];
 
-    *out << "VARIABLE" << endl;
-    *out << table.size() - 1 - ent.block << endl;
-    *out << ent.displace << endl;
+    ops.push_back("VARIABLE");
+    ops.push_back(to_string(table.size() - 1 - ent.block));
+    ops.push_back(to_string(ent.displace));
+    current_address += 3;
 
     if (access == VAL) {
-      *out << "VALUE" << endl; 
+      ops.push_back("VALUE"); 
+      current_address++;
     }
   }
 }
@@ -81,8 +86,9 @@ void CodeGenPL::visit(Constant& node) {
   // will need to access type when we do more than ints
 
   int value = node.get_value();
-  *out << "CONSTANT" << endl;
-  *out << value << endl;
+  ops.push_back("CONSTANT");
+  ops.push_back(to_string(value));
+  current_address += 2;
 }
 
 void CodeGenPL::visit(Access& node) {
@@ -94,9 +100,10 @@ void CodeGenPL::visit(Access& node) {
 void CodeGenPL::visit(Binary& node) {
   // Has an op, lhs, rhs
   admin->debug("binary");
-  *out << symbol::str(node.get_op().type.type) << endl;
   node.get_lhs().visit(*this);
   node.get_rhs().visit(*this);
+  ops.push_back(symbol::str(node.get_op().op));
+  current_address++;
 }
 
 
@@ -109,8 +116,8 @@ void CodeGenPL::visit(Block& node) {
   table.push_back(map<string, TableEntry>());
 
   node.get_defs().visit(*this);
-  *out << var_lengths.back() << endl;
-  *out << current_address << endl;
+  ops.push_back(to_string(var_lengths.back()));
+  ops.push_back(to_string(current_address));
 
   node.get_stmts().visit(*this);
 
@@ -132,8 +139,9 @@ void CodeGenPL::visit(IoStmt& node) {
   access = VAL;
   node.get_expr().visit(*this);
 
-  *out << symbol::str(node.get_io_type()) << endl;
-  *out << 1 << endl;
+  ops.push_back(symbol::str(node.get_io_type()));
+  ops.push_back("1");
+  current_address+=2;
 }
 
 void CodeGenPL::visit(Asgn& node) {
@@ -146,14 +154,27 @@ void CodeGenPL::visit(Asgn& node) {
   access = VAL;
   node.get_expr().visit(*this);
 
-  *out << "ASSIGN" << endl;
-  *out << 1 << endl;
+  ops.push_back("ASSIGN");
+  ops.push_back("1");
+  current_address += 2;
 }
 
 
 void CodeGenPL::visit(IfStmt& node) {
   admin->debug("if");
+
+  jumps.push_back(-1);
   node.get_conds().visit(*this);
+
+  // Set all bar values to the proper address
+  for (auto it = jumps.rbegin(); it != jumps.rend(); it++) {
+    if (*it == -1) {
+      jumps.pop_back();
+    } else {
+      ops.at(*it) = to_string(current_address);
+      jumps.pop_back();  // safe because we are going backwards ???
+    }
+  }
 }
 
 
@@ -161,7 +182,22 @@ void CodeGenPL::visit(Cond& node) {
   // has an cond and stmts
   admin->debug("cond");
   node.get_cond().visit(*this);
+
+  ops.push_back("ARROW");
+  ops.push_back("???");
+
+  int arrow = current_address + 1;
+  current_address += 2;
+
   node.get_stmts().visit(*this);
+
+  ops.push_back("BAR");
+  ops.push_back("???");
+
+  jumps.push_back(current_address + 1);
+  current_address += 2;
+
+  ops.at(arrow) = to_string(current_address);
 }
 
 
