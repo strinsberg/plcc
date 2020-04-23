@@ -9,7 +9,7 @@
 using namespace std;
 
 
-Actions::Actions(shared_ptr<Admin> a) : admin(a), ast(empty_stmt()) {};
+Actions::Actions(shared_ptr<Admin> a) : admin(a), ast(make_shared<AstNode>()) {};
 
 Actions::~Actions() {}
 
