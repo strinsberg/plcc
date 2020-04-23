@@ -23,6 +23,8 @@ class CondSeq;
 class Cond;
 class Binary;
 class Loop;
+class ProcDef;
+class Proc;
 
 
 class TreeWalker {
@@ -35,6 +37,7 @@ class TreeWalker {
   // Def nodes
   virtual void visit(DefSeq& node) {}
   virtual void visit(VarDef& node) {}
+  virtual void visit(ProcDef& node) {}
 
   // Expr nodes
   virtual void visit(Id& node) {}
@@ -53,6 +56,7 @@ class TreeWalker {
   virtual void visit(Loop& node) {}
   virtual void visit(Cond& node) {}
   virtual void visit(CondSeq& node) {}
+  virtual void visit(Proc& node) {}
 
 };
 

@@ -132,6 +132,8 @@ class Proc : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
+  Expr& get_id() { return *id; }
+
  protected:
   std::shared_ptr<Id> id;
 };

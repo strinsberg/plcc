@@ -46,6 +46,9 @@ class ProcDef : public Def {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
+  Expr& get_id() { return *name; }
+  Stmt& get_block() { return *block; }
+
  protected:
   std::shared_ptr<Expr> name;
   std::shared_ptr<Stmt> block;

@@ -83,7 +83,7 @@ void Dasm::disassemble() {
       admin->newline();
 
       *in >> temp;
-      *out << setw(20) << left << temp << "% The start label of the procedure" << endl;
+      *out << setw(20) << left << temp << "% The start address of the procedure instructions" << endl;
       admin->newline();
 
     } else if (op == "INDEX") {
@@ -108,7 +108,7 @@ void Dasm::disassemble() {
 
     } else if (op == "BAR") {
       *in >> temp;
-      *out << setw(20) << left << temp << "% The jump address to after the guarded command list" << endl;
+      *out << setw(20) << left << temp << "% The jump address to past end of if-stmt or beginnig of loop stmts" << endl;
       admin->newline();
 
     } else if (op == "READ") {

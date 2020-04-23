@@ -5,6 +5,7 @@
 #include "Exprs.h"
 #include "Stmts.h"
 #include "Admin.h"
+#include "exceptions.h"
 #include <iostream>
 #include <vector>
 #include <memory>
@@ -21,7 +22,7 @@ CodeGenPL::~CodeGenPL() {}
 
 void CodeGenPL::walk(AstNode& node) {
   ops.push_back("PROG");
-  current_address += 3;
+  current_address += 1;
   node.visit(*this);
   ops.push_back("ENDPROG");  // The OP_NAMES need to be converted to numbers
 
@@ -55,6 +56,20 @@ void CodeGenPL::visit(VarDef& node) {
 }
 
 
+void CodeGenPL::visit(ProcDef& node) {
+  admin->debug("proc def");
+  access = DEF;
+  node.get_id().visit(*this);
+
+  ops.push_back("PROC");
+  current_address += 1;
+
+  node.get_block().visit(*this);
+  ops.push_back("ENDPROC");
+  current_address++;
+}
+
+
 // Expr nodes
 void CodeGenPL::visit(Id& node) {
   // Has a name, type, size(Constant)
@@ -69,8 +84,15 @@ void CodeGenPL::visit(Id& node) {
     ent.type = node.get_type().type;
 
     table.back()[name] = ent;  
+  } else if (access == CALL) {
+    TableEntry ent = table_find(name);
+
+    ops.push_back("CALL");
+    ops.push_back(to_string(table.size() - 1 - ent.block));
+    ops.push_back(to_string(ent.address));
+    
   } else {
-    TableEntry ent = table.back()[name];
+    TableEntry ent = table_find(name);
 
     ops.push_back("VARIABLE");
     ops.push_back(to_string(table.size() - 1 - ent.block));
@@ -167,9 +189,14 @@ void CodeGenPL::visit(Block& node) {
   var_lengths.push_back(0);
   table.push_back(map<string, TableEntry>());
 
+  int x = current_address++;
+  int y = current_address++;
+  ops.push_back("???");
+  ops.push_back("???");
+
   node.get_defs().visit(*this);
-  ops.push_back(to_string(var_lengths.back()));
-  ops.push_back(to_string(current_address));
+  ops.at(x) = to_string(var_lengths.back());
+  ops.at(y) = to_string(current_address);
 
   node.get_stmts().visit(*this);
 
@@ -269,3 +296,22 @@ void CodeGenPL::visit(CondSeq& node) {
 }
 
 
+void CodeGenPL::visit(Proc& node) {
+  admin->debug("call proc");
+  access = CALL;
+  node.get_id().visit(*this);
+  ops.at(ops.size() - 3) = "CALL";
+  current_address += 3;
+}
+
+
+// Helpers ////////////////////////////////////////////////////////////
+
+TableEntry CodeGenPL::table_find(std::string name) {
+  for (auto it = table.rbegin(); it != table.rend(); it++) {
+    auto entry_it = it->find(name);
+    if (entry_it != it->end())
+      return entry_it->second;
+  }
+  throw fatal_error("entry not found in codegen table");
+}

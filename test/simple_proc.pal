@@ -1,0 +1,11 @@
+begin
+  int x;
+
+  proc _prc
+    int y;
+    y := x;
+    write y;
+  end proc;
+
+  call _prc;
+end.
