@@ -41,6 +41,7 @@ class CodeGenPL : public TreeWalker {
   void visit(Access& node);
   void visit(ArrayAccess& node);
   void visit(Binary& node);
+  void visit(Unary& node);
 
   // Stmt nodes
   void visit(Block& node);

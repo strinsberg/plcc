@@ -22,6 +22,7 @@ class IfStmt;
 class CondSeq;
 class Cond;
 class Binary;
+class Unary;
 class Loop;
 class ProcDef;
 class Proc;
@@ -46,6 +47,7 @@ class TreeWalker {
   virtual void visit(Access& node) {}
   virtual void visit(ArrayAccess& node) {}
   virtual void visit(Binary& node) {}
+  virtual void visit(Unary& node) {}
 
   // Stmt nodes
   virtual void visit(Block& node) {}

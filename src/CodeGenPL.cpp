@@ -128,14 +128,12 @@ void CodeGenPL::visit(ConstId& node) {
 
 void CodeGenPL::visit(Constant& node) {
   // Has a type, value, dec 
-  admin->debug("constant");
+  admin->debug("constant " + to_string(access));
 
   if (access == SIZE) {
     var_lengths.back() += node.get_value();
-    admin->debug(to_string(node.get_value()));
-    // What to do about different datatypes???
-    // Should be value * datatype size
     return;
+
   } else if (access == VAR) {
     // Array bounds for array indexing
     ops.push_back( to_string(node.get_value()) );
@@ -174,11 +172,21 @@ void CodeGenPL::visit(ArrayAccess& node) {
 void CodeGenPL::visit(Binary& node) {
   // Has an op, lhs, rhs
   admin->debug("binary");
+  access = VAL;
   node.get_lhs().visit(*this);
   node.get_rhs().visit(*this);
   ops.push_back(symbol::str(node.get_op().op));
   current_address++;
 }
+
+
+void CodeGenPL::visit(Unary& node) {
+  admin->debug("unary");
+  node.get_expr().visit(*this);
+  ops.push_back(symbol::str(node.get_op().op));
+  current_address++;
+}
+
 
 
 // Stmt nodes
@@ -214,10 +222,15 @@ void CodeGenPL::visit(Seq& node) {
 void CodeGenPL::visit(IoStmt& node) {
   // Has an expr and a type tag
   admin->debug("io");
-  access = VAL;
+  symbol::Tag type = node.get_io_type();
+
+  if (type == symbol::WRITE)
+    access = VAL;
+  else
+    access = VAR;
   node.get_expr().visit(*this);
 
-  ops.push_back(symbol::str(node.get_io_type()));
+  ops.push_back(symbol::str(type));
   ops.push_back("1");
   current_address+=2;
 }
