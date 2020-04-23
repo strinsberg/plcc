@@ -2,6 +2,7 @@
 #include "Admin.h"
 #include "AstNode.h"
 #include "CodeGenPL.h"
+#include "Dasm.h"
 #include <iostream>
 #include <memory>
 #include <getopt.h>
