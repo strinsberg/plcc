@@ -93,6 +93,7 @@ enum OpCode {
   OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
   OP_WRITE, OP_BLOCK, OP_ENDBLOCK, OP_CHAR, OP_INT, OP_FLOAT, OP_BOOL,
+  OP_DB_CONSTANT,
 };
 
 // Messages
@@ -103,6 +104,7 @@ static const std::string op_name[] = {
  "index", "less", "minus", "modulo", "multiply", "not",
  "or", "proc", "prog", "read", "subtract", "value",
  "variable", "write", "block", "endblock", "char", "int", "float", "bool",
+ "db_constant",
 };
 
 

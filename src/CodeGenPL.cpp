@@ -99,7 +99,6 @@ void CodeGenPL::visit(Id& node) {
 
     if (access == VAL) {
       symbol::OpCode code = symbol::to_op(ent.type);
-      admin->debug(symbol::op_name[code]);
       ops.push_back(code); 
       current_address++;
     }
@@ -140,9 +139,19 @@ void CodeGenPL::visit(Constant& node) {
 
   // will need to access type when we do more than ints
   int value = node.get_value();
-  ops.push_back(OP_CONSTANT);
-  ops.push_back(value);
-  current_address += 2;
+  symbol::Tag type = node.get_type().type;
+
+  if (type == symbol::FLOAT) {
+    ops.push_back(symbol::OP_DB_CONSTANT);
+    ops.push_back(value);
+    ops.push_back(-300);  // Change to expontent when constants are changed
+  } else {
+    ops.push_back(OP_CONSTANT);
+    ops.push_back(value);
+  }
+
+  ops.push_back(symbol::to_op(type)); 
+  current_address += 3;
 }
 
 void CodeGenPL::visit(Access& node) {

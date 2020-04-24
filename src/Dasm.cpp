@@ -19,7 +19,7 @@ const vector<string> OPS{
   "NOT", "OR", "PROC", "PROG",
   "READ", "SUBTRACT",
   "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
-  "CHAR", "INT", "FLOAT", "BOOL",
+  "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT"
 };
 
 
@@ -105,6 +105,15 @@ void Dasm::disassemble() {
 
       *in >> temp;
       *out << setw(20) << left << temp << "% The line number of the access" << endl;
+      admin->newline();
+
+    } else if (op == "DB_CONSTANT") {
+      *in >> temp;
+      *out << setw(20) << left << temp << "% The significand" << endl;
+      admin->newline();
+
+      *in >> temp;
+      *out << setw(20) << left << temp << "% The exponent" << endl;
       admin->newline();
 
     // Instructions that have a single integer following them
