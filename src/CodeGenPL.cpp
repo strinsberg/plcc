@@ -185,6 +185,7 @@ void CodeGenPL::visit(Binary& node) {
   admin->debug("binary");
   access = VAL;
   node.get_lhs().visit(*this);
+  access = VAL;
   node.get_rhs().visit(*this);
   ops.push_back(symbol::str(node.get_op().op));
   current_address++;
@@ -193,6 +194,7 @@ void CodeGenPL::visit(Binary& node) {
 
 void CodeGenPL::visit(Unary& node) {
   admin->debug("unary");
+  access = VAL;
   node.get_expr().visit(*this);
   ops.push_back(symbol::str(node.get_op().op));
   current_address++;
@@ -292,6 +294,7 @@ void CodeGenPL::visit(Loop& node) {
 void CodeGenPL::visit(Cond& node) {
   // has an cond and stmts
   admin->debug("cond");
+  access = VAL;
   node.get_cond().visit(*this);
 
   ops.push_back("ARROW");
