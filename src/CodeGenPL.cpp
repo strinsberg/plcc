@@ -139,12 +139,13 @@ void CodeGenPL::visit(Constant& node) {
 
   // Push op type, value(s), and type of the constant
   int value = node.get_value();
+  int exp = node.get_exp();
   symbol::Tag type = node.get_type().type;
 
   if (type == symbol::FLOAT) {
     ops.push_back(symbol::OP_DB_CONSTANT);
     ops.push_back(value);
-    ops.push_back(-300);  // Change to expontent when constants are changed
+    ops.push_back(exp);
   } else {
     ops.push_back(OP_CONSTANT);
     ops.push_back(value);

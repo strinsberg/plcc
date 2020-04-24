@@ -12,7 +12,7 @@ using namespace std;
 
 Constant::Constant()
     : Expr( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST) ),
-      value(1), exp(0) {}
+      value(1), exp(1) {}
 
 Constant::Constant(Type t, int v, int e)
     : Expr(t), value(v), exp(e) {}
@@ -28,7 +28,8 @@ void Constant::display(ostream& out) const {
     out << (char)value;
   } else if (type.type == symbol::FLOAT) {
     string sig = to_string(value);
-    out << sig.substr(0, exp) << "." << sig.substr(exp, 9 - exp);
+    int d = symbol::exp10.at(exp);
+    out << sig.substr(0, 9 - d) << "." << sig.substr(9 - d, d);
 
   } else {
     out << value;

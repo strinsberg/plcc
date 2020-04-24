@@ -12,7 +12,7 @@
 class Constant : public Expr {
  public:
   Constant();
-  Constant(Type type, int value = 0, int dec = 0);
+  Constant(Type type, int value = 0, int exp = 1);
   virtual ~Constant();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;

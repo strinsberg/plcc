@@ -315,17 +315,25 @@ shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
   t.type = tag;
   t.qual = symbol::CONST;
 
-  int exp = 0;
+  int exp = 1;
 
   if (tag == symbol::TRUE or tag == symbol::FALSE) {
     t.type = symbol::BOOL;
   } else if (tag == symbol::FLOAT) {
-    // convert the val and dec to significand and find exponent
+    // Convert the whole and decimal part to a fixed point representation
     string sval = to_string(val);
-    exp = sval.size();
-    string sig = sval + dec;
+    int w = sval.size();
+    if (w > 9)
+      admin->error("float overflow. whole part is greater than 10^9.");
+
+    string sig = sval.substr(0, sval.size());
+    int d = 9 - w;
+    if (d > 0) {
+      sig += dec.substr(0, d);
+      exp = symbol::pow10[d];
+    }
     admin->debug("const float: " + sig + ", " + to_string(exp));
-    val = stoi(sig.substr(0, 9));
+    val = stoi(sig);
   }
 
   return make_shared<Constant>(t, val, exp);
