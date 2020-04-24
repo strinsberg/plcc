@@ -18,11 +18,11 @@ class Constant : public Expr {
   virtual void display(std::ostream& os) const;
 
   int get_value() { return value; }
-  int get_dec() { return dec; }
+  int get_exp() { return exp; }
 
  private:
   int value;
-  int dec;
+  int exp;
 };
 
 

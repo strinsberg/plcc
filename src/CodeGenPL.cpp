@@ -137,7 +137,7 @@ void CodeGenPL::visit(Constant& node) {
     return;
   }
 
-  // will need to access type when we do more than ints
+  // Push op type, value(s), and type of the constant
   int value = node.get_value();
   symbol::Tag type = node.get_type().type;
 

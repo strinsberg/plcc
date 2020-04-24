@@ -271,7 +271,7 @@ constant: number { $$ = $1; }
 character: CHARACTER { $$ = actions->constant(symbol::CHAR, temp_ch); }
   ;
 
-number: num DOT num { $$ = actions->constant(symbol::FLOAT, $1, $3); }
+number: num DOT NUMBER { $$ = actions->constant(symbol::FLOAT, $1, yytext); }
   | num { $$ = actions->constant(symbol::INT, $1); }
   ;
 

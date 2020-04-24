@@ -60,7 +60,7 @@ class Actions {
     Operator, std::shared_ptr<Expr>, std::shared_ptr<Expr>
   );
   std::shared_ptr<Expr> unary(symbol::Tag, std::shared_ptr<Expr>);
-  std::shared_ptr<Expr> constant(symbol::Tag t, int val = 0, int dec = 0);
+  std::shared_ptr<Expr> constant(symbol::Tag t, int val = 0, std::string dec = "");
   std::shared_ptr<Expr> empty_expr() { return std::make_shared<Expr>(Type()); }
 
   // helpers

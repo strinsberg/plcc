@@ -308,17 +308,27 @@ shared_ptr<Expr> Actions::unary(symbol::Tag op_type, shared_ptr<Expr> expr) {
 }
 
 
-shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, int dec) {
+shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
   admin->debug("constant: " + symbol::str(tag) + " " + to_string(val)); 
 
   Type t;
   t.type = tag;
   t.qual = symbol::CONST;
 
-  if (tag == symbol::TRUE or tag == symbol::FALSE)
-    t.type = symbol::BOOL;
+  int exp = 0;
 
-  return make_shared<Constant>(t, val, dec);
+  if (tag == symbol::TRUE or tag == symbol::FALSE) {
+    t.type = symbol::BOOL;
+  } else if (tag == symbol::FLOAT) {
+    // convert the val and dec to significand and find exponent
+    string sval = to_string(val);
+    exp = sval.size();
+    string sig = sval + dec;
+    admin->debug("const float: " + sig + ", " + to_string(exp));
+    val = stoi(sig.substr(0, 9));
+  }
+
+  return make_shared<Constant>(t, val, exp);
 }
 
 

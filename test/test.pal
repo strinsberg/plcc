@@ -4,6 +4,6 @@ begin
   char c;
   float d;
 
-  a,b,c,d := 1, true, '$', 20.2;
+  a,b,c,d := 1, true, '$', 20.009456734;
   write a,b,c,d;
 end.
