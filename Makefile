@@ -27,4 +27,4 @@ tests: $(COMPILER)
 .PHONY: clean
 clean:
 	rm -rf plcc *.tab.cc *.tab.hh *.yy.c include/parser.tab.hh include/stack.hh \
-	*.byte
+	*.byte *.asm *.out *.dasm
