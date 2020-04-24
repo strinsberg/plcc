@@ -18,7 +18,7 @@ const vector<string> OPS{
   "MINUS", "MODULO", "MULTIPLY",
   "NOT", "OR", "PROC", "PROG",
   "READ", "SUBTRACT",
-  "VALUE", "VARIABLE", "WRITE"
+  "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK"
 };
 
 
@@ -58,6 +58,16 @@ void Dasm::disassemble() {
       *in >> temp;
       *out << setw(20) << left << temp << "% Start address of PROG instructions" << endl;
       admin->newline();
+
+    } else if (op == "BLOCK") {
+      *in >> temp;
+      *out << setw(20) << left << temp << "% Number of variables in the BLOCK" << endl;
+      admin->newline();
+
+      *in >> temp;
+      *out << setw(20) << left << temp << "% Start address of BLOCK instructions" << endl;
+      admin->newline();
+
 
     } else if (op == "PROC") {
       *in >> temp;

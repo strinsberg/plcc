@@ -205,6 +205,15 @@ void CodeGenPL::visit(Unary& node) {
 
 
 // Stmt nodes
+void CodeGenPL::visit(BlockStmt& node) {
+  admin->debug("block stmt");
+  ops.push_back(symbol::OP_BLOCK);
+  current_address++;
+  node.get_block().visit(*this);
+  ops.push_back(symbol::OP_ENDBLOCK);
+  current_address++;
+}
+
 void CodeGenPL::visit(Block& node) {
   admin->debug("block");
 

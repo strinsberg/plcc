@@ -92,7 +92,7 @@ enum OpCode {
   OP_DIVIDE, OP_ENDPROC, OP_ENDPROG, OP_EQUAL, OP_FI, OP_GREATER,
   OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
-  OP_WRITE
+  OP_WRITE, OP_BLOCK, OP_ENDBLOCK
 };
 
 // Messages
@@ -102,7 +102,7 @@ static const std::string op_name[] = {
  "divide", "endproc", "endprog", "equal", "fi", "greater",
  "index", "less", "minus", "modulo", "multiply", "not",
  "or", "proc", "prog", "read", "subtract", "value",
- "variable", "write"
+ "variable", "write", "block", "endblock"
 };
 
 

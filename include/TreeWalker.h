@@ -13,6 +13,7 @@ class Id;
 class ConstId;
 class Access;
 class ArrayAccess;
+class BlockStmt;
 class Block;
 class Seq;
 class Write;
@@ -50,6 +51,7 @@ class TreeWalker {
   virtual void visit(Unary& node) {}
 
   // Stmt nodes
+  virtual void visit(BlockStmt& node) {}
   virtual void visit(Block& node) {}
   virtual void visit(Seq& node) {}
   virtual void visit(IoStmt& node) {}
