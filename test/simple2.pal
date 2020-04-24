@@ -1,7 +1,0 @@
-begin
-  if 33 < 99 then
-    write 1;
-  else if 33 > 99 then
-    write 0;
-  end if;
-end .
