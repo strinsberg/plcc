@@ -4,6 +4,7 @@
 #include "Parser.h"
 #include "Dasm.h"
 #include "CodeGenPL.h"
+#include "Interpreter.h"
 #include <string>
 #include <memory>
 #include <iostream>
@@ -18,7 +19,7 @@ void Compiler::compile_to_pl() {
   shared_ptr<AstNode> ast = build_ast();
 
   if (ast != nullptr)
-    pl_code_gen(ast); 
+    pl_code_gen(ast);
 }
 
 void Compiler::disassemble_pl() {
@@ -33,8 +34,12 @@ void Compiler::disassemble_pl() {
   d.disassemble();
 }
 
-void Compiler::interpret() {
-  // Nothing for now. Need to icorporate the interpreter.
+void Compiler::interpret(bool solo) {
+  // Should add the admin class to this so that it can take care of
+  // debuging and errors.
+  string file = solo ? infile : outfile;
+  Interpreter interp(file, false);
+  interp.interpret();
 }
 
 

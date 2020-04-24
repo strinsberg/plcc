@@ -14,7 +14,7 @@ class Compiler {
 
   void compile_to_pl();
   void disassemble_pl();
-  void interpret();
+  void interpret(bool solo);
 
  private:
   std::string infile, outfile;
