@@ -59,7 +59,7 @@ class CodeGenPL : public TreeWalker {
   std::ostream* out;
 
   int current_address;
-  std::vector<std::string> ops;  // Make int once all instructions are numbers
+  std::vector<int> ops; 
   std::vector<int> jumps;
   std::vector<int> var_lengths;
   std::vector< std::map<std::string, TableEntry> > table;

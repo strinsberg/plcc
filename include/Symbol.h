@@ -21,7 +21,7 @@ enum Tag {
 };
 
 
-const std::map<Tag, std::string> to_string {
+static const std::map<Tag, std::string> to_string {
   {BEG, "BEGIN"},
   {END, "END"},
   {COMMA, ","},
@@ -84,6 +84,49 @@ const std::map<Tag, std::string> to_string {
 // something is necessary to define it here without a source file.
 inline std::string str(Tag t) {
   return to_string.at(t);
+}
+
+// Opcodes and their values for the interpreter
+enum OpCode {
+  OP_ADD, OP_AND, OP_ARROW, OP_ASSIGN, OP_BAR, OP_CALL, OP_CONSTANT,
+  OP_DIVIDE, OP_ENDPROC, OP_ENDPROG, OP_EQUAL, OP_FI, OP_GREATER,
+  OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
+  OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
+  OP_WRITE
+};
+
+// Messages
+
+static const std::string op_name[] = {
+ "add", "and", "arrow", "assign", "bar", "call", "constant",
+ "divide", "endproc", "endprog", "equal", "fi", "greater",
+ "index", "less", "minus", "modulo", "multiply", "not",
+ "or", "proc", "prog", "read", "subtract", "value",
+ "variable", "write"
+};
+
+
+// Tags for unary and binary operators to opcodes
+const std::map<Tag, OpCode> tag_to_op{
+  {AND, OP_AND},
+  {OR, OP_OR},
+  {NOT, OP_NOT},
+  {EQ, OP_EQUAL},
+  {LESS, OP_LESS},
+  {GREATER, OP_GREATER},
+  {PLUS, OP_ADD},
+  {MINUS, OP_MINUS},
+  {MULT, OP_MULTIPLY},
+  {DIV, OP_DIVIDE},
+  {MOD, OP_MODULO},
+  {WRITE, OP_WRITE},
+  {READ, OP_READ},
+};
+
+inline OpCode to_op(Tag t, bool sub = false) {
+  if (sub)
+    return OP_SUBTRACT;
+  return tag_to_op.at(t);
 }
 
 }
