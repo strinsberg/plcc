@@ -154,17 +154,28 @@ void CodeGenPL::visit(Access& node) {
 }
 
 void CodeGenPL::visit(ArrayAccess& node) {
-  // Has an id and index
   admin->debug("array access");
+
+  auto acs = access;  // save access type
+
+  access = VAR;
   node.get_id().visit(*this);
 
   access = VAL;
   node.get_index().visit(*this);
 
   ops.push_back("INDEX");
-  access = VAR;
+  access = SIZE;
+  var_lengths.push_back(0);
   node.get_id().get_size().visit(*this);  // To add size for bounds
+  ops.push_back( to_string(var_lengths.back()) );
   ops.push_back("-1");  // Supposed to be line number for interpreter error
+  var_lengths.pop_back();
+
+  if (acs == VAL) {  // If we are accessing for value
+    ops.push_back("VALUE");
+    current_address++;
+  }
   current_address += 3;
 }
 
