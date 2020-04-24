@@ -379,6 +379,27 @@ void Interpreter::fi( int line_number)
 //             | if_statement | do_statement.
 //-----------------------------------------------
 
+void Interpreter::block(int variable_length, int address) {
+  allocate(3);
+
+  // Some of this is probably unnecessary except to provide the
+  // padding expected by variable lookups in a block
+  store[stack_register - 2] = base_register;  // Save the previous block address
+  store[stack_register - 1] = 0;  // next two are padding for var addresses
+  store[stack_register] = 0;
+  
+  base_register = stack_register - 2;  // Set the base the proc block level
+
+  allocate(variable_length);  // Make space for the block variables
+  program_register = address;  // Go to the block instructions address
+}
+
+void Interpreter::endblock() {
+  stack_register = base_register - 1;  // top of old stack is just below this blocks base
+  program_register++;  // for blocks the next instruction is just past block end
+  base_register = store[base_register];  // The base of the previous block
+}
+
 void Interpreter::proc( int variable_length, int address)
 {
   allocate( variable_length );  // Allocate the number of variables
@@ -502,6 +523,9 @@ void Interpreter::run_program()
       case OP_BAR:
          bar(store[program_register + 1]);
          break;
+      case OP_BLOCK:
+         block(store[program_register + 1], store[program_register + 2]);
+         break;
       case OP_CALL:
          call(store[program_register + 1], store[program_register + 2]);
          break;
@@ -510,6 +534,9 @@ void Interpreter::run_program()
          break;
       case OP_DIVIDE:
          divide();
+         break;
+      case OP_ENDBLOCK:
+         endblock();
          break;
       case OP_ENDPROC:
          endproc();

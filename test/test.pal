@@ -1,8 +1,23 @@
 begin
   int x, y, z;
+
   x, y, z := 1, 2, 3;
+  write x,y,z;
+
   begin
     int a, b, c;
-    a, b, c := x, y, z;
+
+    proc d
+      int i;
+      i := 20;
+      write a+i,b+i,c+i;
+    end proc;
+
+    a, b, c := 6,7,8;
+    x,y,z := x + a, y + b, z + c;
+    write a,b,c;
+    write x,y,z;
+    call d;
   end;
+  write x,y,z;
 end.

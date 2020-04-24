@@ -23,7 +23,7 @@ enum OperationCode
   OP_DIVIDE, OP_ENDPROC, OP_ENDPROG, OP_EQUAL, OP_FI, OP_GREATER,
   OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
-  OP_WRITE
+  OP_WRITE, OP_BLOCK, OP_ENDBLOCK
 };
 
 // Messages
@@ -34,7 +34,7 @@ static const string opcode_name[] =
  "divide", "endproc", "endprog", "equal", "fi", "greater",
  "index", "less", "minus", "modulo", "multiply", "not",
  "or", "proc", "prog", "read", "subtract", "value",
- "variable", "write"
+ "variable", "write", "block", "endblock"
 };
 
 // CLASSES
@@ -93,6 +93,9 @@ private:
     void arrow( int );
     void bar( int);
     void fi (int);
+
+    void block(int, int);
+    void endblock();
 
     void proc(int, int);
     void endproc();
