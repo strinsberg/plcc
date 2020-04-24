@@ -22,10 +22,10 @@ CodeGenPL::~CodeGenPL() {}
 
 
 void CodeGenPL::walk(AstNode& node) {
-  ops.push_back(OP_PROG);
+  ops.push_back(symbol::OP_PROG);
   current_address += 1;
   node.visit(*this);
-  ops.push_back(OP_ENDPROG);
+  ops.push_back(symbol::OP_ENDPROG);
 
   for (auto & op : ops)
     *out << op << endl;
@@ -60,11 +60,11 @@ void CodeGenPL::visit(ProcDef& node) {
   access = DEF;
   node.get_id().visit(*this);
 
-  ops.push_back(OP_PROC);
+  ops.push_back(symbol::OP_PROC);
   current_address += 1;
 
   node.get_block().visit(*this);
-  ops.push_back(OP_ENDPROC);
+  ops.push_back(symbol::OP_ENDPROC);
   current_address++;
 }
 
@@ -85,14 +85,14 @@ void CodeGenPL::visit(Id& node) {
   } else if (access == CALL) {
     TableEntry ent = table_find(name);
 
-    ops.push_back(OP_CALL);
+    ops.push_back(symbol::OP_CALL);
     ops.push_back(table.size() - 1 - ent.block);
     ops.push_back(ent.address);
     
   } else {
     TableEntry ent = table_find(name);
 
-    ops.push_back(OP_VARIABLE);
+    ops.push_back(symbol::OP_VARIABLE);
     ops.push_back(table.size() - 1 - ent.block);
     ops.push_back(ent.displace);
     current_address += 3;
@@ -147,7 +147,7 @@ void CodeGenPL::visit(Constant& node) {
     ops.push_back(value);
     ops.push_back(exp);
   } else {
-    ops.push_back(OP_CONSTANT);
+    ops.push_back(symbol::OP_CONSTANT);
     ops.push_back(value);
   }
 
@@ -172,7 +172,7 @@ void CodeGenPL::visit(ArrayAccess& node) {
   access = VAL;
   node.get_index().visit(*this);
 
-  ops.push_back(OP_INDEX);
+  ops.push_back(symbol::OP_INDEX);
   access = SIZE;
   var_lengths.push_back(0);
   node.get_id().get_size().visit(*this);  // To add size for bounds
@@ -181,7 +181,7 @@ void CodeGenPL::visit(ArrayAccess& node) {
   var_lengths.pop_back();
 
   if (acs == VAL) {  // If we are accessing for value
-    ops.push_back(OP_VALUE);
+    ops.push_back(symbol::OP_VALUE);
     current_address++;
   }
   current_address += 3;
@@ -279,7 +279,7 @@ void CodeGenPL::visit(Asgn& node) {
   access = VAL;
   node.get_expr().visit(*this);
 
-  ops.push_back(OP_ASSIGN);
+  ops.push_back(symbol::OP_ASSIGN);
   ops.push_back(1);
   current_address += 2;
 }
@@ -317,7 +317,7 @@ void CodeGenPL::visit(Cond& node) {
   access = VAL;
   node.get_cond().visit(*this);
 
-  ops.push_back(OP_ARROW);
+  ops.push_back(symbol::OP_ARROW);
   ops.push_back(-2);
 
   int arrow = current_address + 1;
@@ -325,7 +325,7 @@ void CodeGenPL::visit(Cond& node) {
 
   node.get_stmts().visit(*this);
 
-  ops.push_back(OP_BAR);
+  ops.push_back(symbol::OP_BAR);
   ops.push_back(-2);
 
   jumps.push_back(current_address + 1);
@@ -346,7 +346,7 @@ void CodeGenPL::visit(Proc& node) {
   admin->debug("call proc");
   access = CALL;
   node.get_id().visit(*this);
-  ops.at(ops.size() - 3) = OP_CALL;
+  ops.at(ops.size() - 3) = symbol::OP_CALL;
   current_address += 3;
 }
 

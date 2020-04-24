@@ -11,7 +11,7 @@
 
 class Constant : public Expr {
  public:
-  Constant();
+  Constant(int v = 1);
   Constant(Type type, int value = 0, int exp = 1);
   virtual ~Constant();
   virtual void visit(TreeWalker& walker);

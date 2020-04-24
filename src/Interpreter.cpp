@@ -30,7 +30,7 @@
 #include "Interpreter.h"
 // FUNCTIONS
 
-Interpreter::Interpreter( string f, bool s) : filename(f), stepping(s) {}
+Interpreter::Interpreter( string f, bool s) : filename(f), stepping(s), op_type(symbol::OP_INT) {}
 
 void Interpreter::interpret()
 {
@@ -104,17 +104,30 @@ void Interpreter::constant( int value )
   // Make space for the value and save it to the top of the stack
   allocate(1);
   store[stack_register] = value;
-  program_register += 2;
+  program_register += 3;
+}
+
+void Interpreter::db_constant( int value, int exp) {
+  allocate(2);
+  store[stack_register - 1] = value;
+  store[stack_register] = exp;
+  program_register += 4;
 }
 
 //-------------------------------
 
-void Interpreter::value()
+void Interpreter::value( symbol::OpCode type )
 {
   // Replace address at top of stack with a value
   // ie. load a variable value?
   int x = store[stack_register];
   store[stack_register] = store[x];
+
+  if (type == symbol::OP_FLOAT) {
+    allocate(1);
+    store[stack_register] = store[x + 1];
+  }
+  op_type = type;
   ++program_register;
 }
 
@@ -278,13 +291,25 @@ void Interpreter::write (int count)
   int x;
   program_register += 2;
   stack_register -= count;
+  if (op_type == symbol::OP_FLOAT)
+    stack_register -= count;
   x = stack_register;
 
   while (x < stack_register + count )
   {
-    ++x;
-    cout << "  Output: ";
-    cout << ( store[x]) << endl;
+    if (op_type == symbol::OP_FLOAT) {
+      int sig = store[++x];
+      int exp = store[++x]; 
+      cout << sig << "/" << exp << endl;
+    } else {
+      int value = store[++x];
+      if (op_type == symbol::OP_BOOL)
+        cout << (value == 1 ? "true" : "false") << endl;
+      else if (op_type == symbol::OP_CHAR)
+        cout << (char)value << endl;
+      else
+        cout << value << endl;
+    }
   }
 }
 
@@ -299,13 +324,21 @@ void Interpreter::assign (int count)
   // Stack has count values on top of count addresses
   program_register += 2;
   stack_register = stack_register - 2*count;
+  if (op_type == symbol::OP_FLOAT)
+    stack_register -= count;
   x = stack_register;
 
   // Take the value in the expression and put it in the variable location
   while ( x < stack_register + count)
   {
     ++x;
-    store[store[x]] = store[x + count];
+    int address = store[x];
+    store[address] = store[x + count];
+
+    if (op_type == symbol::OP_FLOAT) {
+      ++x;
+      store[address + 1] = store[x + count];
+    }
   }
 }
 
@@ -488,111 +521,120 @@ void Interpreter::load_program( string name)
 
 void Interpreter::run_program()
 {
-  OperationCode  opcode;
+  symbol::OpCode  opcode;
   program_register = 0; 
   running = true;
   
   while (running)
   {
 //
-    opcode = (OperationCode) store[program_register];
+    opcode = (symbol::OpCode) store[program_register];
 //
  //   cout << "Opcode = " << opcode << endl;
     if ( stepping )
     {
       cout << endl << " press < enter > to execute "
-                   << opcode_name[opcode] << " operation" << endl;
+                   << symbol::op_name[opcode] << " operation" << endl;
       cin.get();
     }
 
     // Execute program instruction
     switch (opcode)
     {
-      case OP_ADD:
+      case symbol::OP_ADD:
          add();
          break;
-      case OP_AND:
+      case symbol::OP_AND:
          pland();
          break;
-      case OP_ARROW:
+      case symbol::OP_ARROW:
          arrow(store[program_register + 1]);
          break;
-      case OP_ASSIGN:
+      case symbol::OP_ASSIGN:
          assign( store[program_register + 1]);
          break;
-      case OP_BAR:
+      case symbol::OP_BAR:
          bar(store[program_register + 1]);
          break;
-      case OP_BLOCK:
+      case symbol::OP_BLOCK:
          block(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_CALL:
+      case symbol::OP_CALL:
          call(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_CONSTANT:
+      case symbol::OP_CONSTANT:
+         op_type = (symbol::OpCode) store[program_register + 2];
          constant(store[program_register + 1]);
          break;
-      case OP_DIVIDE:
+      case symbol::OP_DB_CONSTANT:
+         op_type = (symbol::OpCode) store[program_register + 3];
+         db_constant(store[program_register + 1], store[program_register + 2]);
+         break;
+      case symbol::OP_DIVIDE:
          divide();
          break;
-      case OP_ENDBLOCK:
+      case symbol::OP_ENDBLOCK:
          endblock();
          break;
-      case OP_ENDPROC:
+      case symbol::OP_ENDPROC:
          endproc();
          break;
-      case OP_ENDPROG:
+      case symbol::OP_ENDPROG:
          endprog();
          break;
-      case OP_EQUAL:
+      case symbol::OP_EQUAL:
          equal();
          break;
-      case OP_FI:
+      case symbol::OP_FI:
          fi( store[program_register + 1]);
          break;
-      case OP_GREATER:
+      case symbol::OP_GREATER:
          greater();
          break;
-      case OP_INDEX:
+      case symbol::OP_INDEX:
          index( store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_LESS:
+      case symbol::OP_LESS:
          less();
          break;
-      case OP_MINUS:
+      case symbol::OP_MINUS:
          minus();
          break;
-      case OP_MODULO:
+      case symbol::OP_MODULO:
          modulo();
          break;
-      case OP_MULTIPLY:
+      case symbol::OP_MULTIPLY:
          multiply();
          break;
-      case OP_NOT:
+      case symbol::OP_NOT:
          plnot();
          break;
-      case OP_OR:
+      case symbol::OP_OR:
          plor();
          break;
-      case OP_PROC:
+      case symbol::OP_PROC:
          proc(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_PROG:
+      case symbol::OP_PROG:
          prog(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_READ:
+      case symbol::OP_READ:
          read(store[program_register + 1]);
          break;
-      case OP_SUBTRACT:
+      case symbol::OP_SUBTRACT:
          subtract();
          break;
-      case OP_VALUE:
-         value();
+      case symbol::OP_CHAR:
+      case symbol::OP_INT:
+      case symbol::OP_FLOAT:
+      case symbol::OP_BOOL:
+      case symbol::OP_VALUE:
+         value(opcode);
          break;
-      case OP_VARIABLE:
+      case symbol::OP_VARIABLE:
          variable(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_WRITE:
+      case symbol::OP_WRITE:
          write(store[program_register + 1]);
          break;
       default:

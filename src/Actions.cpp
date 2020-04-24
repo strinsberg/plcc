@@ -50,7 +50,10 @@ shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
 
   if (pp.size == nullptr) {
     type.kind = symbol::SCALAR;
-    pp.size = make_shared<Constant>();
+    int size = 1;
+    if (type.type == symbol::FLOAT)
+      size = 2;
+    pp.size = make_shared<Constant>(size);
   } else {
     type.kind = symbol::ARRAY;
   }

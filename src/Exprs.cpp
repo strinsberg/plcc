@@ -10,9 +10,9 @@ using namespace std;
 
 // Constant ///////////////////////////////////////////////////////////
 
-Constant::Constant()
+Constant::Constant(int v)
     : Expr( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST) ),
-      value(1), exp(1) {}
+      value(v), exp(1) {}
 
 Constant::Constant(Type t, int v, int e)
     : Expr(t), value(v), exp(e) {}
