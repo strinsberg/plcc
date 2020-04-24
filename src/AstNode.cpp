@@ -1,4 +1,5 @@
 #include "AstNode.h"
+#include "TreeWalker.h"
 #include <iostream>
 using namespace std;
 
@@ -7,15 +8,15 @@ AstNode::AstNode() : name("Ast Node"), null(false) {}
 
 AstNode::~AstNode() {}
 
-void AstNode::visit(CodeGen* generator) {
-  generator->visit(this);
+void AstNode::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void AstNode::display(ostream& out) const {
   out << name;
 }
 
-std::ostream& operator<< (std::ostream& out, const AstNode& node) {
+ostream& operator<< (ostream& out, const AstNode& node) {
   node.display(out);
   return out;
 }
@@ -28,8 +29,8 @@ Expr::Expr(Type t) : type(t) {
 
 Expr::~Expr() {}
 
-void Expr::visit(CodeGen* generator) {
-  generator->visit(this);
+void Expr::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Expr::display(ostream& out) const {
@@ -44,8 +45,8 @@ Def::Def() {
 
 Def::~Def() {}
 
-void Def::visit(CodeGen* generator) {
-  generator->visit(this);
+void Def::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Def::display(ostream& out) const {
@@ -60,8 +61,8 @@ Stmt::Stmt() {
 
 Stmt::~Stmt() {}
 
-void Stmt::visit(CodeGen* generator) {
-  generator->visit(this);
+void Stmt::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
 
 void Stmt::display(ostream& out) const {

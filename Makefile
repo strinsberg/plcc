@@ -22,8 +22,9 @@ $(COMPILER): $(SRC)
 
 .PHONY: tests
 tests: $(COMPILER)
-	./plcc < test/test2.pal
+	./plcc -v test/test2.pal
 
 .PHONY: clean
 clean:
-	rm -rf plcc *.tab.cc *.tab.hh *.yy.c include/parser.tab.hh include/stack.hh
+	rm -rf plcc *.tab.cc *.tab.hh *.yy.c include/parser.tab.hh include/stack.hh \
+	*.byte

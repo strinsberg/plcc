@@ -6,7 +6,7 @@ begin
   -- result is in temp
   proc fib
     int x, y, z;
-    if temp > 1 do
+    if temp > 1 then
       x := temp;
       temp := x - 1;
       call fib;
@@ -15,7 +15,7 @@ begin
       call fib;
       z := temp;
       temp := y + z;
-    else if not (temp > 1) do
+    else if not (temp > 1) then
       skip;
     end if;
   end proc;

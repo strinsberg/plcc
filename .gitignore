@@ -31,6 +31,7 @@
 *.out
 *.app
 plcc
+compiler
 
 # flex and bison
 *.tab*
@@ -41,3 +42,10 @@ stack.hh
 *~
 *.swp
 *.swo
+
+# compiler
+*.out
+*.pl
+*.asm
+*.byte
+*.dasm

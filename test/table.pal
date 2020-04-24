@@ -1,0 +1,26 @@
+-- Program to read in a table of 10 integers
+-- and to write those same 10 integers
+begin
+   const int n = 10;
+   int array[n] A;
+   int i;
+
+   -- Procedure to print the table
+   proc print
+      int i;
+      i := 1;
+      while not (i > n) do
+        write A[i];
+        i := i + 1;
+      end while;
+    end proc;
+
+   -- Input Table
+   i := 1;
+   while not (i > n) do
+       read A[i];
+       i := i + 1;
+   end while;
+
+   call print; 
+end.

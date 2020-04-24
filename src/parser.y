@@ -1,4 +1,5 @@
 %{
+#include <cstdio>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -10,7 +11,9 @@
 
 // From scanner.l
 extern char* yytext;
-int yylex();
+extern int yylex();
+extern FILE* yyin;
+bool set_file(std::string);
 %}
 
 
@@ -69,7 +72,7 @@ namespace yy {
   static char temp_ch = '\0';
  
   /* C++ lexing function that handles numbers and char values */
-  int yylex(parser::semantic_type*) {
+  int yylex(parser::semantic_type* t) {
     int token = my_lex();
 
     if (token == parser::token::NUMBER)
@@ -89,8 +92,7 @@ namespace yy {
 
 
 %%
-program:  /* nothing for bison */ { actions->set_ast(actions->empty_stmt()); }
-  | block DOT { actions->set_ast($1); }
+program: block DOT { actions->set_ast($1); }
   ;
 
 block: BEG bprime END { $$ = $2; }

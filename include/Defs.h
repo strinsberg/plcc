@@ -3,6 +3,7 @@
 
 #include "AstNode.h"
 #include "Exprs.h"
+#include "TreeWalker.h"
 #include <iostream>
 #include <string>
 #include <memory>
@@ -12,8 +13,10 @@ class VarDef : public Def {
  public:
   VarDef(std::shared_ptr<Id> i);
   virtual ~VarDef();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+
+  Id& get_id() { return *id; }
 
  protected:
   std::shared_ptr<Id> id;
@@ -24,8 +27,11 @@ class DefSeq : public Def {
  public:
   DefSeq(std::shared_ptr<Def> first, std::shared_ptr<Def> rest);
   virtual ~DefSeq();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+
+  Def& get_first() { return *first; }
+  Def& get_rest() { return *rest; }
 
  protected:
   std::shared_ptr<Def> first;
@@ -37,8 +43,11 @@ class ProcDef : public Def {
  public:
   ProcDef(std::shared_ptr<Expr> name, std::shared_ptr<Stmt> block);
   virtual ~ProcDef();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+
+  Expr& get_id() { return *name; }
+  Stmt& get_block() { return *block; }
 
  protected:
   std::shared_ptr<Expr> name;

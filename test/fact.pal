@@ -1,0 +1,28 @@
+-- Calculates factorial for a given n
+-- Due to the fast growth of factorials will overflow after 12
+begin
+  int n, ans;
+
+  -- Recursively calculates factorial of n and stores it in ans
+  proc fact
+    if n == 0 or n == 1 then
+        ans := 1;
+    else if n > 1 then
+        n := n - 1;
+        call fact;
+        ans := ans * n;
+    end if;
+    n := n + 1;
+  end proc;
+
+ 
+  -- Calculate factorial of n
+  ans := 0;
+  read n;
+  while not (n < 0) do
+    call fact;
+    write ans;
+    ans := 0;
+    read n;
+  end while;
+end.

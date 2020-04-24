@@ -9,7 +9,7 @@
 using namespace std;
 
 
-Actions::Actions(shared_ptr<Admin> a) : admin(a), ast(empty_stmt()) {};
+Actions::Actions(shared_ptr<Admin> a) : admin(a), ast(make_shared<AstNode>()) {};
 
 Actions::~Actions() {}
 
@@ -41,7 +41,6 @@ shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> valu
   } catch (const type_error& e) {
     admin->error("type error: " + string(e.what()), name);
   }
-  cout << *def << endl;
   return def;
 }
 
@@ -49,10 +48,12 @@ shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> valu
 shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
   admin->debug("var def");
 
-  if (pp.size == nullptr)
+  if (pp.size == nullptr) {
     type.kind = symbol::SCALAR;
-  else
+    pp.size = make_shared<Constant>();
+  } else {
     type.kind = symbol::ARRAY;
+  }
 
   return add_vars(pp.names, type, pp.size);
 }
@@ -199,7 +200,7 @@ shared_ptr<Stmt> Actions::loop(shared_ptr<Stmt> cond) {
 
 
 shared_ptr<Stmt> Actions::empty_stmt() {
-  admin->debug("empty");
+  admin->debug("empty stmt");
   return make_shared<Stmt>();
 }
 
@@ -226,7 +227,7 @@ shared_ptr<Stmt> Actions::conditions(shared_ptr<Stmt> rest, shared_ptr<Stmt> las
   admin->debug("conditions");
   if (rest->is_null())
     return last;
-  return make_shared<Seq>(rest, last);
+  return make_shared<CondSeq>(rest, last);
 }
 
 
@@ -302,37 +303,17 @@ shared_ptr<Expr> Actions::unary(symbol::Tag op_type, shared_ptr<Expr> expr) {
 }
 
 
-shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, double dec) {
+shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, int dec) {
   admin->debug("constant: " + symbol::str(tag) + " " + to_string(val)); 
-  shared_ptr<Expr> con;
+
   Type t;
   t.type = tag;
+  t.qual = symbol::CONST;
 
-  if (tag == symbol::TRUE or tag == symbol::FALSE) {
+  if (tag == symbol::TRUE or tag == symbol::FALSE)
     t.type = symbol::BOOL;
-    t.qual = symbol::CONST;
-    con = make_shared<Constant>(t, val, dec);
 
-  } else if (tag == symbol::INT) {
-    t.qual = symbol::CONST;
-    con = make_shared<Constant>(t, val, dec);
-
-  } else if (tag == symbol::FLOAT) {
-    t.qual = symbol::CONST;
-    int size = to_string((int)dec).size();
-    for (int i = 0; i < size; i++)
-      dec /= 10;
-    con = make_shared<Constant>(t, 0, val + dec);
-
-  } else if (tag == symbol::CHAR) {
-    t.qual = symbol::CONST;
-    con = make_shared<Constant>(t, val, dec);
-  } else {
-    admin->error("not a valid constant type: " + symbol::str(tag));
-    con = make_shared<Expr>(Type());
-  }
-
-  return con;
+  return make_shared<Constant>(t, val, dec);
 }
 
 

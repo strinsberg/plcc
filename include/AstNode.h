@@ -3,16 +3,17 @@
 
 #include "Symbol.h"
 #include "Types.h"
-#include "CodeGen.h"
+#include "TreeWalker.h"
 #include <string>
 #include <iostream>
+#include <memory>
 
 
 class AstNode {
  public:
   AstNode();
   virtual ~AstNode();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
   bool is_null() { return null; }
   void set_null(bool n) { null = n; }
@@ -30,7 +31,7 @@ class Expr : public AstNode {
  public:
   Expr(Type type);
   virtual ~Expr();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
   Type get_type() { return type; }
@@ -45,7 +46,7 @@ class Def : public AstNode {
  public:
   Def();
   virtual ~Def();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 };
 
@@ -54,7 +55,7 @@ class Stmt : public AstNode {
  public:
   Stmt();
   virtual ~Stmt();
-  virtual void visit(CodeGen* generator);
+  virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 };
 
