@@ -1,23 +1,9 @@
 begin
-  int x, y, z;
+  int a;
+  bool b;
+  char c;
+  float d;
 
-  x, y, z := 1, 2, 3;
-  write x,y,z;
-
-  begin
-    int a, b, c;
-
-    proc d
-      int i;
-      i := 20;
-      write a+i,b+i,c+i;
-    end proc;
-
-    a, b, c := 6,7,8;
-    x,y,z := x + a, y + b, z + c;
-    write a,b,c;
-    write x,y,z;
-    call d;
-  end;
-  write x,y,z;
+  a,b,c,d := 1, true, '$', 20.2;
+  write a,b,c,d;
 end.

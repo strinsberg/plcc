@@ -92,7 +92,7 @@ enum OpCode {
   OP_DIVIDE, OP_ENDPROC, OP_ENDPROG, OP_EQUAL, OP_FI, OP_GREATER,
   OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
-  OP_WRITE, OP_BLOCK, OP_ENDBLOCK
+  OP_WRITE, OP_BLOCK, OP_ENDBLOCK, OP_CHAR, OP_INT, OP_FLOAT, OP_BOOL,
 };
 
 // Messages
@@ -102,7 +102,7 @@ static const std::string op_name[] = {
  "divide", "endproc", "endprog", "equal", "fi", "greater",
  "index", "less", "minus", "modulo", "multiply", "not",
  "or", "proc", "prog", "read", "subtract", "value",
- "variable", "write", "block", "endblock"
+ "variable", "write", "block", "endblock", "char", "int", "float", "bool",
 };
 
 
@@ -121,6 +121,10 @@ const std::map<Tag, OpCode> tag_to_op{
   {MOD, OP_MODULO},
   {WRITE, OP_WRITE},
   {READ, OP_READ},
+  {CHAR, OP_CHAR},
+  {INT, OP_INT},
+  {FLOAT, OP_FLOAT},
+  {BOOL, OP_BOOL},
 };
 
 inline OpCode to_op(Tag t, bool sub = false) {

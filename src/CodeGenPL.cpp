@@ -98,7 +98,9 @@ void CodeGenPL::visit(Id& node) {
     current_address += 3;
 
     if (access == VAL) {
-      ops.push_back(OP_VALUE); 
+      symbol::OpCode code = symbol::to_op(ent.type);
+      admin->debug(symbol::op_name[code]);
+      ops.push_back(code); 
       current_address++;
     }
   }

@@ -18,7 +18,8 @@ const vector<string> OPS{
   "MINUS", "MODULO", "MULTIPLY",
   "NOT", "OR", "PROC", "PROG",
   "READ", "SUBTRACT",
-  "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK"
+  "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
+  "CHAR", "INT", "FLOAT", "BOOL",
 };
 
 
@@ -43,6 +44,7 @@ void Dasm::disassemble() {
 
     // output the instruction name
     *out << op << endl;
+    admin->newline();
 
     // Do extra for instructions that are more than just a name
     if (op == "ENDPROG") {
