@@ -137,7 +137,7 @@ Binary::Binary(Operator o, shared_ptr<Expr> l, shared_ptr<Expr> r)
     type.kind = symbol::UNIVERSAL;
   }
 
-  if (!(lhs->get_type() == rhs->get_type()))
+  if (!(lhs->get_type().type == rhs->get_type().type))
     throw type_error("type mismatch for binary operator");
 
   if (!op.accepts(lhs) or !op.accepts(rhs))
