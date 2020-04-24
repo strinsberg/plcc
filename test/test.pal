@@ -1,9 +1,8 @@
 begin
   int x, y, z;
-  proc my_proc
-    int a,b,c;
-    write a + x, b + y, z + c;
-    call my_proc;
-  end proc;
-  call my_proc;
+  x, y, z := 1, 2, 3;
+  begin
+    int a, b, c;
+    a, b, c := x, y, z;
+  end;
 end.

@@ -172,7 +172,7 @@ do_cond: expr DO stmt_part { $$ = actions->condition($1, $3); }
 empty_stmt: SKIP { $$ = actions->empty_stmt(); }
   ;
 
-block_stmt: block { $$ = $1; }
+block_stmt: block { $$ = actions->block_stmt($1); }
   ;
 
 proc_stmt: CALL name { $$ = actions->proc_stmt($2); }

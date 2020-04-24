@@ -40,6 +40,7 @@ class Actions {
   std::shared_ptr<Expr> proc_name(std::string name);
 
   // statement actions
+  std::shared_ptr<Stmt> block_stmt(std::shared_ptr<Stmt> block);
   std::shared_ptr<Stmt> block(std::shared_ptr<Def>, std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> stmt_part(std::shared_ptr<Stmt>, std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> io(std::vector<std::shared_ptr<Expr>>, symbol::Tag);

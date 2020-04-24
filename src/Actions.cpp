@@ -124,6 +124,11 @@ Vars Actions::vprime(vector<string> names, shared_ptr<Expr> size) {
 
 // Statement methods //////////////////////////////////////////////////
 
+shared_ptr<Stmt> Actions::block_stmt(shared_ptr<Stmt> block) {
+  admin->debug("block stmt");
+  return make_shared<BlockStmt>(block);
+}
+
 shared_ptr<Stmt> Actions::block(shared_ptr<Def> defs, shared_ptr<Stmt> stmts) {
   admin->debug("block");
   table.pop_block();

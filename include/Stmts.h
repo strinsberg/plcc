@@ -25,6 +25,20 @@ class Seq : public Stmt {
 };
 
 
+class BlockStmt : public Stmt {
+ public:
+  BlockStmt(std::shared_ptr<Stmt> block);
+  virtual ~BlockStmt();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& out) const;
+
+  Stmt& get_block() { return *block; }
+
+ protected:
+  std::shared_ptr<Stmt> block;
+
+};
+
 class Block : public Stmt {
  public:
   Block(std::shared_ptr<Def> defs, std::shared_ptr<Stmt> stmts);

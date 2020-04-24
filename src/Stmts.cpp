@@ -23,6 +23,21 @@ void Seq::display(ostream& out) const {
   out << *first << endl << *rest;
 }
 
+// Block Stmt /////////////////////////////////////////////////////////
+
+BlockStmt::BlockStmt(std::shared_ptr<Stmt> b) : block(b) {}
+
+BlockStmt::~BlockStmt() {}
+
+void BlockStmt::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void BlockStmt::display(std::ostream& out) const {
+  out << endl << "BLOCK STMT";
+  out << *block;
+}
+
 
 // Block //////////////////////////////////////////////////////////////
 
