@@ -1,6 +1,8 @@
 begin
   float a, b;
-  a, b := 3.14, 2.45; 
+  a, b := 3.14, 2.4524234; 
   write a, b;
   write a * b;  -- a*b=7.693
+  write a / b;  -- a/b=1.281632653061
+  write b / a;  -- b/a=0.780254777070
 end.

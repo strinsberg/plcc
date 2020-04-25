@@ -150,8 +150,10 @@ void Interpreter::multiply()
 
   if (op_type == symbol::OP_FLOAT) {
     stack_register -= 2;
-    store[stack_register] = store[stack_register] * store[stack_register + 2];
-    store[stack_register - 1] = store[stack_register - 1] * store[stack_register + 1];
+    long long scale = store[stack_register]; 
+    long long a = store[stack_register - 1];
+    long long b = store[stack_register + 1];
+    store[stack_register - 1] = (a * b) / scale;
 
   } else {
     --stack_register;  // move stack down because we are combining top 2 values
@@ -164,8 +166,20 @@ void Interpreter::multiply()
 void Interpreter::divide()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = store[stack_register] / store[stack_register +1];
+
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    // assumes a fixed point representation with a constant scaling factor
+    // scale factor is kept in the top float position instead of hard coded
+    // so that it can change if desired.
+    int scale = store[stack_register];
+    store[stack_register - 1] =
+        (store[stack_register - 1] * scale) / store[stack_register + 1];
+
+  } else {
+    --stack_register;
+    store[stack_register] = store[stack_register] / store[stack_register +1];
+  }
 }
  
 void Interpreter::modulo()
@@ -306,9 +320,9 @@ void Interpreter::write (int count)
     cout << "   Output: ";
     if (op_type == symbol::OP_FLOAT) {
       int sig = store[++x];
-      int exp = store[++x]; 
-      double value = (double)sig / exp;
-      cout << setprecision(10) << value << endl;
+      int scale = store[++x]; 
+      double value = (double)sig / scale;
+      cout << setprecision(5) << value << endl;
 
     } else {
       int value = store[++x];

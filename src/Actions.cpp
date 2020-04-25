@@ -318,32 +318,25 @@ shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
   t.type = tag;
   t.qual = symbol::CONST;
 
-  int exp = 1;
+  int scale = 10000;  // use a 4 decimal fixed point float
 
   if (tag == symbol::TRUE or tag == symbol::FALSE) {
     t.type = symbol::BOOL;
+
   } else if (tag == symbol::FLOAT) {
-    // Convert the whole and decimal part to a fixed point representation
-    string sig;
-    if (val != 0)
-      sig = to_string(val);
-    int w = sig.size();
-
-    if (w > 9) {
-      admin->error("invalid float literal. the integer part is greater than 10^9.");
-
-    } else {
-      int left = 9 - w;
-      int d = (int)dec.size() > left ? left : dec.size(); 
-      sig += dec.substr(0, d);
-      exp = symbol::pow10[d];
-
-      admin->debug("const float: " + sig + ", " + to_string(exp));
-      val = stoi(sig);
+    // Right now we are using a 4 decimal fixed point representation
+    // But later it could change to a proper floating point
+    if (val > 200000) {
+      admin->error("fixed point float will overflow at 2,000,000.000");
+      val = 200000;
     }
+
+    string num = to_string(val) + "." + dec + "000";
+    double numf = stod(num);
+    val = numf * scale; 
   }
 
-  return make_shared<Constant>(t, val, exp);
+  return make_shared<Constant>(t, val, scale);
 }
 
 
