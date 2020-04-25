@@ -146,13 +146,19 @@ void Interpreter::plnot()
 
 void Interpreter::multiply()
 {
-  // All binary operations work this way
-
   ++program_register;  // Move to the next instruction
-  --stack_register;  // move stack down because we are combining top 2 values
 
-  // Take the top 2 elements on the stack and multiply them
-  store[stack_register] = store[stack_register] * store[stack_register +1];
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    store[stack_register] = store[stack_register] * store[stack_register + 2];
+    store[stack_register - 1] = store[stack_register - 1] * store[stack_register + 1];
+
+  } else {
+    --stack_register;  // move stack down because we are combining top 2 values
+
+    // Take the top 2 elements on the stack and multiply them
+    store[stack_register] = store[stack_register] * store[stack_register +1];
+  }
 }
 
 void Interpreter::divide()

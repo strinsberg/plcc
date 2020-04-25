@@ -1,8 +1,6 @@
 begin
-  int a;
-  bool b;
-  char c;
-  float d;
-  a , b, c, d := 88, true, '&', -945732104.6;
-  write a, b, c, d;
+  float a, b;
+  a, b := 3.14, 2.45; 
+  write a, b;
+  write a * b;  -- a*b=7.693
 end.
