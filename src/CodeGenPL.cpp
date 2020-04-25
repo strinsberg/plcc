@@ -199,7 +199,7 @@ void CodeGenPL::visit(ArrayAccess& node) {
   var_lengths.pop_back();
 
   if (acs == VAL) {  // If we are accessing for value
-    ops.push_back(symbol::OP_VALUE);
+    ops.push_back(symbol::to_op(node.get_id().get_type().type));
     current_address++;
   }
   current_address += 3;

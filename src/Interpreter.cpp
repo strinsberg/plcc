@@ -87,10 +87,10 @@ void Interpreter::index( int bound, int line_number)
   int i = store[stack_register];
   --stack_register;
 
-  if (i < 1 || i > bound)
-     runtime_error(" range error", line_number);
+  if (i < 0 || i >= bound)
+     runtime_error("array index out of bounds", 0);
   else
-     store[stack_register] = store[stack_register] + i -1;
+     store[stack_register] = store[stack_register] + i;
   program_register += 3;
 }
 

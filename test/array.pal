@@ -1,0 +1,15 @@
+begin
+  char array[10] string;
+  string[0], string[1] := 'S', 'T';
+  string[2], string[3] := 'E', 'V';
+  string[4], string[5] := 'E', 'N';
+
+  begin
+    int i;
+    i := 0;
+    while i < 10 do
+      write string[i];
+      i := i + 1;
+    end while;
+  end;
+end.
