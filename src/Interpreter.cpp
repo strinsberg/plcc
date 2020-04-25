@@ -356,12 +356,12 @@ void Interpreter::read(int count)
 // expression = expression { expression }.
 //-------------------------------------------------
 
-void Interpreter::write (int count)
+void Interpreter::write (int count, symbol::OpCode size_type)
 {
   // Similar to read but we display the value at store[x] instead of
   // using it as an address to find a memory location to read into
   int x;
-  program_register += 2;
+  program_register += 3;
   stack_register -= count;
   if (op_type == symbol::OP_FLOAT)
     stack_register -= count;
@@ -369,23 +369,23 @@ void Interpreter::write (int count)
 
   while (x < stack_register + count )
   {
-    cout << "   Output: ";
     if (op_type == symbol::OP_FLOAT) {
       int sig = store[++x];
       int scale = store[++x]; 
       double value = (double)sig / scale;
-      cout << setprecision(11) << value << endl;
+      cout << setprecision(11) << value;
 
     } else {
       int value = store[++x];
       if (op_type == symbol::OP_BOOL)
-        cout << (value == 1 ? "true" : "false") << endl;
+        cout << (value == 1 ? "true" : "false");
       else if (op_type == symbol::OP_CHAR)
-        cout << (char)value << endl;
+        cout << (char)value;
       else
-        cout << value << endl;
+        cout << value;
     }
   }
+  cout << endl;
 }
 
 //---------------------------------------
@@ -710,7 +710,7 @@ void Interpreter::run_program()
          variable(store[program_register + 1], store[program_register + 2]);
          break;
       case symbol::OP_WRITE:
-         write(store[program_register + 1]);
+         write(store[program_register + 1], (symbol::OpCode) store[program_register + 2]);
          break;
       default:
          runtime_error(" FATAL! Damaged Program File!");

@@ -289,7 +289,6 @@ void CodeGenPL::visit(IoStmt& node) {
       node.get_expr().visit(*this);
       size = var_lengths.back();
       var_lengths.pop_back();
-      cout << "========== " << symbol::str(e_type.type) << ", " << size << endl;
 
       if (e_type.type == symbol::STRING) {
         access = VAL;
@@ -323,6 +322,7 @@ void CodeGenPL::visit(IoStmt& node) {
 
   if (size == 0)
     size++;
+
   symbol::OpCode code = symbol::to_op(op_type);
   ops.push_back(code);
   ops.push_back(size);
@@ -331,6 +331,10 @@ void CodeGenPL::visit(IoStmt& node) {
   if (op_type == symbol::READ) {
     ops.push_back( symbol::to_op(e_type.type) );
     current_address++;
+  } else if (size > 1) {
+    ops.push_back( symbol::OP_ARRAY );
+  } else {
+    ops.push_back( symbol::OP_SCALAR );
   }
 }
 

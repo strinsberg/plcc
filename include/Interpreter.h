@@ -63,7 +63,7 @@ private:
     void plor(); 
 
     void read(int);    
-    void write(int);
+    void write(int, symbol::OpCode);
 
     void assign( int );
     

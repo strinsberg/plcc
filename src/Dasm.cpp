@@ -19,7 +19,8 @@ const vector<string> OPS{
   "NOT", "OR", "PROC", "PROG",
   "READ", "SUBTRACT",
   "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
-  "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT"
+  "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT",
+  "STRING", "SCALAR", "ARRAY",
 };
 
 
