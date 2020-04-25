@@ -20,7 +20,7 @@ const vector<string> OPS{
   "READ", "SUBTRACT",
   "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
   "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT",
-  "STRING", "SCALAR", "ARRAY",
+  "STRING", "SCALAR", "ARRAY", "DB_INDEX",
 };
 
 
@@ -99,7 +99,7 @@ void Dasm::disassemble() {
       *out << setw(20) << left << temp << "% The start address of the procedure instructions" << endl;
       admin->newline();
 
-    } else if (op == "INDEX") {
+    } else if (op == "INDEX" or op == "DB_INDEX") {
       *in >> temp;
       *out << setw(20) << left << temp << "% The size of the variable being accessed" << endl;
       admin->newline();

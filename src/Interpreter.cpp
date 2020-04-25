@@ -87,10 +87,17 @@ void Interpreter::index( int bound, int line_number)
   int i = store[stack_register];
   --stack_register;
 
-  if (i < 0 || i >= bound)
+  if (i < 0 || i >= bound) {
      runtime_error("array index out of bounds", 0);
-  else
-     store[stack_register] = store[stack_register] + i;
+  } else {
+     if (op_type == symbol::OP_FLOAT)
+        i *= 2;
+
+     store[stack_register] += i;
+
+     if (op_type == symbol::OP_FLOAT)
+       store[stack_register + 1] = store[stack_register] + 1;
+  }
   program_register += 3;
 }
 
@@ -358,13 +365,12 @@ void Interpreter::read(int count)
 
 void Interpreter::write (int count, symbol::OpCode size_type)
 {
-  // Similar to read but we display the value at store[x] instead of
-  // using it as an address to find a memory location to read into
   int x;
   program_register += 3;
-  stack_register -= count;
   if (op_type == symbol::OP_FLOAT)
-    stack_register -= count;
+    count *= 2;
+
+  stack_register -= count;
   x = stack_register;
 
   string sep;
@@ -377,7 +383,7 @@ void Interpreter::write (int count, symbol::OpCode size_type)
   {
     if (op_type == symbol::OP_FLOAT) {
       int sig = store[++x];
-      int scale = store[++x]; 
+      int scale = store[++x];
       double value = (double)sig / scale;
       cout << setprecision(11) << value;
 
@@ -676,6 +682,9 @@ void Interpreter::run_program()
       case symbol::OP_GREATER:
          greater();
          break;
+      case symbol::OP_DB_INDEX:
+         op_type = symbol::OP_FLOAT;
+         // deliberate fallthrough to OP_INDEX
       case symbol::OP_INDEX:
          index( store[program_register + 1], store[program_register + 2]);
          break;

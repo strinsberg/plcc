@@ -49,8 +49,19 @@ void CodeGenPL::visit(VarDef& node) {
   node.get_id().visit(*this);
 
   if (node.get_id().get_type().qual != symbol::CONST) {
+    int size = 0;
+    var_lengths.push_back(size);
+
     access = SIZE;
     node.get_id().get_size().visit(*this);
+
+    size = var_lengths.back();
+    var_lengths.pop_back();
+
+    if (node.get_id().get_type().type == symbol::FLOAT)
+      size *= 2;
+
+    var_lengths.back() += size;
   }
 }
 
@@ -193,7 +204,11 @@ void CodeGenPL::visit(ArrayAccess& node) {
   access = VAL;
   node.get_index().visit(*this);
 
-  ops.push_back(symbol::OP_INDEX);
+  if (node.get_id().get_type().type == symbol::FLOAT)
+    ops.push_back(symbol::OP_DB_INDEX);
+  else
+    ops.push_back(symbol::OP_INDEX);
+
   access = SIZE;
   var_lengths.push_back(0);
   node.get_id().get_size().visit(*this);  // To add size for bounds
@@ -302,7 +317,11 @@ void CodeGenPL::visit(IoStmt& node) {
           ops.push_back(i);
           ops.push_back(symbol::OP_INT);
         
-          ops.push_back(symbol::OP_INDEX);
+          if (e_type.type == symbol::FLOAT)
+            ops.push_back(symbol::OP_DB_INDEX);
+          else
+            ops.push_back(symbol::OP_INDEX);
+
           ops.push_back(size);
           ops.push_back(-2);  // Supposed to be line number for interpreter error
           ops.push_back(symbol::to_op(e_type.type));

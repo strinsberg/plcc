@@ -83,7 +83,7 @@ void Id::display(ostream& out) const {
 }
 
 
-// Id /////////////////////////////////////////////////////////////////
+// Const Id ////////////////////////////////////////////////////////////
 
 ConstId::ConstId(string l, Type t, shared_ptr<Expr> c) 
     : Id(l, t, make_shared<Constant>()), value(c) {
