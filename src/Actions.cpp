@@ -177,7 +177,10 @@ shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
 
     auto asgn = make_shared<Stmt>();
     try {
-      asgn = make_shared<Asgn>(acs, expr);
+      if (expr->get_type().type == symbol::STRING)
+        asgn = make_shared<StringAsgn>(acs, expr);
+      else
+        asgn = make_shared<Asgn>(acs, expr);
     } catch (const exception& e) {
       admin->error("type error: " + string(e.what()), acs->get_name());
     }
@@ -193,6 +196,8 @@ shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
 
   return stmt;
 }
+
+
 
 
 shared_ptr<Stmt> Actions::if_stmt(shared_ptr<Stmt> cond) {
@@ -342,6 +347,10 @@ shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
   return make_shared<Constant>(t, val, scale);
 }
 
+std::shared_ptr<Expr> Actions::const_string(std::string str) {
+  admin->debug("const string");
+  return make_shared<ConstString>(str);
+}
 
 // Helpers ////////////////////////////////////////////////////////////
 

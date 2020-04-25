@@ -20,9 +20,23 @@ class Constant : public Expr {
   int get_value() { return value; }
   int get_exp() { return exp; }
 
- private:
+ protected:
   int value;
   int exp;
+};
+
+
+class ConstString : public Constant {
+ public:
+  ConstString(std::string);
+  virtual ~ConstString();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+
+  std::string& get_string() { return text; }
+
+ protected:
+  std::string text;
 };
 
 

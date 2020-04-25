@@ -15,7 +15,7 @@ enum Tag {
   INIT, EQ, NEQ, LESS, GREATER, LEQ, GEQ,
   PLUS, MINUS, MULT, DIV, MOD,
   ARRAY, PROC, ENDPROC, RECORD, ENDREC, TYPE, SCALAR,
-  INT, BOOL, FLOAT, CHAR, CONST,
+  INT, BOOL, FLOAT, CHAR, CONST, STRING,
   NUMBER, TRUE, FALSE, NAME, CHARACTER,
   EMPTY, CALL, READ, UNIVERSAL, OPERATOR,
 };
@@ -66,6 +66,7 @@ static const std::map<Tag, std::string> to_string {
   {BOOL, "BOOL"},
   {FLOAT, "FLOAT"},
   {CHAR, "CHAR"},
+  {STRING, "STRING"},
   {CONST, "CONST"},
   {NUMBER, "NUMBER"},
   {TRUE, "TRUE"},
@@ -93,7 +94,7 @@ enum OpCode {
   OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
   OP_WRITE, OP_BLOCK, OP_ENDBLOCK, OP_CHAR, OP_INT, OP_FLOAT, OP_BOOL,
-  OP_DB_CONSTANT,
+  OP_DB_CONSTANT, OP_STRING,
 };
 
 // Messages
@@ -104,7 +105,7 @@ static const std::string op_name[] = {
  "index", "less", "minus", "modulo", "multiply", "not",
  "or", "proc", "prog", "read", "subtract", "value",
  "variable", "write", "block", "endblock", "char", "int", "float", "bool",
- "db_constant",
+ "db_constant", "string",
 };
 
 
@@ -127,6 +128,7 @@ const std::map<Tag, OpCode> tag_to_op{
   {INT, OP_INT},
   {FLOAT, OP_FLOAT},
   {BOOL, OP_BOOL},
+  {STRING, OP_STRING},
 };
 
 inline OpCode to_op(Tag t, bool sub = false) {

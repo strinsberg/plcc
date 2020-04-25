@@ -155,6 +155,14 @@ void CodeGenPL::visit(Constant& node) {
   current_address += 3;
 }
 
+
+void CodeGenPL::visit(ConstString& node) {
+  admin->debug("constant string");
+  string& str = node.get_string();
+  cout << str << endl;
+}
+
+
 void CodeGenPL::visit(Access& node) {
   // Has an id 
   admin->debug("access");
@@ -261,6 +269,9 @@ void CodeGenPL::visit(IoStmt& node) {
     access = VAL;
   else
     access = VAR;
+  // somwhere here we need to check for char arrays and treat them differently
+  // because if they are not an index we want to write code to print the
+  // whole thing. Same for constant strings?
   node.get_expr().visit(*this);
 
   symbol::OpCode code = symbol::to_op(type);
@@ -289,6 +300,11 @@ void CodeGenPL::visit(Asgn& node) {
   current_address += 2;
 }
 
+void CodeGenPL::visit(StringAsgn& node) {
+  admin->debug("string assign");
+  node.get_acs().visit(*this);
+  node.get_str().visit(*this);
+}
 
 void CodeGenPL::visit(IfStmt& node) {
   admin->debug("if");

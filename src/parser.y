@@ -30,7 +30,7 @@ bool set_file(std::string);
 
 %type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
 %type <std::shared_ptr<Expr>> factor var_access selector proc_name
-%type <std::shared_ptr<Expr>> constant character number bool_sym
+%type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
 %type <std::shared_ptr<Stmt>> program block bprime stmt_part stmt
@@ -53,7 +53,7 @@ bool set_file(std::string);
 %token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
-%token EMPTY NEWLINE
+%token EMPTY NEWLINE STRING
 
 
 /* Code for C++ yylex and yyerror definitions */
@@ -207,6 +207,7 @@ term: factor mult_op factor { $$ = actions->binary($2, $1, $3); }
 factor: number { $$ = $1; }
   | character  { $$ = $1; }
   | bool_sym  { $$ = $1; }
+  | string { $$ = $1; }
   | var_access  { $$ = $1; }
   | LHRND expr RHRND { $$ = $2; }
   | NOT factor { $$ = actions->unary(symbol::NOT, $2); }
@@ -266,6 +267,7 @@ constant: number { $$ = $1; }
   | bool_sym  { $$ = $1; }
   | character { $$ = $1; }
   | name { $$ = actions->access($1, actions->empty_expr()); }
+  | string { $$ = $1; }
   ;
 
 character: CHARACTER { $$ = actions->constant(symbol::CHAR, temp_ch); }
@@ -281,6 +283,8 @@ num: NUMBER { $$ = temp_num; }
 bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }
   | FALSE { $$ = actions->constant(symbol::FALSE, 0); }
   ;
+
+string: STRING { $$ = actions->const_string(std::string(yytext)); }
 
 name: NAME { $$ = std::string(yytext); }
   ;

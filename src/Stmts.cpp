@@ -80,6 +80,28 @@ void Asgn::display(ostream& out) const {
 }
 
 
+// String Assignment //////////////////////////////////////////////////
+
+StringAsgn::StringAsgn(std::shared_ptr<Expr> a, std::shared_ptr<Expr> e)
+    : Stmt(), acs(a), str(e) {
+
+  Type acs_type = acs->get_type();
+  Type str_type = str->get_type();
+  if (acs_type.type != symbol::CHAR or acs_type.kind != symbol::ARRAY
+      or str_type.type != symbol::STRING or str_type.kind != symbol::ARRAY)
+    throw type_error("string assignment arguments must be char array and string literal");
+}
+
+StringAsgn::~StringAsgn() {}
+
+void StringAsgn::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void StringAsgn::display(std::ostream& out) const {
+  out << *acs << " := " << *str;
+}
+
 // WRITE //////////////////////////////////////////////////////////////
 
 IoStmt::IoStmt(shared_ptr<Expr> e, symbol::Tag t)

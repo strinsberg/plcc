@@ -1,8 +1,6 @@
 begin
-  int a;
-  bool b;
-  char c;
-  float d;
-  read a, b, c, d;
-  write a, b, c, d;
+  char array[20] string;
+  string := "Hello World!";
+  write string;
+  write "It's me Steve!";
 end.

@@ -21,6 +21,7 @@ digit [0-9]
 number {digit}*
 name ({letter}|_)({letter}|digit|_)*
 character :.
+string \"[^\"]*\"
 
 /* might be possible to use bison for single chars to reduce rules here */
 %%
@@ -84,6 +85,7 @@ false         { return yy::parser::token::FALSE; }
 {name}        { return yy::parser::token::NAME; }
 {number}      { return yy::parser::token::NUMBER; }
 '.'           { return yy::parser::token::CHARACTER; }
+{string}      { return yy::parser::token::STRING; }
 
 \n            { actions->get_admin()->newline(); }
 [ \t]         { /*Ignore Whitespace*/ }

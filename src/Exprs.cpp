@@ -36,6 +36,25 @@ void Constant::display(ostream& out) const {
 }
 
 
+// Constant String ////////////////////////////////////////////////////
+
+ConstString::ConstString(std::string str) : Constant(str.size() - 2),
+    text(str.substr(1, str.size() - 2)) {
+  type.type = symbol::STRING;
+  type.kind = symbol::ARRAY;
+}
+
+ConstString::~ConstString() {}
+
+void ConstString::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void ConstString::display(std::ostream& out) const {
+  out << "\"" << text << "\"";
+}
+
+
 // Id /////////////////////////////////////////////////////////////////
 
 Id::Id(string l, Type type, shared_ptr<Expr> s) : Expr(type), size(s) {
