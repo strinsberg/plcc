@@ -367,6 +367,12 @@ void Interpreter::write (int count, symbol::OpCode size_type)
     stack_register -= count;
   x = stack_register;
 
+  string sep;
+  if (size_type == symbol::OP_ARRAY and op_type != symbol::OP_CHAR) {
+    sep = " ";
+    cout << "[";
+  }
+
   while (x < stack_register + count )
   {
     if (op_type == symbol::OP_FLOAT) {
@@ -384,6 +390,11 @@ void Interpreter::write (int count, symbol::OpCode size_type)
       else
         cout << value;
     }
+    if (x < stack_register + count)
+      cout << sep;
+  }
+  if (size_type == symbol::OP_ARRAY and op_type != symbol::OP_CHAR) {
+    cout << "]";
   }
   cout << endl;
 }
