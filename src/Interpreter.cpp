@@ -204,15 +204,26 @@ void Interpreter::minus()
 void Interpreter::add()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = store[stack_register] + store[stack_register+1]; 
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    store[stack_register - 1] = store[stack_register - 1] + store[stack_register + 1];
+
+  } else {
+    --stack_register;
+    store[stack_register] = store[stack_register] + store[stack_register+1]; 
+  }
 }
 
 void Interpreter::subtract()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = store[stack_register] - store[stack_register+1];
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    store[stack_register - 1] = store[stack_register - 1] - store[stack_register + 1];
+  } else {
+    --stack_register;
+    store[stack_register] = store[stack_register] - store[stack_register+1];
+  }
 }
 
 //--------------------------------------------
@@ -224,25 +235,45 @@ void Interpreter::subtract()
 void Interpreter::less()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = ( store[stack_register] < 
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] < store[stack_register + 2]);
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] < 
                           store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
 }
 
 void Interpreter::equal()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = ( store[stack_register] == 
-                          store[stack_register + 1 ]);
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] == store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] == 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
 }
 
 void Interpreter::greater()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = ( store[stack_register] > 
-                          store[stack_register + 1 ]);
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] > store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] > 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
 }
 
 //--------------------------------------------

@@ -5,4 +5,10 @@ begin
   write a * b;  -- a*b=7.693
   write a / b;  -- a/b=1.281632653061
   write b / a;  -- b/a=0.780254777070
+  write a < b;
+  write a > b;
+  write a == b;
+  write a + b;
+  write a - b;
+  write b - a;
 end.
