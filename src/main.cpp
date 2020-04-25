@@ -54,8 +54,8 @@ int main(int argc, char** argv) {
   } else if (interp_only) {
     comp.interpret(interp_only);
   } else {
-    comp.compile_to_pl();
-    if (run)
+    bool success = comp.compile_to_pl();
+    if (run and success)
       comp.interpret(interp_only);
   }
 

@@ -297,10 +297,12 @@ void Interpreter::write (int count)
 
   while (x < stack_register + count )
   {
+    cout << "   Output: ";
     if (op_type == symbol::OP_FLOAT) {
       int sig = store[++x];
       int exp = store[++x]; 
       cout << sig << "/" << exp << endl;
+
     } else {
       int value = store[++x];
       if (op_type == symbol::OP_BOOL)

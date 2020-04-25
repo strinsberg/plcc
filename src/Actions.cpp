@@ -324,19 +324,21 @@ shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
     t.type = symbol::BOOL;
   } else if (tag == symbol::FLOAT) {
     // Convert the whole and decimal part to a fixed point representation
-    string sval = to_string(val);
-    int w = sval.size();
-    if (w > 9)
-      admin->error("float overflow. whole part is greater than 10^9.");
+    string sig = to_string(val);
+    int w = sig.size();
 
-    string sig = sval.substr(0, sval.size());
-    int d = 9 - w;
-    if (d > 0) {
+    if (w > 9) {
+      admin->error("invalid float literal. the integer part is greater than 10^9.");
+
+    } else {
+      int left = 9 - w;
+      int d = (int)dec.size() > left ? left : dec.size(); 
       sig += dec.substr(0, d);
       exp = symbol::pow10[d];
+
+      admin->debug("const float: " + sig + ", " + to_string(exp));
+      val = stoi(sig);
     }
-    admin->debug("const float: " + sig + ", " + to_string(exp));
-    val = stoi(sig);
   }
 
   return make_shared<Constant>(t, val, exp);
