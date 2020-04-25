@@ -1,6 +1,6 @@
 begin
   char array[20] string;
   string := "Hello World!";
-  write string;
+  write string[0], string[1], string[2];
   write "It's me Steve!";
 end.

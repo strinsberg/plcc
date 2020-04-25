@@ -89,6 +89,9 @@ void CodeGenPL::visit(Id& node) {
     ops.push_back(table.size() - 1 - ent.block);
     ops.push_back(ent.address);
     
+  } else if (access == SIZE) {
+    node.get_size().visit(*this);
+
   } else {
     TableEntry ent = table_find(name);
 
@@ -198,7 +201,7 @@ void CodeGenPL::visit(ArrayAccess& node) {
   ops.push_back(-2);  // Supposed to be line number for interpreter error
   var_lengths.pop_back();
 
-  if (acs == VAL) {  // If we are accessing for value
+  if (acs == VAL or acs == SIZE) {  // size is for write array access
     ops.push_back(symbol::to_op(node.get_id().get_type().type));
     current_address++;
   }
@@ -273,24 +276,60 @@ void CodeGenPL::visit(Seq& node) {
 
 void CodeGenPL::visit(IoStmt& node) {
   admin->debug("io");
-  symbol::Tag type = node.get_io_type();
 
-  if (type == symbol::WRITE)
-    access = VAL;
-  else
+  int size = 1;
+  symbol::Tag op_type = node.get_io_type();
+  Type e_type = node.get_expr().get_type();
+
+  if (op_type == symbol::WRITE) {
+
+    if (e_type.kind == symbol::ARRAY) {
+      access = SIZE;
+      var_lengths.push_back(0);
+      node.get_expr().visit(*this);
+      size = var_lengths.back();
+      var_lengths.pop_back();
+      cout << "========== " << symbol::str(e_type.type) << ", " << size << endl;
+
+      if (e_type.type == symbol::STRING) {
+        access = VAL;
+        node.get_expr().visit(*this);
+
+      } else {
+        access = VAR;
+        for (int i = 0; i < size; i++) {
+          node.get_expr().visit(*this);
+          ops.push_back(symbol::OP_CONSTANT);
+          ops.push_back(i);
+          ops.push_back(symbol::OP_INT);
+        
+          ops.push_back(symbol::OP_INDEX);
+          ops.push_back(size);
+          ops.push_back(-2);  // Supposed to be line number for interpreter error
+          ops.push_back(symbol::to_op(e_type.type));
+          current_address += 7;
+        }
+      }
+
+    } else {
+      access = VAL;
+      node.get_expr().visit(*this);
+    }
+
+  } else {
     access = VAR;
-  // somwhere here we need to check for char arrays and treat them differently
-  // because if they are not an index we want to write code to print the
-  // whole thing. Same for constant strings?
-  node.get_expr().visit(*this);
+    node.get_expr().visit(*this);
+  }
 
-  symbol::OpCode code = symbol::to_op(type);
+  if (size == 0)
+    size++;
+  symbol::OpCode code = symbol::to_op(op_type);
   ops.push_back(code);
-  ops.push_back(1);
+  ops.push_back(size);
   current_address += 2;
 
-  if (type == symbol::READ) {
-    ops.push_back( symbol::to_op(node.get_expr().get_type().type) );
+  if (op_type == symbol::READ) {
+    ops.push_back( symbol::to_op(e_type.type) );
     current_address++;
   }
 }
