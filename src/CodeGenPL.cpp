@@ -157,9 +157,19 @@ void CodeGenPL::visit(Constant& node) {
 
 
 void CodeGenPL::visit(ConstString& node) {
-  admin->debug("constant string");
   string& str = node.get_string();
-  cout << str << endl;
+  admin->debug("constant string " + str);
+
+  if (access == VAL) {
+    for (auto& c : str) {
+      ops.push_back(symbol::OP_CONSTANT);
+      ops.push_back(c);
+      ops.push_back(symbol::OP_CHAR);
+      current_address += 3;
+    }
+  } else if (access == SIZE) {
+    var_lengths.back() = node.get_value();
+  }
 }
 
 
@@ -302,8 +312,31 @@ void CodeGenPL::visit(Asgn& node) {
 
 void CodeGenPL::visit(StringAsgn& node) {
   admin->debug("string assign");
-  node.get_acs().visit(*this);
+
+  access = SIZE;
+  var_lengths.push_back(0);
   node.get_str().visit(*this);
+  int size = var_lengths.back();
+  var_lengths.pop_back();
+
+  access = VAR;
+  for (int i = 0; i < size; i++) {
+    node.get_acs().visit(*this);
+    ops.push_back(symbol::OP_CONSTANT);
+    ops.push_back(i);
+    ops.push_back(symbol::OP_INT);
+  
+    ops.push_back(symbol::OP_INDEX);
+    // Should check to make sure string assignment string fits in array during parsing
+    ops.push_back(size);
+    ops.push_back(-2);  // Supposed to be line number for interpreter error
+  }
+
+  access = VAL;
+  node.get_str().visit(*this);
+
+  ops.push_back(symbol::OP_ASSIGN);
+  ops.push_back(size);
 }
 
 void CodeGenPL::visit(IfStmt& node) {
