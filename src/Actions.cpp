@@ -326,6 +326,9 @@ shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
   } else if (tag == symbol::FLOAT) {
     // Right now we are using a 4 decimal fixed point representation
     // But later it could change to a proper floating point
+    // Or we could save them as full size doubles and convert them to the
+    // fixed point in the code generation. That way other code generation
+    // for architechture with the capacity could treat them differently.
     if (val > 200000) {
       admin->error("fixed point float will overflow at 2,000,000.000");
       val = 200000;

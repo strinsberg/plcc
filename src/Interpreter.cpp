@@ -311,22 +311,43 @@ void Interpreter::read(int count)
 //  cout << "stack_register = " << stack_register << endl;
 //  cout << "base_register = " << base_register << endl;
 
-  program_register += 2;
+  program_register += 3;
 
   // Move stack to start of variables to read into
   stack_register -= count;
   x = stack_register;
 //  cout << "Count = " << count;
 
-  // Read into each variable
-  // store[x] is the address of the variable
-  // so store[ store[x] ] gives us the actual variables memory location
-  // to write the value into
   while ( x < stack_register + count)
   {
     ++x;
-    cout << "Input: ";
-    cin >> ( store[ store[x] ] );
+    cout << "Input(" << symbol::op_name[op_type] << "): ";
+    // could read into strings to force getting next token and making sure
+    // it is the right type for the variable. Because right now like c++
+    // if the token is not the right datatype it just moves on. might be ok
+    // but since we are interpreting it we may as well check the type and
+    // respond properly.
+    if (op_type == symbol::OP_FLOAT) {
+      int scale = 10000;  // Should be a constant somewhere
+      double y;
+      cin >> y;
+      int result = int(y * scale);
+      store[ store[x] ] = result;
+      store[ store[x] + 1] = scale;
+
+    } else if (op_type == symbol::OP_CHAR) {
+      char y;
+      cin >> y;
+      store[ store[x] ] = y;
+
+    } else if (op_type == symbol::OP_BOOL) {
+      int y;
+      cin >> y;
+      store[ store[x] ] = (y != 0);
+
+    } else {
+      cin >> ( store[ store[x] ] );
+    }
   }
 }
 
@@ -353,7 +374,7 @@ void Interpreter::write (int count)
       int sig = store[++x];
       int scale = store[++x]; 
       double value = (double)sig / scale;
-      cout << setprecision(5) << value << endl;
+      cout << setprecision(11) << value << endl;
 
     } else {
       int value = store[++x];
@@ -451,10 +472,9 @@ void Interpreter::fi( int line_number)
 {
   // this was supposed to force if statments to cover
   // all conditions, but I do no like that as a language
-  // feature. To re-enable it comment out the address increment
-  // and uncomment the runtime error
-  //runtime_error(" if statement fails", line_number);
-  program_register += 2;
+  // feature and my codegen does not use FI so this should
+  // never be run.
+  runtime_error(" if statement fails", line_number);
 }
 
 //------------------------------------------------
@@ -673,6 +693,7 @@ void Interpreter::run_program()
          prog(store[program_register + 1], store[program_register + 2]);
          break;
       case symbol::OP_READ:
+         op_type = (symbol::OpCode) store[program_register + 2];
          read(store[program_register + 1]);
          break;
       case symbol::OP_SUBTRACT:

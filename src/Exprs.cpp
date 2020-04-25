@@ -27,9 +27,7 @@ void Constant::display(ostream& out) const {
   if (type.type == symbol::CHAR) {
     out << (char)value;
   } else if (type.type == symbol::FLOAT) {
-    string sig = to_string(value);
-    int d = symbol::exp10.at(exp);
-    out << sig.substr(0, 9 - d) << "." << sig.substr(9 - d, d);
+    out << (double)value / exp;
 
   } else {
     out << value;

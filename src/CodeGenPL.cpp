@@ -267,6 +267,11 @@ void CodeGenPL::visit(IoStmt& node) {
   ops.push_back(code);
   ops.push_back(1);
   current_address += 2;
+
+  if (type == symbol::READ) {
+    ops.push_back( symbol::to_op(node.get_expr().get_type().type) );
+    current_address++;
+  }
 }
 
 void CodeGenPL::visit(Asgn& node) {
