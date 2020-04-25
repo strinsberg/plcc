@@ -301,7 +301,8 @@ void Interpreter::write (int count)
     if (op_type == symbol::OP_FLOAT) {
       int sig = store[++x];
       int exp = store[++x]; 
-      cout << sig << "/" << exp << endl;
+      double value = (double)sig / exp;
+      cout << setprecision(10) << value << endl;
 
     } else {
       int value = store[++x];

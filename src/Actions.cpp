@@ -324,7 +324,9 @@ shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
     t.type = symbol::BOOL;
   } else if (tag == symbol::FLOAT) {
     // Convert the whole and decimal part to a fixed point representation
-    string sig = to_string(val);
+    string sig;
+    if (val != 0)
+      sig = to_string(val);
     int w = sig.size();
 
     if (w > 9) {

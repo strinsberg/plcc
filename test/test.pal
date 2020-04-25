@@ -3,6 +3,6 @@ begin
   bool b;
   char c;
   float d;
-  a , b, c, d := 88, true, '&', 394.5820394204820;
+  a , b, c, d := 88, true, '&', -945732104.6;
   write a, b, c, d;
 end.
