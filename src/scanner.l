@@ -82,6 +82,8 @@ type          { return yy::parser::token::TYPE; }
 
 true          { return yy::parser::token::TRUE; }
 false         { return yy::parser::token::FALSE; }
+endl          { return yy::parser::token::NEWLINE; }
+
 {name}        { return yy::parser::token::NAME; }
 {number}      { return yy::parser::token::NUMBER; }
 '.'           { return yy::parser::token::CHARACTER; }

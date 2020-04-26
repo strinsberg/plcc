@@ -360,7 +360,6 @@ void Interpreter::read(int count)
   while ( x < stack_register + count)
   {
     ++x;
-    cout << "Input(" << symbol::op_name[op_type] << "): ";
     // could read into strings to force getting next token and making sure
     // it is the right type for the variable. Because right now like c++
     // if the token is not the right datatype it just moves on. might be ok
@@ -436,7 +435,6 @@ void Interpreter::write (int count, symbol::OpCode size_type)
   if (size_type == symbol::OP_ARRAY and op_type != symbol::OP_CHAR) {
     cout << "]";
   }
-  cout << endl;
 }
 
 //---------------------------------------

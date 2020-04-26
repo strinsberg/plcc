@@ -1,6 +1,9 @@
 begin
+  int x;
   char array[20] string;
   string := "Hello World!";
-  write string;
-  write "It's me Steve!";
+  write string, endl;
+  write "Pick a number: ";
+  read x;
+  write "You chose: ", x, endl;
 end.
