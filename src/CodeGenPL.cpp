@@ -58,7 +58,8 @@ void CodeGenPL::visit(VarDef& node) {
     size = var_lengths.back();
     var_lengths.pop_back();
 
-    if (node.get_id().get_type().type == symbol::FLOAT)
+    if (node.get_id().get_type().kind == symbol::ARRAY
+        and node.get_id().get_type().type == symbol::FLOAT)
       size *= 2;
 
     var_lengths.back() += size;
@@ -160,13 +161,15 @@ void CodeGenPL::visit(Constant& node) {
     ops.push_back(symbol::OP_DB_CONSTANT);
     ops.push_back(value);
     ops.push_back(exp);
+    current_address += 3;
   } else {
     ops.push_back(symbol::OP_CONSTANT);
     ops.push_back(value);
+    current_address += 2;
   }
 
   ops.push_back(symbol::to_op(type)); 
-  current_address += 3;
+  current_address++;
 }
 
 
@@ -436,8 +439,8 @@ void CodeGenPL::visit(Cond& node) {
   ops.push_back(symbol::OP_ARROW);
   ops.push_back(-2);
 
-  int arrow = current_address + 1;
   current_address += 2;
+  int arrow = current_address - 1;
 
   node.get_stmts().visit(*this);
 

@@ -3,23 +3,6 @@
 //
 // Description: PL interpreter
 //
-// NOTES:
-// - To add data types there will probably need to be a data type
-//   associated with each variable or value. Floats can be stored
-//   with 2 words, and char is still 1 but need to know it when
-//   so we write it as a char and not an int. This can allow
-//   all the data to still be stored as integers.
-// - Adding parameters probably just means allocating extra
-//   variables in the block. These need to be before the defined
-//   variables so the displacement of those vars would need to increase
-//   by the number of parameters.
-// - Calling the proc would need to take
-//   the n param values on top of the stack and store them in the
-//   parameter variable spots. Variable values will have to be
-//   retreived for this initialization. References might be a little
-//   trickier as we need to store the address of a varialbe and know
-//   when doing things to it that they are modifying the base variable
-//   and not the parameter copy.
 //-------------------------------------------------------------
 
 // INCLUDES
@@ -34,9 +17,9 @@ Interpreter::Interpreter( string f, bool s) : filename(f), stepping(s), op_type(
 
 void Interpreter::interpret()
 {
-  cout << " Loading..." << endl;
+  //cout << " Loading..." << endl;
   load_program(filename);
-  cout << " Running ..." << endl;
+  //cout << " Running ..." << endl;
   run_program();
 }
 
@@ -282,6 +265,51 @@ void Interpreter::greater()
   } else {
     --stack_register;
     store[stack_register] = ( store[stack_register] > 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
+}
+
+void Interpreter::neq()
+{
+  ++program_register;
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] != store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] != 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
+}
+
+void Interpreter::leq()
+{
+  ++program_register;
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] <= store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] <= 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
+}
+
+void Interpreter::geq()
+{
+  ++program_register;
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] >= store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] >= 
                               store[stack_register + 1 ]);
   }
   op_type = symbol::OP_BOOL;
@@ -711,6 +739,15 @@ void Interpreter::run_program()
          break;
       case symbol::OP_OR:
          plor();
+         break;
+      case symbol::OP_NEQ:
+         neq();
+         break;
+      case symbol::OP_LEQ:
+         leq();
+         break;
+      case symbol::OP_GEQ:
+         geq();
          break;
       case symbol::OP_PROC:
          proc(store[program_register + 1], store[program_register + 2]);

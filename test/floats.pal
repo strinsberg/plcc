@@ -1,0 +1,9 @@
+begin
+  int i;
+  float f;
+  f := 3.14;
+
+  while i < 10 do
+    i := i + 1;
+  end while;
+end.

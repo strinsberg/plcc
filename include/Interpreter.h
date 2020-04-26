@@ -59,6 +59,10 @@ private:
     void equal();
     void greater();
 
+    void leq();
+    void neq();
+    void geq();
+
     void pland(); 
     void plor(); 
 

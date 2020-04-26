@@ -95,6 +95,7 @@ enum OpCode {
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
   OP_WRITE, OP_BLOCK, OP_ENDBLOCK, OP_CHAR, OP_INT, OP_FLOAT, OP_BOOL,
   OP_DB_CONSTANT, OP_STRING, OP_SCALAR, OP_ARRAY, OP_DB_INDEX,
+  OP_LEQ, OP_GEQ, OP_NEQ,
 };
 
 // Messages
@@ -106,6 +107,7 @@ static const std::string op_name[] = {
  "or", "proc", "prog", "read", "subtract", "value",
  "variable", "write", "block", "endblock", "char", "int", "float", "bool",
  "db_constant", "string", "scalar", "array", "double index",
+ "less equal", "greater equal", "not equal",
 };
 
 
@@ -115,8 +117,11 @@ const std::map<Tag, OpCode> tag_to_op{
   {OR, OP_OR},
   {NOT, OP_NOT},
   {EQ, OP_EQUAL},
+  {NEQ, OP_NEQ},
   {LESS, OP_LESS},
+  {LEQ, OP_LEQ},
   {GREATER, OP_GREATER},
+  {GEQ, OP_GEQ},
   {PLUS, OP_ADD},
   {MINUS, OP_MINUS},
   {MULT, OP_MULTIPLY},
@@ -136,23 +141,6 @@ inline OpCode to_op(Tag t, bool sub = false) {
     return OP_SUBTRACT;
   return tag_to_op.at(t);
 }
-
-static const int pow10[] {
-  1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000
-};
-
-const std::map<int, int> exp10 {
-  {1,0},
-  {10, 1},
-  {100, 2},
-  {1000, 3},
-  {10000, 4},
-  {100000, 5},
-  {1000000, 6},
-  {10000000, 7},
-  {100000000, 8},
-  {1000000000, 9},
-};
 
 }
 #endif
