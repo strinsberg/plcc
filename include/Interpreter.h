@@ -67,6 +67,7 @@ private:
     void plor(); 
 
     void read(int);    
+    void readline(int);
     void write(int, symbol::OpCode);
 
     void assign( int );

@@ -1,7 +1,7 @@
 begin
   char array[20] string;
   readln string;
-  write string;
-  read string;
-  write string;
+  write string, endl;
+  readln string;
+  write string, endl;
 end.

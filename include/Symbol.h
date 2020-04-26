@@ -95,7 +95,7 @@ enum OpCode {
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
   OP_WRITE, OP_BLOCK, OP_ENDBLOCK, OP_CHAR, OP_INT, OP_FLOAT, OP_BOOL,
   OP_DB_CONSTANT, OP_STRING, OP_SCALAR, OP_ARRAY, OP_DB_INDEX,
-  OP_LEQ, OP_GEQ, OP_NEQ,
+  OP_LEQ, OP_GEQ, OP_NEQ, OP_READLINE
 };
 
 // Messages
@@ -107,7 +107,7 @@ static const std::string op_name[] = {
  "or", "proc", "prog", "read", "subtract", "value",
  "variable", "write", "block", "endblock", "char", "int", "float", "bool",
  "db_constant", "string", "scalar", "array", "double index",
- "less equal", "greater equal", "not equal",
+ "less equal", "greater equal", "not equal", "readline",
 };
 
 

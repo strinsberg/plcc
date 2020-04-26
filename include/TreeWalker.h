@@ -19,6 +19,7 @@ class Block;
 class Seq;
 class Write;
 class IoStmt;
+class ReadLine;
 class Asgn;
 class StringAsgn;
 class IfStmt;
@@ -58,6 +59,7 @@ class TreeWalker {
   virtual void visit(Block& node) {}
   virtual void visit(Seq& node) {}
   virtual void visit(IoStmt& node) {}
+  virtual void visit(ReadLine& node) {}
   virtual void visit(Asgn& node) {}
   virtual void visit(StringAsgn& node) {}
   virtual void visit(IfStmt& node) {}

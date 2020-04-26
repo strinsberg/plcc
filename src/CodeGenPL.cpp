@@ -360,6 +360,18 @@ void CodeGenPL::visit(IoStmt& node) {
   current_address++;
 }
 
+
+void CodeGenPL::visit(ReadLine& node) {
+  admin->debug("readline");
+  access = VAR;
+  node.get_array_id().visit(*this);
+
+  ops.push_back(symbol::OP_READLINE);
+  ops.push_back(node.get_array_id().get_size());
+  current_address += 2;
+}
+
+
 void CodeGenPL::visit(Asgn& node) {
   // Has an access and expr
   admin->debug("assign");

@@ -389,6 +389,23 @@ void Interpreter::read(int count)
   }
 }
 
+void Interpreter::readline(int size) {
+  program_register += 2;
+
+  int address = store[stack_register];
+  stack_register--;
+
+  string line;
+  getline(cin, line);
+
+  int i = 0;
+  for (; i < size - 1 and i < (int)line.size(); i++) {
+    store[address + i] = line.at(i);
+  }
+  store[address + i] = '\0';
+}
+
+
 //-------------------------------------------------
 // write_statement = expression_list "write".
 // expression = expression { expression }.
@@ -756,6 +773,9 @@ void Interpreter::run_program()
       case symbol::OP_READ:
          op_type = (symbol::OpCode) store[program_register + 2];
          read(store[program_register + 1]);
+         break;
+      case symbol::OP_READLINE:
+         readline(store[program_register + 1]);
          break;
       case symbol::OP_SUBTRACT:
          subtract();

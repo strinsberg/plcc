@@ -21,7 +21,7 @@ const vector<string> OPS{
   "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
   "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT",
   "STRING", "SCALAR", "ARRAY", "DB_INDEX",
-  "LEQ", "GEQ", "NEQ",
+  "LEQ", "GEQ", "NEQ", "READLN",
 };
 
 
@@ -137,6 +137,11 @@ void Dasm::disassemble() {
     } else if (op == "READ") {
       *in >> temp;
       *out << setw(20) << left << temp << "% The number of variables to read into" << endl;
+      admin->newline();
+
+    } else if (op == "READLN") {
+      *in >> temp;
+      *out << setw(20) << left << temp << "% The size of the char array" << endl; 
       admin->newline();
 
     } else if (op == "WRITE") {
