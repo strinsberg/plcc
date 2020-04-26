@@ -15,7 +15,7 @@ enum Tag {
   INIT, EQ, NEQ, LESS, GREATER, LEQ, GEQ,
   PLUS, MINUS, MULT, DIV, MOD,
   ARRAY, PROC, ENDPROC, RECORD, ENDREC, TYPE, SCALAR,
-  INT, BOOL, FLOAT, CHAR, CONST,
+  INT, BOOL, FLOAT, CHAR, CONST, STRING,
   NUMBER, TRUE, FALSE, NAME, CHARACTER,
   EMPTY, CALL, READ, UNIVERSAL, OPERATOR,
 };
@@ -66,6 +66,7 @@ static const std::map<Tag, std::string> to_string {
   {BOOL, "BOOL"},
   {FLOAT, "FLOAT"},
   {CHAR, "CHAR"},
+  {STRING, "STRING"},
   {CONST, "CONST"},
   {NUMBER, "NUMBER"},
   {TRUE, "TRUE"},
@@ -92,7 +93,9 @@ enum OpCode {
   OP_DIVIDE, OP_ENDPROC, OP_ENDPROG, OP_EQUAL, OP_FI, OP_GREATER,
   OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
-  OP_WRITE, OP_BLOCK, OP_ENDBLOCK
+  OP_WRITE, OP_BLOCK, OP_ENDBLOCK, OP_CHAR, OP_INT, OP_FLOAT, OP_BOOL,
+  OP_DB_CONSTANT, OP_STRING, OP_SCALAR, OP_ARRAY, OP_DB_INDEX,
+  OP_LEQ, OP_GEQ, OP_NEQ, OP_READLINE
 };
 
 // Messages
@@ -102,18 +105,23 @@ static const std::string op_name[] = {
  "divide", "endproc", "endprog", "equal", "fi", "greater",
  "index", "less", "minus", "modulo", "multiply", "not",
  "or", "proc", "prog", "read", "subtract", "value",
- "variable", "write", "block", "endblock"
+ "variable", "write", "block", "endblock", "char", "int", "float", "bool",
+ "db_constant", "string", "scalar", "array", "double index",
+ "less equal", "greater equal", "not equal", "readline",
 };
 
 
-// Tags for unary and binary operators to opcodes
+// Convert any tags that need it to opcodes
 const std::map<Tag, OpCode> tag_to_op{
   {AND, OP_AND},
   {OR, OP_OR},
   {NOT, OP_NOT},
   {EQ, OP_EQUAL},
+  {NEQ, OP_NEQ},
   {LESS, OP_LESS},
+  {LEQ, OP_LEQ},
   {GREATER, OP_GREATER},
+  {GEQ, OP_GEQ},
   {PLUS, OP_ADD},
   {MINUS, OP_MINUS},
   {MULT, OP_MULTIPLY},
@@ -121,6 +129,11 @@ const std::map<Tag, OpCode> tag_to_op{
   {MOD, OP_MODULO},
   {WRITE, OP_WRITE},
   {READ, OP_READ},
+  {CHAR, OP_CHAR},
+  {INT, OP_INT},
+  {FLOAT, OP_FLOAT},
+  {BOOL, OP_BOOL},
+  {STRING, OP_STRING},
 };
 
 inline OpCode to_op(Tag t, bool sub = false) {

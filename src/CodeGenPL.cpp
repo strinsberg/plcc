@@ -22,10 +22,10 @@ CodeGenPL::~CodeGenPL() {}
 
 
 void CodeGenPL::walk(AstNode& node) {
-  ops.push_back(OP_PROG);
+  ops.push_back(symbol::OP_PROG);
   current_address += 1;
   node.visit(*this);
-  ops.push_back(OP_ENDPROG);
+  ops.push_back(symbol::OP_ENDPROG);
 
   for (auto & op : ops)
     *out << op << endl;
@@ -49,8 +49,20 @@ void CodeGenPL::visit(VarDef& node) {
   node.get_id().visit(*this);
 
   if (node.get_id().get_type().qual != symbol::CONST) {
+    int size = 0;
+    var_lengths.push_back(size);
+
     access = SIZE;
-    node.get_id().get_size().visit(*this);
+    node.get_id().get_size_expr().visit(*this);
+
+    size = var_lengths.back();
+    var_lengths.pop_back();
+
+    if (node.get_id().get_type().kind == symbol::ARRAY
+        and node.get_id().get_type().type == symbol::FLOAT)
+      size *= 2;
+
+    var_lengths.back() += size;
   }
 }
 
@@ -60,11 +72,11 @@ void CodeGenPL::visit(ProcDef& node) {
   access = DEF;
   node.get_id().visit(*this);
 
-  ops.push_back(OP_PROC);
+  ops.push_back(symbol::OP_PROC);
   current_address += 1;
 
   node.get_block().visit(*this);
-  ops.push_back(OP_ENDPROC);
+  ops.push_back(symbol::OP_ENDPROC);
   current_address++;
 }
 
@@ -85,20 +97,24 @@ void CodeGenPL::visit(Id& node) {
   } else if (access == CALL) {
     TableEntry ent = table_find(name);
 
-    ops.push_back(OP_CALL);
+    ops.push_back(symbol::OP_CALL);
     ops.push_back(table.size() - 1 - ent.block);
     ops.push_back(ent.address);
     
+  } else if (access == SIZE) {
+    node.get_size_expr().visit(*this);
+
   } else {
     TableEntry ent = table_find(name);
 
-    ops.push_back(OP_VARIABLE);
+    ops.push_back(symbol::OP_VARIABLE);
     ops.push_back(table.size() - 1 - ent.block);
     ops.push_back(ent.displace);
     current_address += 3;
 
     if (access == VAL) {
-      ops.push_back(OP_VALUE); 
+      symbol::OpCode code = symbol::to_op(ent.type);
+      ops.push_back(code); 
       current_address++;
     }
   }
@@ -136,12 +152,43 @@ void CodeGenPL::visit(Constant& node) {
     return;
   }
 
-  // will need to access type when we do more than ints
+  // Push op type, value(s), and type of the constant
   int value = node.get_value();
-  ops.push_back(OP_CONSTANT);
-  ops.push_back(value);
-  current_address += 2;
+  int exp = node.get_exp();
+  symbol::Tag type = node.get_type().type;
+
+  if (type == symbol::FLOAT) {
+    ops.push_back(symbol::OP_DB_CONSTANT);
+    ops.push_back(value);
+    ops.push_back(exp);
+    current_address += 3;
+  } else {
+    ops.push_back(symbol::OP_CONSTANT);
+    ops.push_back(value);
+    current_address += 2;
+  }
+
+  ops.push_back(symbol::to_op(type)); 
+  current_address++;
 }
+
+
+void CodeGenPL::visit(ConstString& node) {
+  string& str = node.get_string();
+  admin->debug("constant string " + str);
+
+  if (access == VAL) {
+    for (auto& c : str) {
+      ops.push_back(symbol::OP_CONSTANT);
+      ops.push_back(c);
+      ops.push_back(symbol::OP_CHAR);
+      current_address += 3;
+    }
+  } else if (access == SIZE) {
+    var_lengths.back() = node.get_value();
+  }
+}
+
 
 void CodeGenPL::visit(Access& node) {
   // Has an id 
@@ -160,16 +207,20 @@ void CodeGenPL::visit(ArrayAccess& node) {
   access = VAL;
   node.get_index().visit(*this);
 
-  ops.push_back(OP_INDEX);
+  if (node.get_id().get_type().type == symbol::FLOAT)
+    ops.push_back(symbol::OP_DB_INDEX);
+  else
+    ops.push_back(symbol::OP_INDEX);
+
   access = SIZE;
   var_lengths.push_back(0);
-  node.get_id().get_size().visit(*this);  // To add size for bounds
+  node.get_id().get_size_expr().visit(*this);  // To add size for bounds
   ops.push_back(var_lengths.back());
   ops.push_back(-2);  // Supposed to be line number for interpreter error
   var_lengths.pop_back();
 
-  if (acs == VAL) {  // If we are accessing for value
-    ops.push_back(OP_VALUE);
+  if (acs == VAL or acs == SIZE) {  // size is for write array access
+    ops.push_back(symbol::to_op(node.get_id().get_type().type));
     current_address++;
   }
   current_address += 3;
@@ -243,19 +294,89 @@ void CodeGenPL::visit(Seq& node) {
 
 void CodeGenPL::visit(IoStmt& node) {
   admin->debug("io");
-  symbol::Tag type = node.get_io_type();
 
-  if (type == symbol::WRITE)
-    access = VAL;
-  else
+  int size = 1;
+  symbol::Tag op_type = node.get_io_type();
+  Type e_type = node.get_expr().get_type();
+
+  if (op_type == symbol::WRITE) {
+
+    if (e_type.kind == symbol::ARRAY) {
+      access = SIZE;
+      var_lengths.push_back(0);
+      node.get_expr().visit(*this);
+      size = var_lengths.back();
+      var_lengths.pop_back();
+
+      if (e_type.type == symbol::STRING) {
+        access = VAL;
+        node.get_expr().visit(*this);
+
+      } else {
+        access = VAR;
+        for (int i = 0; i < size; i++) {
+          node.get_expr().visit(*this);
+          ops.push_back(symbol::OP_CONSTANT);
+          ops.push_back(i);
+          ops.push_back(symbol::OP_INT);
+        
+          if (e_type.type == symbol::FLOAT)
+            ops.push_back(symbol::OP_DB_INDEX);
+          else
+            ops.push_back(symbol::OP_INDEX);
+
+          ops.push_back(size);
+          ops.push_back(-2);  // Supposed to be line number for interpreter error
+          ops.push_back(symbol::to_op(e_type.type));
+          current_address += 7;
+        }
+      }
+
+    } else {  // writing a single value
+      access = VAL;
+      node.get_expr().visit(*this);
+    }
+
+  } else {  // io read
     access = VAR;
-  node.get_expr().visit(*this);
+    node.get_expr().visit(*this);
+  }
 
-  symbol::OpCode code = symbol::to_op(type);
+  if (size == 0)
+    size++;
+
+  symbol::OpCode code = symbol::to_op(op_type);
   ops.push_back(code);
-  ops.push_back(1);
+  ops.push_back(size);
+  current_address += 2;
+
+  if (op_type == symbol::READ) {
+    if (node.get_expr().get_type().type == symbol::CHAR
+        and node.get_expr().get_type().qual == symbol::ARRAY) {
+      ops.back() = node.get_expr().get_size();
+      ops.push_back(symbol::OP_STRING);
+    } else {
+      ops.push_back( symbol::to_op(e_type.type) );
+    }
+  } else if (size > 1) {
+    ops.push_back( symbol::OP_ARRAY );
+  } else {
+    ops.push_back( symbol::OP_SCALAR );
+  }
+  current_address++;
+}
+
+
+void CodeGenPL::visit(ReadLine& node) {
+  admin->debug("readline");
+  access = VAR;
+  node.get_array_id().visit(*this);
+
+  ops.push_back(symbol::OP_READLINE);
+  ops.push_back(node.get_array_id().get_size());
   current_address += 2;
 }
+
 
 void CodeGenPL::visit(Asgn& node) {
   // Has an access and expr
@@ -267,11 +388,46 @@ void CodeGenPL::visit(Asgn& node) {
   access = VAL;
   node.get_expr().visit(*this);
 
-  ops.push_back(OP_ASSIGN);
+  ops.push_back(symbol::OP_ASSIGN);
   ops.push_back(1);
   current_address += 2;
 }
 
+void CodeGenPL::visit(StringAsgn& node) {
+  admin->debug("string assign");
+
+  access = SIZE;
+  var_lengths.push_back(0);
+  node.get_str().visit(*this);
+  int size = var_lengths.back();
+  var_lengths.pop_back();
+
+  access = VAR;
+  for (int i = 0; i < size + 1; i++) {
+    node.get_acs().visit(*this);
+    ops.push_back(symbol::OP_CONSTANT);
+    ops.push_back(i);
+    ops.push_back(symbol::OP_INT);
+  
+    ops.push_back(symbol::OP_INDEX);
+    // Should check to make sure string assignment string fits in array during parsing
+    ops.push_back(size+1);
+    ops.push_back(-2);  // Supposed to be line number for interpreter error
+    current_address += 6;
+  }
+
+  access = VAL;
+  node.get_str().visit(*this);
+
+  ops.push_back(symbol::OP_CONSTANT);
+  ops.push_back(0);
+  ops.push_back(symbol::OP_CHAR);
+  current_address += 3;
+
+  ops.push_back(symbol::OP_ASSIGN);
+  ops.push_back(size+1);
+  current_address += 2;
+}
 
 void CodeGenPL::visit(IfStmt& node) {
   admin->debug("if");
@@ -305,15 +461,15 @@ void CodeGenPL::visit(Cond& node) {
   access = VAL;
   node.get_cond().visit(*this);
 
-  ops.push_back(OP_ARROW);
+  ops.push_back(symbol::OP_ARROW);
   ops.push_back(-2);
 
-  int arrow = current_address + 1;
   current_address += 2;
+  int arrow = current_address - 1;
 
   node.get_stmts().visit(*this);
 
-  ops.push_back(OP_BAR);
+  ops.push_back(symbol::OP_BAR);
   ops.push_back(-2);
 
   jumps.push_back(current_address + 1);
@@ -334,7 +490,7 @@ void CodeGenPL::visit(Proc& node) {
   admin->debug("call proc");
   access = CALL;
   node.get_id().visit(*this);
-  ops.at(ops.size() - 3) = OP_CALL;
+  ops.at(ops.size() - 3) = symbol::OP_CALL;
   current_address += 3;
 }
 

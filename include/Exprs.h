@@ -11,18 +11,34 @@
 
 class Constant : public Expr {
  public:
-  Constant();
-  Constant(Type type, int value = 0, int dec = 0);
+  Constant(int v = 1);
+  Constant(Type type, int value = 0, int exp = 1);
   virtual ~Constant();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+  int get_size() { return value; }
 
   int get_value() { return value; }
-  int get_dec() { return dec; }
+  int get_exp() { return exp; }
 
- private:
+ protected:
   int value;
-  int dec;
+  int exp;
+};
+
+
+class ConstString : public Constant {
+ public:
+  ConstString(std::string);
+  virtual ~ConstString();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+  int get_size() { return text.size(); }
+
+  std::string& get_string() { return text; }
+
+ protected:
+  std::string text;
 };
 
 
@@ -32,8 +48,9 @@ class Id : public Expr {
   virtual ~Id();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+  int get_size() { return size->get_size(); }
 
-  Expr& get_size() { return *size; }
+  Expr& get_size_expr() { return *size; }
 
  protected:
   std::shared_ptr<Expr> size;
@@ -60,6 +77,7 @@ class Access : public Expr {
   virtual ~Access();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+  int get_size() { return id->get_size(); }
 
   Id& get_id() { return *id; }
 

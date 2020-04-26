@@ -15,7 +15,9 @@ begin
     int x;
     x := 30;
     write x + i + -j;  -- can access outside variables
-    call my_proc;  -- recursive call is in scope
+    if false then
+      call my_proc;  -- recursive call is in scope
+    end if;
   end proc;
 
   -- Assignments

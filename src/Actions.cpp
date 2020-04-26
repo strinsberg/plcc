@@ -48,9 +48,11 @@ shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> valu
 shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
   admin->debug("var def");
 
+  int size = type.type == symbol::FLOAT ? 2 : 1;
+
   if (pp.size == nullptr) {
     type.kind = symbol::SCALAR;
-    pp.size = make_shared<Constant>();
+    pp.size = make_shared<Constant>(size);
   } else {
     type.kind = symbol::ARRAY;
   }
@@ -148,12 +150,34 @@ shared_ptr<Stmt> Actions::io(vector<shared_ptr<Expr>> exprs, symbol::Tag type) {
   admin->debug("io");
   auto stmt = make_shared<Stmt>();
   if (exprs.size()) {
-    stmt = make_shared<IoStmt>(exprs.back(), type);
-    for (auto it = exprs.rbegin() + 1; it != exprs.rend(); it++) {  
-      stmt = make_shared<Seq>( make_shared<IoStmt>(*it, type), stmt );
+
+    try {
+      stmt = make_shared<IoStmt>(exprs.back(), type);
+
+      for (auto it = exprs.rbegin() + 1; it != exprs.rend(); it++) {  
+        stmt = make_shared<Seq>( make_shared<IoStmt>(*it, type), stmt );
+      }
+
+    } catch (const type_error& e) {
+      admin->error("type error: " + string(e.what()));
     }
   }
   return stmt;
+}
+
+
+shared_ptr<Stmt> Actions::readline(string name) {
+  admin->debug("readline");
+  auto id = get_id(name);
+  if (id == nullptr)
+    return make_shared<Stmt>();
+
+  try {
+    return make_shared<ReadLine>(id);
+  } catch (const type_error& e) {
+    admin->error("type error: " + string(e.what()), name);
+    return make_shared<Stmt>();
+  }
 }
 
 
@@ -174,7 +198,10 @@ shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
 
     auto asgn = make_shared<Stmt>();
     try {
-      asgn = make_shared<Asgn>(acs, expr);
+      if (expr->get_type().type == symbol::STRING)
+        asgn = make_shared<StringAsgn>(acs, expr);
+      else
+        asgn = make_shared<Asgn>(acs, expr);
     } catch (const exception& e) {
       admin->error("type error: " + string(e.what()), acs->get_name());
     }
@@ -190,6 +217,8 @@ shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
 
   return stmt;
 }
+
+
 
 
 shared_ptr<Stmt> Actions::if_stmt(shared_ptr<Stmt> cond) {
@@ -308,19 +337,41 @@ shared_ptr<Expr> Actions::unary(symbol::Tag op_type, shared_ptr<Expr> expr) {
 }
 
 
-shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, int dec) {
+shared_ptr<Expr> Actions::constant(symbol::Tag tag, int val, string dec) {
   admin->debug("constant: " + symbol::str(tag) + " " + to_string(val)); 
 
   Type t;
   t.type = tag;
   t.qual = symbol::CONST;
 
-  if (tag == symbol::TRUE or tag == symbol::FALSE)
+  int scale = 10000;  // use a 4 decimal fixed point float
+
+  if (tag == symbol::TRUE or tag == symbol::FALSE) {
     t.type = symbol::BOOL;
 
-  return make_shared<Constant>(t, val, dec);
+  } else if (tag == symbol::FLOAT) {
+    // Right now we are using a 4 decimal fixed point representation
+    // But later it could change to a proper floating point
+    // Or we could save them as full size doubles and convert them to the
+    // fixed point in the code generation. That way other code generation
+    // for architechture with the capacity could treat them differently.
+    if (val > 200000) {
+      admin->error("fixed point float will overflow at 2,000,000.000");
+      val = 200000;
+    }
+
+    string num = to_string(val) + "." + dec + "000";
+    double numf = stod(num);
+    val = numf * scale; 
+  }
+
+  return make_shared<Constant>(t, val, scale);
 }
 
+std::shared_ptr<Expr> Actions::const_string(std::string str) {
+  admin->debug("const string");
+  return make_shared<ConstString>(str);
+}
 
 // Helpers ////////////////////////////////////////////////////////////
 

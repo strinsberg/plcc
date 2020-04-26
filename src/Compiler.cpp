@@ -15,11 +15,13 @@ using namespace std;
 Compiler::Compiler(string in, string out, bool v, bool debug)
   : infile(in), outfile(out), verbose(v), admin( make_shared<Admin>(debug) ) {}
 
-void Compiler::compile_to_pl() {
+bool Compiler::compile_to_pl() {
   shared_ptr<AstNode> ast = build_ast();
 
   if (ast != nullptr)
     pl_code_gen(ast);
+
+  return admin->get_errors() == 0;
 }
 
 void Compiler::disassemble_pl() {

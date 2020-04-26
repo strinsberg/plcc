@@ -44,6 +44,7 @@ class Actions {
   std::shared_ptr<Stmt> block(std::shared_ptr<Def>, std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> stmt_part(std::shared_ptr<Stmt>, std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> io(std::vector<std::shared_ptr<Expr>>, symbol::Tag);
+  std::shared_ptr<Stmt> readline(std::string);
   std::shared_ptr<Stmt> assign(
     std::vector<std::shared_ptr<Expr>>, std::vector<std::shared_ptr<Expr>>
   );
@@ -60,7 +61,8 @@ class Actions {
     Operator, std::shared_ptr<Expr>, std::shared_ptr<Expr>
   );
   std::shared_ptr<Expr> unary(symbol::Tag, std::shared_ptr<Expr>);
-  std::shared_ptr<Expr> constant(symbol::Tag t, int val = 0, int dec = 0);
+  std::shared_ptr<Expr> constant(symbol::Tag t, int val = 0, std::string dec = "");
+  std::shared_ptr<Expr> const_string(std::string);
   std::shared_ptr<Expr> empty_expr() { return std::make_shared<Expr>(Type()); }
 
   // helpers

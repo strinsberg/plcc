@@ -12,7 +12,7 @@ class Compiler {
   Compiler(std::string infile, std::string outfile, bool verbose, bool debug);
   ~Compiler() {}
 
-  void compile_to_pl();
+  bool compile_to_pl();
   void disassemble_pl();
   void interpret(bool solo);
 

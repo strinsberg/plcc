@@ -8,36 +8,14 @@
 
 // INCLUDES
 
+#include "Symbol.h"
 #include <string>
 using namespace std;
 
 // CONSTANTS
 
-const int STORE_SIZE = 1000; // maximum size of storage
+const int STORE_SIZE = 10000; // maximum size of storage
 
-// ENUMERATTIONS
-
-enum OperationCode
-{
-  OP_ADD, OP_AND, OP_ARROW, OP_ASSIGN, OP_BAR, OP_CALL, OP_CONSTANT,
-  OP_DIVIDE, OP_ENDPROC, OP_ENDPROG, OP_EQUAL, OP_FI, OP_GREATER,
-  OP_INDEX, OP_LESS, OP_MINUS, OP_MODULO, OP_MULTIPLY, OP_NOT,
-  OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
-  OP_WRITE, OP_BLOCK, OP_ENDBLOCK
-};
-
-// Messages
-
-static const string opcode_name[] =
-{
- "add", "and", "arrow", "assign", "bar", "call", "constant",
- "divide", "endproc", "endprog", "equal", "fi", "greater",
- "index", "less", "minus", "modulo", "multiply", "not",
- "or", "proc", "prog", "read", "subtract", "value",
- "variable", "write", "block", "endblock"
-};
-
-// CLASSES
 
 class Interpreter
 {
@@ -64,8 +42,9 @@ private:
     void variable(int, int);
     void index(int, int);
 
-    void constant( int );
-    void value();
+    void constant(int);
+    void db_constant(int, int);
+    void value(symbol::OpCode);
     void plnot();
 
     void multiply();
@@ -80,11 +59,16 @@ private:
     void equal();
     void greater();
 
+    void leq();
+    void neq();
+    void geq();
+
     void pland(); 
     void plor(); 
 
     void read(int);    
-    void write(int);
+    void readline(int);
+    void write(int, symbol::OpCode);
 
     void assign( int );
     
@@ -114,6 +98,7 @@ private:
 
     bool running;              // status of the interpreter
     bool stepping;             // sets the step-by-step execution 
+    symbol::OpCode op_type;    // basic data type being operated on
 }; // end class Interpreter
 #endif
 // interp.h	

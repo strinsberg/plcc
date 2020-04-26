@@ -3,23 +3,6 @@
 //
 // Description: PL interpreter
 //
-// NOTES:
-// - To add data types there will probably need to be a data type
-//   associated with each variable or value. Floats can be stored
-//   with 2 words, and char is still 1 but need to know it when
-//   so we write it as a char and not an int. This can allow
-//   all the data to still be stored as integers.
-// - Adding parameters probably just means allocating extra
-//   variables in the block. These need to be before the defined
-//   variables so the displacement of those vars would need to increase
-//   by the number of parameters.
-// - Calling the proc would need to take
-//   the n param values on top of the stack and store them in the
-//   parameter variable spots. Variable values will have to be
-//   retreived for this initialization. References might be a little
-//   trickier as we need to store the address of a varialbe and know
-//   when doing things to it that they are modifying the base variable
-//   and not the parameter copy.
 //-------------------------------------------------------------
 
 // INCLUDES
@@ -30,13 +13,13 @@
 #include "Interpreter.h"
 // FUNCTIONS
 
-Interpreter::Interpreter( string f, bool s) : filename(f), stepping(s) {}
+Interpreter::Interpreter( string f, bool s) : filename(f), stepping(s), op_type(symbol::OP_INT) {}
 
 void Interpreter::interpret()
 {
-  cout << " Loading..." << endl;
+  //cout << " Loading..." << endl;
   load_program(filename);
-  cout << " Running ..." << endl;
+  //cout << " Running ..." << endl;
   run_program();
 }
 
@@ -51,6 +34,9 @@ void Interpreter::runtime_error( string  message, int line_number)
 
 void Interpreter::allocate( int words )
 {
+  for (int i = stack_register + 1; i <= stack_register + words; i++)
+    store[i] = 0;
+
   stack_register += words;
   if (stack_register > STORE_SIZE)
      runtime_error(" stack overflow");
@@ -87,10 +73,18 @@ void Interpreter::index( int bound, int line_number)
   int i = store[stack_register];
   --stack_register;
 
-  if (i < 1 || i > bound)
-     runtime_error(" range error", line_number);
-  else
-     store[stack_register] = store[stack_register] + i -1;
+  if (i < 0 || i >= bound) {
+     runtime_error("array index out of bounds: i=" + to_string(i)
+                   + " bound=" + to_string(bound), -1);
+  } else {
+     if (op_type == symbol::OP_FLOAT)
+        i *= 2;
+
+     store[stack_register] += i;
+
+     if (op_type == symbol::OP_FLOAT)
+       store[stack_register + 1] = store[stack_register] + 1;
+  }
   program_register += 3;
 }
 
@@ -104,17 +98,30 @@ void Interpreter::constant( int value )
   // Make space for the value and save it to the top of the stack
   allocate(1);
   store[stack_register] = value;
-  program_register += 2;
+  program_register += 3;
+}
+
+void Interpreter::db_constant( int value, int exp) {
+  allocate(2);
+  store[stack_register - 1] = value;
+  store[stack_register] = exp;
+  program_register += 4;
 }
 
 //-------------------------------
 
-void Interpreter::value()
+void Interpreter::value( symbol::OpCode type )
 {
   // Replace address at top of stack with a value
   // ie. load a variable value?
   int x = store[stack_register];
   store[stack_register] = store[x];
+
+  if (type == symbol::OP_FLOAT) {
+    allocate(1);
+    store[stack_register] = store[x + 1];
+  }
+  op_type = type;
   ++program_register;
 }
 
@@ -133,20 +140,40 @@ void Interpreter::plnot()
 
 void Interpreter::multiply()
 {
-  // All binary operations work this way
-
   ++program_register;  // Move to the next instruction
-  --stack_register;  // move stack down because we are combining top 2 values
 
-  // Take the top 2 elements on the stack and multiply them
-  store[stack_register] = store[stack_register] * store[stack_register +1];
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    long long scale = store[stack_register]; 
+    long long a = store[stack_register - 1];
+    long long b = store[stack_register + 1];
+    store[stack_register - 1] = (a * b) / scale;
+
+  } else {
+    --stack_register;  // move stack down because we are combining top 2 values
+
+    // Take the top 2 elements on the stack and multiply them
+    store[stack_register] = store[stack_register] * store[stack_register +1];
+  }
 }
 
 void Interpreter::divide()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = store[stack_register] / store[stack_register +1];
+
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    // assumes a fixed point representation with a constant scaling factor
+    // scale factor is kept in the top float position instead of hard coded
+    // so that it can change if desired.
+    int scale = store[stack_register];
+    store[stack_register - 1] =
+        (store[stack_register - 1] * scale) / store[stack_register + 1];
+
+  } else {
+    --stack_register;
+    store[stack_register] = store[stack_register] / store[stack_register +1];
+  }
 }
  
 void Interpreter::modulo()
@@ -171,15 +198,26 @@ void Interpreter::minus()
 void Interpreter::add()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = store[stack_register] + store[stack_register+1]; 
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    store[stack_register - 1] = store[stack_register - 1] + store[stack_register + 1];
+
+  } else {
+    --stack_register;
+    store[stack_register] = store[stack_register] + store[stack_register+1]; 
+  }
 }
 
 void Interpreter::subtract()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = store[stack_register] - store[stack_register+1];
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 2;
+    store[stack_register - 1] = store[stack_register - 1] - store[stack_register + 1];
+  } else {
+    --stack_register;
+    store[stack_register] = store[stack_register] - store[stack_register+1];
+  }
 }
 
 //--------------------------------------------
@@ -191,25 +229,90 @@ void Interpreter::subtract()
 void Interpreter::less()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = ( store[stack_register] < 
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] < store[stack_register + 2]);
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] < 
                           store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
 }
 
 void Interpreter::equal()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = ( store[stack_register] == 
-                          store[stack_register + 1 ]);
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] == store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] == 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
 }
 
 void Interpreter::greater()
 {
   ++program_register;
-  --stack_register;
-  store[stack_register] = ( store[stack_register] > 
-                          store[stack_register + 1 ]);
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] > store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] > 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
+}
+
+void Interpreter::neq()
+{
+  ++program_register;
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] != store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] != 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
+}
+
+void Interpreter::leq()
+{
+  ++program_register;
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] <= store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] <= 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
+}
+
+void Interpreter::geq()
+{
+  ++program_register;
+  if (op_type == symbol::OP_FLOAT) {
+    stack_register -= 3;
+    store[stack_register] = (store[stack_register] >= store[stack_register + 2]);
+
+  } else {
+    --stack_register;
+    store[stack_register] = ( store[stack_register] >= 
+                              store[stack_register + 1 ]);
+  }
+  op_type = symbol::OP_BOOL;
 }
 
 //--------------------------------------------
@@ -242,49 +345,122 @@ void Interpreter::plor()
 
 void Interpreter::read(int count)
 {
+  program_register += 3;
+
+  // Read in a single string. substantially similar to readline.
+  // Also, if this model would work elsewhere for manipulating arrays
+  // it should be used as it uses far fewer instructions.
+  if (op_type == symbol::OP_STRING) {
+    string str;
+    cin >> str;
+
+    int address = store[stack_register];
+    stack_register--;
+
+    int i = 0;
+    for (; i < count - 1 and i < (int)str.size(); i++) {
+      store[address + i] = str.at(i);
+    }
+    store[address + i] = '\0';
+    return;
+  }
+
+  // Reading other data types
   int x;
-//  cout << "program_register = " << program_register << endl;
-//  cout << "stack_register = " << stack_register << endl;
-//  cout << "base_register = " << base_register << endl;
-
-  program_register += 2;
-
-  // Move stack to start of variables to read into
   stack_register -= count;
   x = stack_register;
-//  cout << "Count = " << count;
 
-  // Read into each variable
-  // store[x] is the address of the variable
-  // so store[ store[x] ] gives us the actual variables memory location
-  // to write the value into
   while ( x < stack_register + count)
   {
     ++x;
-    cout << "Input: ";
-    cin >> ( store[ store[x] ] );
+    if (op_type == symbol::OP_FLOAT) {
+      int scale = 10000;  // Should be a constant somewhere
+      double y;
+      if (!(cin >> y)) runtime_error("error: read expected float", -1);
+      int result = int(y * scale);
+      store[ store[x] ] = result;
+      store[ store[x] + 1] = scale;
+
+    } else if (op_type == symbol::OP_CHAR) {
+      char y;
+      if (!(cin >> y)) runtime_error("error: read expected char", -1);
+      store[ store[x] ] = y;
+
+    } else if (op_type == symbol::OP_BOOL) {
+      int y;
+      if (!(cin >> y)) runtime_error("error: read expected bool(int)", -1);
+      store[ store[x] ] = (y != 0);
+
+    } else {
+      int y;
+      if (!(cin >> y)) runtime_error("error: read expected int", -1);
+      store[ store[x] ] = y;
+    }
   }
 }
+
+void Interpreter::readline(int size) {
+  program_register += 2;
+
+  int address = store[stack_register];
+  stack_register--;
+
+  string line;
+  getline(cin, line);
+
+  int i = 0;
+  for (; i < size - 1 and i < (int)line.size(); i++) {
+    store[address + i] = line.at(i);
+  }
+  store[address + i] = '\0';
+}
+
 
 //-------------------------------------------------
 // write_statement = expression_list "write".
 // expression = expression { expression }.
 //-------------------------------------------------
 
-void Interpreter::write (int count)
+void Interpreter::write (int count, symbol::OpCode size_type)
 {
-  // Similar to read but we display the value at store[x] instead of
-  // using it as an address to find a memory location to read into
   int x;
-  program_register += 2;
+  program_register += 3;
+  if (op_type == symbol::OP_FLOAT)
+    count *= 2;
+
   stack_register -= count;
   x = stack_register;
 
+  string sep;
+  if (size_type == symbol::OP_ARRAY and op_type != symbol::OP_CHAR) {
+    sep = " ";
+    cout << "[";
+  }
+
   while (x < stack_register + count )
   {
-    ++x;
-    cout << "  Output: ";
-    cout << ( store[x]) << endl;
+    if (op_type == symbol::OP_FLOAT) {
+      int sig = store[++x];
+      int scale = store[++x];
+      double value = (double)sig / scale;
+      cout << setprecision(11) << value;
+
+    } else {
+      int value = store[++x];
+      if (op_type == symbol::OP_BOOL) {
+        cout << (value == 1 ? "true" : "false");
+      } else if (op_type == symbol::OP_CHAR) {
+        if (value == 0) break;
+        cout << (char)value;
+      } else {
+        cout << value;
+      }
+    }
+    if (x < stack_register + count)
+      cout << sep;
+  }
+  if (size_type == symbol::OP_ARRAY and op_type != symbol::OP_CHAR) {
+    cout << "]";
   }
 }
 
@@ -299,13 +475,21 @@ void Interpreter::assign (int count)
   // Stack has count values on top of count addresses
   program_register += 2;
   stack_register = stack_register - 2*count;
+  if (op_type == symbol::OP_FLOAT)
+    stack_register -= count;
   x = stack_register;
 
   // Take the value in the expression and put it in the variable location
   while ( x < stack_register + count)
   {
     ++x;
-    store[store[x]] = store[x + count];
+    int address = store[x];
+    store[address] = store[x + count];
+
+    if (op_type == symbol::OP_FLOAT) {
+      ++x;
+      store[address + 1] = store[x + count];
+    }
   }
 }
 
@@ -364,10 +548,9 @@ void Interpreter::fi( int line_number)
 {
   // this was supposed to force if statments to cover
   // all conditions, but I do no like that as a language
-  // feature. To re-enable it comment out the address increment
-  // and uncomment the runtime error
-  //runtime_error(" if statement fails", line_number);
-  program_register += 2;
+  // feature and my codegen does not use FI so this should
+  // never be run.
+  runtime_error(" if statement fails", line_number);
 }
 
 //------------------------------------------------
@@ -488,114 +671,140 @@ void Interpreter::load_program( string name)
 
 void Interpreter::run_program()
 {
-  OperationCode  opcode;
+  symbol::OpCode  opcode;
   program_register = 0; 
   running = true;
   
   while (running)
   {
 //
-    opcode = (OperationCode) store[program_register];
+    opcode = (symbol::OpCode) store[program_register];
 //
  //   cout << "Opcode = " << opcode << endl;
     if ( stepping )
     {
       cout << endl << " press < enter > to execute "
-                   << opcode_name[opcode] << " operation" << endl;
+                   << symbol::op_name[opcode] << " operation" << endl;
       cin.get();
     }
 
     // Execute program instruction
     switch (opcode)
     {
-      case OP_ADD:
+      case symbol::OP_ADD:
          add();
          break;
-      case OP_AND:
+      case symbol::OP_AND:
          pland();
          break;
-      case OP_ARROW:
+      case symbol::OP_ARROW:
          arrow(store[program_register + 1]);
          break;
-      case OP_ASSIGN:
+      case symbol::OP_ASSIGN:
          assign( store[program_register + 1]);
          break;
-      case OP_BAR:
+      case symbol::OP_BAR:
          bar(store[program_register + 1]);
          break;
-      case OP_BLOCK:
+      case symbol::OP_BLOCK:
          block(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_CALL:
+      case symbol::OP_CALL:
          call(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_CONSTANT:
+      case symbol::OP_CONSTANT:
+         op_type = (symbol::OpCode) store[program_register + 2];
          constant(store[program_register + 1]);
          break;
-      case OP_DIVIDE:
+      case symbol::OP_DB_CONSTANT:
+         op_type = (symbol::OpCode) store[program_register + 3];
+         db_constant(store[program_register + 1], store[program_register + 2]);
+         break;
+      case symbol::OP_DIVIDE:
          divide();
          break;
-      case OP_ENDBLOCK:
+      case symbol::OP_ENDBLOCK:
          endblock();
          break;
-      case OP_ENDPROC:
+      case symbol::OP_ENDPROC:
          endproc();
          break;
-      case OP_ENDPROG:
+      case symbol::OP_ENDPROG:
          endprog();
          break;
-      case OP_EQUAL:
+      case symbol::OP_EQUAL:
          equal();
          break;
-      case OP_FI:
+      case symbol::OP_FI:
          fi( store[program_register + 1]);
          break;
-      case OP_GREATER:
+      case symbol::OP_GREATER:
          greater();
          break;
-      case OP_INDEX:
+      case symbol::OP_DB_INDEX:
+         op_type = symbol::OP_FLOAT;
+         // deliberate fallthrough to OP_INDEX
+      case symbol::OP_INDEX:
          index( store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_LESS:
+      case symbol::OP_LESS:
          less();
          break;
-      case OP_MINUS:
+      case symbol::OP_MINUS:
          minus();
          break;
-      case OP_MODULO:
+      case symbol::OP_MODULO:
          modulo();
          break;
-      case OP_MULTIPLY:
+      case symbol::OP_MULTIPLY:
          multiply();
          break;
-      case OP_NOT:
+      case symbol::OP_NOT:
          plnot();
          break;
-      case OP_OR:
+      case symbol::OP_OR:
          plor();
          break;
-      case OP_PROC:
+      case symbol::OP_NEQ:
+         neq();
+         break;
+      case symbol::OP_LEQ:
+         leq();
+         break;
+      case symbol::OP_GEQ:
+         geq();
+         break;
+      case symbol::OP_PROC:
          proc(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_PROG:
+      case symbol::OP_PROG:
          prog(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_READ:
+      case symbol::OP_READ:
+         op_type = (symbol::OpCode) store[program_register + 2];
          read(store[program_register + 1]);
          break;
-      case OP_SUBTRACT:
+      case symbol::OP_READLINE:
+         readline(store[program_register + 1]);
+         break;
+      case symbol::OP_SUBTRACT:
          subtract();
          break;
-      case OP_VALUE:
-         value();
+      case symbol::OP_CHAR:
+      case symbol::OP_INT:
+      case symbol::OP_FLOAT:
+      case symbol::OP_BOOL:
+      case symbol::OP_VALUE:
+         value(opcode);
          break;
-      case OP_VARIABLE:
+      case symbol::OP_VARIABLE:
          variable(store[program_register + 1], store[program_register + 2]);
          break;
-      case OP_WRITE:
-         write(store[program_register + 1]);
+      case symbol::OP_WRITE:
+         write(store[program_register + 1], (symbol::OpCode) store[program_register + 2]);
          break;
       default:
+         cout << "OPCODE: " << opcode << endl;
          runtime_error(" FATAL! Damaged Program File!");
          break;
     }

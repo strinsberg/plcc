@@ -42,7 +42,7 @@ shared_ptr<AstNode> Parser::parse() {
 bool Parser::set_up() {
   source = fopen(filename.c_str(), "r");
   if (source == NULL) {
-    cerr << "error opening input file: " << filename << endl;
+    admin->error("error opening input file: " + filename);
     return false;
   }
   yyin = source;

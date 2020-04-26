@@ -18,7 +18,10 @@ const vector<string> OPS{
   "MINUS", "MODULO", "MULTIPLY",
   "NOT", "OR", "PROC", "PROG",
   "READ", "SUBTRACT",
-  "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK"
+  "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
+  "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT",
+  "STRING", "SCALAR", "ARRAY", "DB_INDEX",
+  "LEQ", "GEQ", "NEQ", "READLN",
 };
 
 
@@ -43,6 +46,7 @@ void Dasm::disassemble() {
 
     // output the instruction name
     *out << op << endl;
+    admin->newline();
 
     // Do extra for instructions that are more than just a name
     if (op == "ENDPROG") {
@@ -96,13 +100,22 @@ void Dasm::disassemble() {
       *out << setw(20) << left << temp << "% The start address of the procedure instructions" << endl;
       admin->newline();
 
-    } else if (op == "INDEX") {
+    } else if (op == "INDEX" or op == "DB_INDEX") {
       *in >> temp;
       *out << setw(20) << left << temp << "% The size of the variable being accessed" << endl;
       admin->newline();
 
       *in >> temp;
       *out << setw(20) << left << temp << "% The line number of the access" << endl;
+      admin->newline();
+
+    } else if (op == "DB_CONSTANT") {
+      *in >> temp;
+      *out << setw(20) << left << temp << "% The significand" << endl;
+      admin->newline();
+
+      *in >> temp;
+      *out << setw(20) << left << temp << "% The exponent" << endl;
       admin->newline();
 
     // Instructions that have a single integer following them
@@ -124,6 +137,11 @@ void Dasm::disassemble() {
     } else if (op == "READ") {
       *in >> temp;
       *out << setw(20) << left << temp << "% The number of variables to read into" << endl;
+      admin->newline();
+
+    } else if (op == "READLN") {
+      *in >> temp;
+      *out << setw(20) << left << temp << "% The size of the char array" << endl; 
       admin->newline();
 
     } else if (op == "WRITE") {

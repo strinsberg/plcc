@@ -70,6 +70,20 @@ class Asgn : public Stmt {
   std::shared_ptr<Expr> expr;
 };
 
+class StringAsgn : public Stmt {
+ public:
+  StringAsgn(std::shared_ptr<Expr> access, std::shared_ptr<Expr> expr);
+  virtual ~StringAsgn();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& out) const;
+
+  Expr& get_acs() { return *acs; }
+  Expr& get_str() { return *str; }
+
+ protected:
+  std::shared_ptr<Expr> acs;
+  std::shared_ptr<Expr> str;
+};
 
 class IoStmt : public Stmt {
  public:
@@ -84,6 +98,20 @@ class IoStmt : public Stmt {
  protected:
   std::shared_ptr<Expr> expr;
   symbol::Tag type;
+};
+
+
+class ReadLine : public Stmt {
+ public:
+  ReadLine(std::shared_ptr<Expr> array_id);
+  virtual ~ReadLine();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& out) const;
+
+  Expr& get_array_id() { return *array_id; }
+
+ protected:
+  std::shared_ptr<Expr> array_id;
 };
 
 

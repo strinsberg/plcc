@@ -6,8 +6,8 @@ begin
 
   -- Input Table of n elements
   proc get_table
-    i := 1;
-    while not (i > n) do
+    i := 0;
+    while i < n do
       read A[i];
       i := i + 1;
     end while;
@@ -16,20 +16,16 @@ begin
   -- Read table and set min and max to really high and low numbers
   call get_table;
   min, max := 1000000000, -1000000000;
-  i := 1;
+  i := 0;
 
   -- Loop through A and find min and max
-  while i < n + 1 do
+  while i < n do
     if A[i] < min then
         min := A[i];
-    else if not (A[i] < min) then
-        skip;
     end if;
 
     if A[i] > max then
         max := A[i];
-    else if not (A[i] > max) then
-        skip;
     end if;
 
     i := i + 1;

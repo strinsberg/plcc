@@ -10,12 +10,12 @@ using namespace std;
 
 // Constant ///////////////////////////////////////////////////////////
 
-Constant::Constant()
+Constant::Constant(int v)
     : Expr( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST) ),
-      value(1), dec(0) {}
+      value(v), exp(1) {}
 
-Constant::Constant(Type t, int v, int d)
-    : Expr(t), value(v), dec(d) {}
+Constant::Constant(Type t, int v, int e)
+    : Expr(t), value(v), exp(e) {}
 
 Constant::~Constant() {}
 
@@ -26,13 +26,32 @@ void Constant::visit(TreeWalker& walker) {
 void Constant::display(ostream& out) const {
   if (type.type == symbol::CHAR) {
     out << (char)value;
+  } else if (type.type == symbol::FLOAT) {
+    out << (double)value / exp;
+
   } else {
     out << value;
-
-    if (type.type == symbol::FLOAT)
-      out << "." << dec;
   }
   Expr::display(out);
+}
+
+
+// Constant String ////////////////////////////////////////////////////
+
+ConstString::ConstString(std::string str) : Constant(str.size() - 2),
+    text(str.substr(1, str.size() - 2)) {
+  type.type = symbol::STRING;
+  type.kind = symbol::ARRAY;
+}
+
+ConstString::~ConstString() {}
+
+void ConstString::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void ConstString::display(std::ostream& out) const {
+  out << "\"" << text << "\"";
 }
 
 
@@ -64,7 +83,7 @@ void Id::display(ostream& out) const {
 }
 
 
-// Id /////////////////////////////////////////////////////////////////
+// Const Id ////////////////////////////////////////////////////////////
 
 ConstId::ConstId(string l, Type t, shared_ptr<Expr> c) 
     : Id(l, t, make_shared<Constant>()), value(c) {
@@ -92,6 +111,10 @@ void ConstId::display(ostream& out) const {
 
 Access::Access(shared_ptr<Id> i) : Expr( i->get_type() ) , id(i) {
   name = id->get_name();
+
+  // This works as long as it is not possible to have const arrays
+  if (type.kind == symbol::ARRAY)
+    type.qual = symbol::ARRAY;  // We are accessing the whole array
 }
 
 Access::~Access() {}
@@ -114,6 +137,8 @@ ArrayAccess::ArrayAccess(shared_ptr<Id> i, shared_ptr<Expr> idx)
 
   if (index->get_type().type != symbol::INT)
     throw type_error("array index must be type int");
+
+  type.qual = symbol::SCALAR;  // we are accessing only one value
 }
 
 ArrayAccess::~ArrayAccess() {}
