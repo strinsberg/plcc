@@ -91,7 +91,8 @@ void Interpreter::index( int bound, int line_number)
   --stack_register;
 
   if (i < 0 || i >= bound) {
-     runtime_error("array index out of bounds", 0);
+     runtime_error("array index out of bounds: i=" + to_string(i)
+                   + " bound=" + to_string(bound), -1);
   } else {
      if (op_type == symbol::OP_FLOAT)
         i *= 2;
@@ -738,6 +739,7 @@ void Interpreter::run_program()
          write(store[program_register + 1], (symbol::OpCode) store[program_register + 2]);
          break;
       default:
+         cout << "OPCODE: " << opcode << endl;
          runtime_error(" FATAL! Damaged Program File!");
          break;
     }

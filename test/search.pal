@@ -14,21 +14,21 @@ begin
   proc Search
     int m;
 
-    i, m := 1, n;
+    found := false;
+    i, m := 0, n;
     while i < m do
       if A[i] == x then
         m := i;
+        found := true;
       else if not (A[i] == x) then
         i := i + 1;
       end if;
     end while;
-
-    found := A[i] == x;
   end proc;
 
   -- Input Table
-  i := 1;
-  while not (i > n) do
+  i := 0;
+  while i < n do
     read A[i];
     i := i + 1;
   end while;

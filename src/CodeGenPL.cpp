@@ -349,12 +349,12 @@ void CodeGenPL::visit(IoStmt& node) {
 
   if (op_type == symbol::READ) {
     ops.push_back( symbol::to_op(e_type.type) );
-    current_address++;
   } else if (size > 1) {
     ops.push_back( symbol::OP_ARRAY );
   } else {
     ops.push_back( symbol::OP_SCALAR );
   }
+  current_address++;
 }
 
 void CodeGenPL::visit(Asgn& node) {

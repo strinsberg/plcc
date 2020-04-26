@@ -19,7 +19,7 @@ begin
   -- Calculate factorial of n
   ans := 0;
   read n;
-  while not (n < 0) do
+  while n > -1 do
     call fact;
     write ans;
     ans := 0;
