@@ -397,7 +397,7 @@ void CodeGenPL::visit(StringAsgn& node) {
   var_lengths.pop_back();
 
   access = VAR;
-  for (int i = 0; i < size; i++) {
+  for (int i = 0; i < size + 1; i++) {
     node.get_acs().visit(*this);
     ops.push_back(symbol::OP_CONSTANT);
     ops.push_back(i);
@@ -405,15 +405,22 @@ void CodeGenPL::visit(StringAsgn& node) {
   
     ops.push_back(symbol::OP_INDEX);
     // Should check to make sure string assignment string fits in array during parsing
-    ops.push_back(size);
+    ops.push_back(size+1);
     ops.push_back(-2);  // Supposed to be line number for interpreter error
+    current_address += 6;
   }
 
   access = VAL;
   node.get_str().visit(*this);
 
+  ops.push_back(symbol::OP_CONSTANT);
+  ops.push_back(0);
+  ops.push_back(symbol::OP_CHAR);
+  current_address += 3;
+
   ops.push_back(symbol::OP_ASSIGN);
-  ops.push_back(size);
+  ops.push_back(size+1);
+  current_address += 2;
 }
 
 void CodeGenPL::visit(IfStmt& node) {

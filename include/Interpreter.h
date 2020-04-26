@@ -14,7 +14,7 @@ using namespace std;
 
 // CONSTANTS
 
-const int STORE_SIZE = 1000; // maximum size of storage
+const int STORE_SIZE = 10000; // maximum size of storage
 
 
 class Interpreter

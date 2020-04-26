@@ -1,6 +1,8 @@
 begin
   char array[20] string;
-  readln string;
+  string := "1234567890123456789";
+  write string, endl;
+  string := "hello, world!";
   write string, endl;
   readln string;
   write string, endl;
