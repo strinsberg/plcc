@@ -1,9 +1,5 @@
 begin
-  int x;
   char array[20] string;
-  string := "Hello World!";
-  write string, endl;
-  write "Pick a number: ";
-  read x;
-  write "You chose: ", x, endl;
+  readln string;
+  read string;
 end.

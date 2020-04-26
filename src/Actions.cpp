@@ -159,6 +159,12 @@ shared_ptr<Stmt> Actions::io(vector<shared_ptr<Expr>> exprs, symbol::Tag type) {
 }
 
 
+shared_ptr<Stmt> Actions::readline(string) {
+  admin->debug("readline");
+  return make_shared<Stmt>();
+}
+
+
 shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
     vector<shared_ptr<Expr>> values) {
 

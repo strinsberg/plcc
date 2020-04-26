@@ -66,6 +66,7 @@ while         { return yy::parser::token::LOOP; }
 skip          { return yy::parser::token::SKIP; }
 call          { return yy::parser::token::CALL; }
 read          { return yy::parser::token::READ; }
+readln        { return yy::parser::token::READLN; }
 
 const         { return yy::parser::token::CONST; }
 int           { return yy::parser::token::INT; }

@@ -46,7 +46,7 @@ bool set_file(std::string);
 %token BEG END
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
-%token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ
+%token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ READLN
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
@@ -178,7 +178,9 @@ block_stmt: block { $$ = actions->block_stmt($1); }
 proc_stmt: CALL name { $$ = actions->proc_stmt($2); }
   ;
 
-read_stmt: READ expr_list { $$ = actions->io($2, symbol::READ); }
+/* should take var access list at most. this will allow read 1 + 2; */
+read_stmt: READ var_access_list { $$ = actions->io($2, symbol::READ); }
+  | READLN name { $$ = actions->readline($2); }
   ;
 
 
