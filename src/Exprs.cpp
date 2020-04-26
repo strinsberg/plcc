@@ -111,6 +111,10 @@ void ConstId::display(ostream& out) const {
 
 Access::Access(shared_ptr<Id> i) : Expr( i->get_type() ) , id(i) {
   name = id->get_name();
+
+  // This works as long as it is not possible to have const arrays
+  if (type.kind == symbol::ARRAY)
+    type.qual = symbol::ARRAY;  // We are accessing the whole array
 }
 
 Access::~Access() {}
@@ -133,6 +137,8 @@ ArrayAccess::ArrayAccess(shared_ptr<Id> i, shared_ptr<Expr> idx)
 
   if (index->get_type().type != symbol::INT)
     throw type_error("array index must be type int");
+
+  type.qual = symbol::SCALAR;  // we are accessing only one value
 }
 
 ArrayAccess::~ArrayAccess() {}

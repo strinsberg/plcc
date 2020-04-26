@@ -150,9 +150,16 @@ shared_ptr<Stmt> Actions::io(vector<shared_ptr<Expr>> exprs, symbol::Tag type) {
   admin->debug("io");
   auto stmt = make_shared<Stmt>();
   if (exprs.size()) {
-    stmt = make_shared<IoStmt>(exprs.back(), type);
-    for (auto it = exprs.rbegin() + 1; it != exprs.rend(); it++) {  
-      stmt = make_shared<Seq>( make_shared<IoStmt>(*it, type), stmt );
+
+    try {
+      stmt = make_shared<IoStmt>(exprs.back(), type);
+
+      for (auto it = exprs.rbegin() + 1; it != exprs.rend(); it++) {  
+        stmt = make_shared<Seq>( make_shared<IoStmt>(*it, type), stmt );
+      }
+
+    } catch (const type_error& e) {
+      admin->error("type error: " + string(e.what()));
     }
   }
   return stmt;

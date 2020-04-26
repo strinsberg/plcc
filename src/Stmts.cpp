@@ -107,10 +107,13 @@ void StringAsgn::display(std::ostream& out) const {
   out << *acs << " := " << *str;
 }
 
-// WRITE //////////////////////////////////////////////////////////////
+// WRITE/READ /////////////////////////////////////////////////////////
 
 IoStmt::IoStmt(shared_ptr<Expr> e, symbol::Tag t)
-    : Stmt(), expr(e), type(t) {}
+    : Stmt(), expr(e), type(t) {
+  if (type == symbol::READ and expr->get_type().qual == symbol::ARRAY)
+    throw type_error("cannot read into array without index");
+}
 
 IoStmt::~IoStmt() {}
 

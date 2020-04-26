@@ -1,5 +1,8 @@
 begin
+  int x;
   char array[20] string;
   readln string;
-  read string;
+  write string;
+  read x, string;
+  read string[0];
 end.
