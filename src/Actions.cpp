@@ -166,9 +166,18 @@ shared_ptr<Stmt> Actions::io(vector<shared_ptr<Expr>> exprs, symbol::Tag type) {
 }
 
 
-shared_ptr<Stmt> Actions::readline(string) {
+shared_ptr<Stmt> Actions::readline(string name) {
   admin->debug("readline");
-  return make_shared<Stmt>();
+  auto id = get_id(name);
+  if (id == nullptr)
+    return make_shared<Stmt>();
+
+  try {
+    return make_shared<ReadLine>(id);
+  } catch (const type_error& e) {
+    admin->error("type error: " + string(e.what()), name);
+    return make_shared<Stmt>();
+  }
 }
 
 

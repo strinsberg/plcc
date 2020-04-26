@@ -101,6 +101,20 @@ class IoStmt : public Stmt {
 };
 
 
+class ReadLine : public Stmt {
+ public:
+  ReadLine(std::shared_ptr<Expr> array_id);
+  virtual ~ReadLine();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& out) const;
+
+  Expr& get_array_id() { return *array_id; }
+
+ protected:
+  std::shared_ptr<Expr> array_id;
+};
+
+
 class CondSeq : public Seq {
  public:
   CondSeq(std::shared_ptr<Stmt> first, std::shared_ptr<Stmt> rest);

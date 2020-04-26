@@ -111,8 +111,9 @@ void StringAsgn::display(std::ostream& out) const {
 
 IoStmt::IoStmt(shared_ptr<Expr> e, symbol::Tag t)
     : Stmt(), expr(e), type(t) {
-  if (type == symbol::READ and expr->get_type().qual == symbol::ARRAY)
-    throw type_error("cannot read into array without index");
+  if (type == symbol::READ and expr->get_type().qual == symbol::ARRAY
+      and expr->get_type().type != symbol::CHAR)
+    throw type_error("can only read into char array without index");
 }
 
 IoStmt::~IoStmt() {}
@@ -123,6 +124,25 @@ void IoStmt::visit(TreeWalker& walker) {
 
 void IoStmt::display(ostream& out) const {
   out << symbol::str(type) << ": " << *expr;
+}
+
+
+// ReadLine ///////////////////////////////////////////////////////////
+
+ReadLine::ReadLine(std::shared_ptr<Expr> id) : Stmt(), array_id(id) {
+  if (array_id->get_type().type != symbol::CHAR
+      or array_id->get_type().kind != symbol::ARRAY)
+    throw type_error("readline only works with character arrays");
+}
+
+ReadLine::~ReadLine() {}
+
+void ReadLine::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void ReadLine::display(std::ostream& out) const {
+  out << "Readline: " << *array_id;
 }
 
 
