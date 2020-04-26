@@ -33,6 +33,7 @@ class Expr : public AstNode {
   virtual ~Expr();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+  virtual int get_size() { return 1; }
 
   Type get_type() { return type; }
   void set_type(Type t) { type = t; }

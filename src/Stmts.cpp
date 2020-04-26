@@ -82,7 +82,7 @@ void Asgn::display(ostream& out) const {
 
 // String Assignment //////////////////////////////////////////////////
 
-StringAsgn::StringAsgn(std::shared_ptr<Expr> a, std::shared_ptr<Expr> e)
+StringAsgn::StringAsgn(shared_ptr<Expr> a, shared_ptr<Expr> e)
     : Stmt(), acs(a), str(e) {
 
   Type acs_type = acs->get_type();
@@ -90,6 +90,11 @@ StringAsgn::StringAsgn(std::shared_ptr<Expr> a, std::shared_ptr<Expr> e)
   if (acs_type.type != symbol::CHAR or acs_type.kind != symbol::ARRAY
       or str_type.type != symbol::STRING or str_type.kind != symbol::ARRAY)
     throw type_error("string assignment arguments must be char array and string literal");
+
+  int size = acs->get_size();
+  int length = str->get_size(); 
+  if (length + 1 > size)
+    throw type_error("char array must be at least 1 longer than string literal");
 }
 
 StringAsgn::~StringAsgn() {}

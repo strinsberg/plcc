@@ -51,6 +51,9 @@ void Interpreter::runtime_error( string  message, int line_number)
 
 void Interpreter::allocate( int words )
 {
+  for (int i = stack_register + 1; i <= stack_register + words; i++)
+    store[i] = 0;
+
   stack_register += words;
   if (stack_register > STORE_SIZE)
      runtime_error(" stack overflow");
@@ -389,12 +392,14 @@ void Interpreter::write (int count, symbol::OpCode size_type)
 
     } else {
       int value = store[++x];
-      if (op_type == symbol::OP_BOOL)
+      if (op_type == symbol::OP_BOOL) {
         cout << (value == 1 ? "true" : "false");
-      else if (op_type == symbol::OP_CHAR)
+      } else if (op_type == symbol::OP_CHAR) {
+        if (value == 0) break;
         cout << (char)value;
-      else
+      } else {
         cout << value;
+      }
     }
     if (x < stack_register + count)
       cout << sep;

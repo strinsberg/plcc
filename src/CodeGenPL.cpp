@@ -53,7 +53,7 @@ void CodeGenPL::visit(VarDef& node) {
     var_lengths.push_back(size);
 
     access = SIZE;
-    node.get_id().get_size().visit(*this);
+    node.get_id().get_size_expr().visit(*this);
 
     size = var_lengths.back();
     var_lengths.pop_back();
@@ -101,7 +101,7 @@ void CodeGenPL::visit(Id& node) {
     ops.push_back(ent.address);
     
   } else if (access == SIZE) {
-    node.get_size().visit(*this);
+    node.get_size_expr().visit(*this);
 
   } else {
     TableEntry ent = table_find(name);
@@ -211,7 +211,7 @@ void CodeGenPL::visit(ArrayAccess& node) {
 
   access = SIZE;
   var_lengths.push_back(0);
-  node.get_id().get_size().visit(*this);  // To add size for bounds
+  node.get_id().get_size_expr().visit(*this);  // To add size for bounds
   ops.push_back(var_lengths.back());
   ops.push_back(-2);  // Supposed to be line number for interpreter error
   var_lengths.pop_back();
