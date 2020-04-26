@@ -345,46 +345,56 @@ void Interpreter::plor()
 
 void Interpreter::read(int count)
 {
-  int x;
-//  cout << "program_register = " << program_register << endl;
-//  cout << "stack_register = " << stack_register << endl;
-//  cout << "base_register = " << base_register << endl;
-
   program_register += 3;
 
-  // Move stack to start of variables to read into
+  // Read in a single string. substantially similar to readline.
+  // Also, if this model would work elsewhere for manipulating arrays
+  // it should be used as it uses far fewer instructions.
+  if (op_type == symbol::OP_STRING) {
+    string str;
+    cin >> str;
+
+    int address = store[stack_register];
+    stack_register--;
+
+    int i = 0;
+    for (; i < count - 1 and i < (int)str.size(); i++) {
+      store[address + i] = str.at(i);
+    }
+    store[address + i] = '\0';
+    return;
+  }
+
+  // Reading other data types
+  int x;
   stack_register -= count;
   x = stack_register;
-//  cout << "Count = " << count;
 
   while ( x < stack_register + count)
   {
     ++x;
-    // could read into strings to force getting next token and making sure
-    // it is the right type for the variable. Because right now like c++
-    // if the token is not the right datatype it just moves on. might be ok
-    // but since we are interpreting it we may as well check the type and
-    // respond properly.
     if (op_type == symbol::OP_FLOAT) {
       int scale = 10000;  // Should be a constant somewhere
       double y;
-      cin >> y;
+      if (!(cin >> y)) runtime_error("error: read expected float", -1);
       int result = int(y * scale);
       store[ store[x] ] = result;
       store[ store[x] + 1] = scale;
 
     } else if (op_type == symbol::OP_CHAR) {
       char y;
-      cin >> y;
+      if (!(cin >> y)) runtime_error("error: read expected char", -1);
       store[ store[x] ] = y;
 
     } else if (op_type == symbol::OP_BOOL) {
       int y;
-      cin >> y;
+      if (!(cin >> y)) runtime_error("error: read expected bool(int)", -1);
       store[ store[x] ] = (y != 0);
 
     } else {
-      cin >> ( store[ store[x] ] );
+      int y;
+      if (!(cin >> y)) runtime_error("error: read expected int", -1);
+      store[ store[x] ] = y;
     }
   }
 }

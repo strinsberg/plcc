@@ -1,9 +1,11 @@
 begin
   char array[20] string;
-  string := "1234567890123456789";
-  write string, endl;
-  string := "hello, world!";
-  write string, endl;
-  readln string;
+  int a;
+  bool b;
+  char c;
+  float f;
+  read a,b,c,f;
+  read string;
+  write a, " ", b, " ", c, " ", f, endl;
   write string, endl;
 end.

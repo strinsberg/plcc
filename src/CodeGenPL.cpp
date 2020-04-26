@@ -332,12 +332,12 @@ void CodeGenPL::visit(IoStmt& node) {
         }
       }
 
-    } else {
+    } else {  // writing a single value
       access = VAL;
       node.get_expr().visit(*this);
     }
 
-  } else {
+  } else {  // io read
     access = VAR;
     node.get_expr().visit(*this);
   }
@@ -351,7 +351,13 @@ void CodeGenPL::visit(IoStmt& node) {
   current_address += 2;
 
   if (op_type == symbol::READ) {
-    ops.push_back( symbol::to_op(e_type.type) );
+    if (node.get_expr().get_type().type == symbol::CHAR
+        and node.get_expr().get_type().qual == symbol::ARRAY) {
+      ops.back() = node.get_expr().get_size();
+      ops.push_back(symbol::OP_STRING);
+    } else {
+      ops.push_back( symbol::to_op(e_type.type) );
+    }
   } else if (size > 1) {
     ops.push_back( symbol::OP_ARRAY );
   } else {
