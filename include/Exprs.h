@@ -53,7 +53,7 @@ class Id : public Expr {
   Expr& get_size_expr() { return *size; }
 
  protected:
-  std::shared_ptr<Expr> size;
+  std::shared_ptr<Expr> size;  // is it really safe for this to be Expr?
 };
 
 

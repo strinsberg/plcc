@@ -75,12 +75,35 @@ shared_ptr<Expr> Actions::proc_name(string name) {
 
   bool added = table.put(name, id);
   if (!added) {
-    admin->error("'" + name + "' was not declared in this scope");
+    admin->error("'" + name + "' was already declared");
     return empty_expr();
   }
 
   return id;
 }
+
+
+shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<Def> def_part) {
+  admin->debug("record def");
+  
+  id->get_size_expr() = Constant(def_part->get_size());
+  return make_shared<RecDef>(id, def_part);
+}
+
+shared_ptr<Id> Actions::rec_name(string name) {
+  admin->debug("record name");
+  Type type = Type(symbol::RECORD, symbol::RECORD, symbol::UNIVERSAL);
+  auto size = make_shared<Constant>();
+  auto id = make_shared<Id>(name, type, size);
+
+  bool added = table.put(name, id);
+  if (!added) {
+    admin->error("'" + name + "' was already declared");
+  }
+
+  return id;
+}
+
 
 
 // private def helpers //

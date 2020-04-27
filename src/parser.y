@@ -26,7 +26,9 @@ bool set_file(std::string);
 %type <std::vector<std::string>> var_list
 
 %type <Vars> vprime
-%type <std::shared_ptr<Def>> def_part def const_def var_def proc_def
+%type <std::shared_ptr<Def>> def_part def const_def var_def proc_def rec_def
+
+%type <std::shared_ptr<Id>> rec_name
 
 %type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
 %type <std::shared_ptr<Expr>> factor var_access selector proc_name endl
@@ -111,6 +113,7 @@ def_part: def_part def SEMI { $$ = actions->def_part($1, $2); }
 def: const_def { $$ = $1; }
   | var_def { $$ = $1; }
   | proc_def { $$ = $1; }
+  | rec_def { $$ = $1; }
   ;
 
 const_def: CONST type_sym name INIT constant { $$ = actions->const_def($2, $3, $5); }
@@ -127,6 +130,12 @@ proc_def: PROC proc_name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
   ;
 
 proc_name: name { $$ = actions->proc_name($1); }
+  ;
+
+rec_def: RECORD rec_name def_part ENDREC { $$ = actions->rec_def($2, $3); }
+  ;
+
+rec_name: name { $$ = actions->rec_name($1); }
   ;
 
 

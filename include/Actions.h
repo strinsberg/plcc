@@ -38,6 +38,8 @@ class Actions {
   std::shared_ptr<Def> array_def(int vars);
   std::shared_ptr<Def> proc_def(std::shared_ptr<Expr>, std::shared_ptr<Stmt>);
   std::shared_ptr<Expr> proc_name(std::string name);
+  std::shared_ptr<Def> rec_def(std::shared_ptr<Id>, std::shared_ptr<Def>);
+  std::shared_ptr<Id> rec_name(std::string name);
 
   // statement actions
   std::shared_ptr<Stmt> block_stmt(std::shared_ptr<Stmt> block);

@@ -53,3 +53,19 @@ void ProcDef::display(ostream& out) const {
   out << *block << "ENDPROC";
 }
 
+// Record Definition //////////////////////////////////////////////////
+
+RecDef::RecDef(shared_ptr<Id> n, shared_ptr<Def> d) : Def(), name(n), defs(d) {}
+
+RecDef::~RecDef() {}
+
+void RecDef::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void RecDef::display(std::ostream& out) const {
+  out << "RECORD" << endl;
+  out << *name << endl;
+  out << *defs << endl << "ENDREC";
+}
+

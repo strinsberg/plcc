@@ -49,6 +49,7 @@ class Def : public AstNode {
   virtual ~Def();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+  virtual int get_size() { return 1; }
 };
 
 

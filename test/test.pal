@@ -1,11 +1,10 @@
 begin
-  char array[20] string;
-  int a;
-  bool b;
-  char c;
-  float f;
-  read a,b,c,f;
-  read string;
-  write a, " ", b, " ", c, " ", f, endl;
-  write string, endl;
+  record Point
+    int x,y;
+  end record;
+
+  Point p;
+  p.x, p.y := 1, 2;
+
+  write p.x, p.y;
 end.
