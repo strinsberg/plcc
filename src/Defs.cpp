@@ -76,8 +76,8 @@ void DefPart::display(std::ostream& out) const {
 
 // PROCDEF ////////////////////////////////////////////////////////////
 
-ProcDef::ProcDef(shared_ptr<Expr> d, shared_ptr<Stmt> s)
-    : name(d), block(s)  {}
+ProcDef::ProcDef(shared_ptr<Id> i, shared_ptr<Stmt> b)
+    : Def(i), block(b)  {}
 
 ProcDef::~ProcDef() {}
 
@@ -86,7 +86,7 @@ void ProcDef::visit(TreeWalker& walker) {
 }
 
 void ProcDef::display(ostream& out) const {
-  out << endl << "PROC" << endl << *name;
+  out << endl << "PROC" << endl << *id;
   out << *block << "ENDPROC";
 }
 

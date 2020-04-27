@@ -72,18 +72,16 @@ class DefPart : public Def {
 
 class ProcDef : public Def {
  public:
-  ProcDef(std::shared_ptr<Expr> name, std::shared_ptr<Stmt> block);
+  ProcDef(std::shared_ptr<Id> name, std::shared_ptr<Stmt> block);
   virtual ~ProcDef();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
   // Later should return the number of params. Probably stored in the name.
-  virtual int get_size() { return name->get_size(); }
+  virtual int get_size() { return id->get_size(); }
 
-  Expr& get_id_expr() { return *name; }
   Stmt& get_block() { return *block; }
 
  protected:
-  std::shared_ptr<Expr> name;
   std::shared_ptr<Stmt> block;
 };
 

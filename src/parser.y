@@ -29,10 +29,10 @@ bool set_file(std::string);
 %type <std::shared_ptr<DefPart>> def_part;
 %type <std::shared_ptr<Def>> def const_def var_def proc_def rec_def
 
-%type <std::shared_ptr<Id>> rec_name
+%type <std::shared_ptr<Id>> rec_name proc_name
 
 %type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
-%type <std::shared_ptr<Expr>> factor var_access selector proc_name endl
+%type <std::shared_ptr<Expr>> factor var_access selector endl
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 

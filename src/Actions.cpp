@@ -57,23 +57,20 @@ shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
 }
 
 
-shared_ptr<Def> Actions::proc_def(shared_ptr<Expr> id, shared_ptr<Stmt> block) {
+shared_ptr<Def> Actions::proc_def(shared_ptr<Id> id, shared_ptr<Stmt> block) {
   admin->debug("proc def");
   return make_shared<ProcDef>(id, block);
 }
 
 
-shared_ptr<Expr> Actions::proc_name(string name) {
+shared_ptr<Id> Actions::proc_name(string name) {
   admin->debug("proc name");
   Type type = Type(symbol::UNIVERSAL, symbol::PROC, symbol::UNIVERSAL);
   auto size = make_shared<Constant>();
   auto id = make_shared<Id>(name, type, size);
 
-  bool added = table.put(name, id);
-  if (!added) {
+  if (!table.put(name, id))
     admin->error("'" + name + "' was already declared");
-    return empty_expr();
-  }
 
   return id;
 }
