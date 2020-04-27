@@ -90,6 +90,22 @@ shared_ptr<Expr> Actions::proc_name(string name) {
 shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<Def> def_part) {
   admin->debug("record def");
   
+  // need def_part to return a def seq that can be iterated through like a vector
+  // then each of it's defs can have the id added to the types fields
+  // and the type can be added to the table
+
+  vector<shared_ptr<Id>> fields;
+  /*  To actually add some fields. For now the fields will be empty.
+  for (auto& def : def_part->get_defs())
+    fields.push_back(def->get_id());
+
+  */
+
+  // already checked for this in rec_name, but does not hurt to ensure
+  // nothing has gone wrong since then.
+  if (!table.new_type(id->get_name(), fields))
+    admin->error("invalid record: " + id->get_name());
+
   id->get_size_expr() = Constant(def_part->get_size());
   return make_shared<RecDef>(id, def_part);
 }
@@ -100,10 +116,16 @@ shared_ptr<Id> Actions::rec_name(string name) {
   auto size = make_shared<Constant>();
   auto id = make_shared<Id>(name, type, size);
 
-  bool added = table.put(name, id);
-  if (!added) {
-    admin->error("'" + name + "' was already declared");
-  }
+  // If type exists we do not want to put it's name in the table
+  // type info will be added to the table in rec_def
+  bool error = false;
+  if (table.has_type(name))
+    error = true;
+  else if (!table.put(name, id))
+    error = true;
+
+  if (error)
+    admin->error("type '" + name + "' was already declared");
 
   return id;
 }

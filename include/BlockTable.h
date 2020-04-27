@@ -16,7 +16,8 @@ class BlockTable {
   bool put(std::string lexeme, std::shared_ptr<Id> id);
   std::shared_ptr<Id> get(std::string lexeme);
   bool new_type(std::string type_name, std::vector<std::shared_ptr<Id>> fields);
-  std::vector<std::shared_ptr<Id>> type_info(std::string type_name);
+  bool has_type(std::string type_name);
+  std::vector<std::shared_ptr<Id>>& type_info(std::string type_name);
   void push_block();
   void pop_block();
   int get_level();

@@ -1,5 +1,6 @@
 #include "BlockTable.h"
 #include "Exprs.h"
+#include <stdexcept>
 #include <iostream>
 #include <string>
 #include <map>
@@ -34,7 +35,7 @@ shared_ptr<Id> BlockTable::get(std::string lexeme) {
 
 
 bool BlockTable::new_type(string type_name, vector<shared_ptr<Id>> fields) {
-  if ( type_info(type_name).size() > 0 )
+  if ( has_type(type_name) )
     return false;
 
   types.back()[type_name] = fields;
@@ -42,13 +43,23 @@ bool BlockTable::new_type(string type_name, vector<shared_ptr<Id>> fields) {
 }
 
 
-vector<shared_ptr<Id>> BlockTable::type_info(std::string type_name) {
+bool BlockTable::has_type(std::string type_name) {
+  for (auto it = types.rbegin(); it != types.rend(); ++it) {
+    auto fields = it->find(type_name);
+    if ( fields != it->end() )
+      return true;
+  }
+  return false;
+}
+
+
+vector<shared_ptr<Id>>& BlockTable::type_info(std::string type_name) {
   for (auto it = types.rbegin(); it != types.rend(); ++it) {
     auto fields = it->find(type_name);
     if ( fields != it->end() )
       return fields->second;
   }
-  return vector<shared_ptr<Id>>();
+  throw invalid_argument("type does not exist");
 }
 
 
