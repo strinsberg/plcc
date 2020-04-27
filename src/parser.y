@@ -41,7 +41,7 @@ bool set_file(std::string);
 %type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
 
 %type <Operator> prim_op rel_op add_op mult_op
-%type <Type> type_sym
+%type <Type> type_sym type
 
 
 /* Token definitions */
@@ -119,7 +119,11 @@ def: const_def { $$ = $1; }
 const_def: CONST type_sym name INIT constant { $$ = actions->const_def($2, $3, $5); }
   ;
 
-var_def: type_sym vprime { $$ = actions->var_def($1, $2); }
+var_def: type vprime { $$ = actions->var_def($1, $2); }
+  ;
+
+type: type_sym { $$ = $1; }
+  | TYPE name { $$ = actions->new_type(symbol::RECORD, $2); }
   ;
 
 vprime: var_list { $$ = actions->vprime($1); }

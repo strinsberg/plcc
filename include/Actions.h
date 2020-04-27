@@ -68,7 +68,7 @@ class Actions {
   std::shared_ptr<Expr> empty_expr() { return std::make_shared<Expr>(Type()); }
 
   // helpers
-  Type new_type(symbol::Tag);
+  Type new_type(symbol::Tag, std::string="");
   Operator new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
   std::shared_ptr<Def> new_block();
 

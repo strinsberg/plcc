@@ -9,10 +9,11 @@ class Expr;
 
 struct Type {
   Type();
-  Type(symbol::Tag t, symbol::Tag k, symbol::Tag q);
+  Type(symbol::Tag t, symbol::Tag k, symbol::Tag q, std::string n="");
   bool operator==(const Type& other);
 
   symbol::Tag type, kind, qual;
+  std::string name;
 };
 
 

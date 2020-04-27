@@ -13,10 +13,11 @@ Type::Type() : type(symbol::EMPTY), kind(symbol::UNIVERSAL),
     qual(symbol::UNIVERSAL) {}
 
 
-Type::Type(symbol::Tag t, symbol::Tag k, symbol::Tag q) 
-    : type(t), kind(k), qual(q) {}
+Type::Type(symbol::Tag t, symbol::Tag k, symbol::Tag q, string n) 
+    : type(t), kind(k), qual(q), name(n) {}
 
 
+// might be obsolete and never used
 bool Type::operator==(const Type& other) {
   if (type != other.type)
     return false;

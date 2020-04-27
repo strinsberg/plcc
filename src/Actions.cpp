@@ -50,7 +50,10 @@ shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
 
   int size = type.type == symbol::FLOAT ? 2 : 1;
 
-  if (pp.size == nullptr) {
+  if (type.type == symbol::RECORD) {
+    auto type_id = get_id(type.name);  // Will exist if we got this far?
+    pp.size = make_shared<Constant>(type_id->get_size());
+  } else if (pp.size == nullptr) {
     type.kind = symbol::SCALAR;
     pp.size = make_shared<Constant>(size);
   } else {
@@ -92,7 +95,7 @@ shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<Def> def_part) {
 
 shared_ptr<Id> Actions::rec_name(string name) {
   admin->debug("record name");
-  Type type = Type(symbol::RECORD, symbol::RECORD, symbol::UNIVERSAL);
+  Type type = Type(symbol::RECORD, symbol::RECORD, symbol::UNIVERSAL, name);
   auto size = make_shared<Constant>();
   auto id = make_shared<Id>(name, type, size);
 
@@ -398,10 +401,15 @@ std::shared_ptr<Expr> Actions::const_string(std::string str) {
 
 // Helpers ////////////////////////////////////////////////////////////
 
-Type Actions::new_type(symbol::Tag type) {
-  admin->debug("type: " + symbol::str(type));
+Type Actions::new_type(symbol::Tag type, string type_name) {
+  admin->debug("type: " + symbol::str(type) + " " + type_name);
+  if (type_name != "")
+    auto type_id = get_id(type_name);  // just to check if the type was declared
+
   Type t;
   t.type = type;
+  t.name = type_name;
+
   return t;
 };
 
