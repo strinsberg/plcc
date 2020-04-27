@@ -33,14 +33,35 @@ shared_ptr<Id> BlockTable::get(std::string lexeme) {
 }
 
 
+bool BlockTable::new_type(string type_name, vector<shared_ptr<Id>> fields) {
+  if ( type_info(type_name).size() > 0 )
+    return false;
+
+  types.back()[type_name] = fields;
+  return true;
+}
+
+
+vector<shared_ptr<Id>> BlockTable::type_info(std::string type_name) {
+  for (auto it = types.rbegin(); it != types.rend(); ++it) {
+    auto fields = it->find(type_name);
+    if ( fields != it->end() )
+      return fields->second;
+  }
+  return vector<shared_ptr<Id>>();
+}
+
+
 void BlockTable::push_block() {
   blocks.push_back( map<string, shared_ptr<Id>>() );
+  types.push_back( map<string, vector<shared_ptr<Id>>>() );
   level++;
 }
 
 
 void BlockTable::pop_block() {
   blocks.pop_back();
+  types.pop_back();
   level--;
 }
 

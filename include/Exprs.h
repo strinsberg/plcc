@@ -80,6 +80,7 @@ class Access : public Expr {
   int get_size() { return id->get_size(); }
 
   Id& get_id() { return *id; }
+  std::shared_ptr<Id> get_id_ptr() { return id; }
 
  protected:
   std::shared_ptr<Id> id;

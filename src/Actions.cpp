@@ -52,6 +52,7 @@ shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
 
   if (type.type == symbol::RECORD) {
     auto type_id = get_id(type.name);  // Will exist if we got this far?
+    type.kind = symbol::RECORD;
     pp.size = make_shared<Constant>(type_id->get_size());
   } else if (pp.size == nullptr) {
     type.kind = symbol::SCALAR;
@@ -94,7 +95,7 @@ shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<Def> def_part) {
 }
 
 shared_ptr<Id> Actions::rec_name(string name) {
-  admin->debug("record name");
+  admin->debug("record name " + name);
   Type type = Type(symbol::RECORD, symbol::RECORD, symbol::UNIVERSAL, name);
   auto size = make_shared<Constant>();
   auto id = make_shared<Id>(name, type, size);
@@ -331,6 +332,7 @@ shared_ptr<Expr> Actions::access(string name, shared_ptr<Expr> idx) {
 shared_ptr<Expr> Actions::rec_access(
     shared_ptr<Expr> record, string field, shared_ptr<Expr> index) {
   admin->debug("record access " + record->get_name() + "." + field);
+
   // need to check that field is in the records def part somehow
   // then need to make an access of field using index
   // then put these into a rec access together
@@ -339,6 +341,7 @@ shared_ptr<Expr> Actions::rec_access(
   auto id = make_shared<Id>(field,type,size); 
   auto second = make_shared<Access>(id);
 
+  // Need to wrap in try for type errors
   return make_shared<RecAccess>(record, second);
 }
 
