@@ -46,20 +46,20 @@ void CodeGenPL::visit(DefSeq& node) {
 void CodeGenPL::visit(VarDef& node) {
   admin->debug("var def");
   access = DEF;
-  node.get_id().visit(*this);
+  node.get_id()->visit(*this);
 
-  if (node.get_id().get_type().qual != symbol::CONST) {
+  if (node.get_id()->get_type().qual != symbol::CONST) {
     int size = 0;
     var_lengths.push_back(size);
 
     access = SIZE;
-    node.get_id().get_size_expr().visit(*this);
+    node.get_id()->get_size_expr().visit(*this);
 
     size = var_lengths.back();
     var_lengths.pop_back();
 
-    if (node.get_id().get_type().kind == symbol::ARRAY
-        and node.get_id().get_type().type == symbol::FLOAT)
+    if (node.get_id()->get_type().kind == symbol::ARRAY
+        and node.get_id()->get_type().type == symbol::FLOAT)
       size *= 2;
 
     var_lengths.back() += size;
@@ -70,7 +70,7 @@ void CodeGenPL::visit(VarDef& node) {
 void CodeGenPL::visit(ProcDef& node) {
   admin->debug("proc def");
   access = DEF;
-  node.get_id().visit(*this);
+  node.get_id()->visit(*this);
 
   ops.push_back(symbol::OP_PROC);
   current_address += 1;

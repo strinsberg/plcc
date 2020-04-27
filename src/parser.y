@@ -26,7 +26,8 @@ bool set_file(std::string);
 %type <std::vector<std::string>> var_list
 
 %type <Vars> vprime
-%type <std::shared_ptr<Def>> def_part def const_def var_def proc_def rec_def
+%type <std::shared_ptr<DefPart>> def_part;
+%type <std::shared_ptr<Def>> def const_def var_def proc_def rec_def
 
 %type <std::shared_ptr<Id>> rec_name
 
@@ -105,7 +106,7 @@ bprime: def_part stmt_part { $$ = actions->block($1, $2); }
 
 
 /* Definitions */
-def_part: def_part def SEMI { $$ = actions->def_part($1, $2); }
+def_part: def_part def SEMI { $1->add_def($2); $$ = $1; }
   | def_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = actions->new_block(); }
   ;

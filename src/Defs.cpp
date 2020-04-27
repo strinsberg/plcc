@@ -5,10 +5,29 @@
 #include <memory>
 using namespace std;
 
+// DEF ////////////////////////////////////////////////////////////////
+Def::Def() {
+  name = "EMPTY DEF";
+  id = make_shared<Id>("null id", Type(), make_shared<Constant>());
+}
+
+Def::Def(shared_ptr<Id> i) : id(i) {
+  name = id->get_name();
+}
+
+Def::~Def() {}
+
+void Def::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void Def::display(ostream& out) const {
+  AstNode::display(out);
+}
 
 // VARDEF /////////////////////////////////////////////////////////////
 
-VarDef::VarDef(shared_ptr<Id> i) : id(i) {}
+VarDef::VarDef(shared_ptr<Id> i) : Def(i) {}
 
 VarDef::~VarDef() {}
 
@@ -37,6 +56,24 @@ void DefSeq::display(ostream& out) const {
 }
 
 
+// DefPart ////////////////////////////////////////////////////////////
+DefPart::DefPart(std::shared_ptr<Def> def) : Def() {
+  name = "Def Part";
+  defs.push_back(def);
+}
+
+DefPart::~DefPart() {}
+
+void DefPart::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void DefPart::display(std::ostream& out) const {
+  for (auto& def : defs)
+    out << *def << endl;
+}
+
+
 // PROCDEF ////////////////////////////////////////////////////////////
 
 ProcDef::ProcDef(shared_ptr<Expr> d, shared_ptr<Stmt> s)
@@ -55,7 +92,7 @@ void ProcDef::display(ostream& out) const {
 
 // Record Definition //////////////////////////////////////////////////
 
-RecDef::RecDef(shared_ptr<Id> n, shared_ptr<Def> d) : Def(), name(n), defs(d) {}
+RecDef::RecDef(shared_ptr<Id> n, shared_ptr<Def> d) : Def(n), defs(d) {}
 
 RecDef::~RecDef() {}
 
@@ -65,7 +102,7 @@ void RecDef::visit(TreeWalker& walker) {
 
 void RecDef::display(std::ostream& out) const {
   out << "RECORD" << endl;
-  out << *name << endl;
+  out << *id << endl;
   out << *defs << endl << "ENDREC";
 }
 

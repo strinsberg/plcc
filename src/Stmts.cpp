@@ -1,6 +1,7 @@
 #include "Stmts.h"
 #include "AstNode.h"
 #include "Exprs.h"
+#include "Defs.h"
 #include "TreeWalker.h"
 #include "exceptions.h"
 #include <iostream>
@@ -41,7 +42,7 @@ void BlockStmt::display(std::ostream& out) const {
 
 // Block //////////////////////////////////////////////////////////////
 
-Block::Block(shared_ptr<Def> d, shared_ptr<Stmt> s)
+Block::Block(shared_ptr<DefPart> d, shared_ptr<Stmt> s)
     : Stmt(), defs(d), stmts(s) {}
 
 Block::~Block() {}
@@ -52,7 +53,7 @@ void Block::visit(TreeWalker& walker) {
 
 void Block::display(ostream& out) const {
   out << endl << "BLOCK" << endl;
-  out << "==DEFS==" << endl << *defs << endl << endl;
+  out << "==DEFS==" << endl << *defs << endl;
   out << "==STMTS==" << endl << *stmts << endl;
   out << "ENDBLOCK" << endl;
 }

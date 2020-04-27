@@ -38,20 +38,6 @@ void Expr::display(ostream& out) const {
 }
 
 
-// DEF ////////////////////////////////////////////////////////////////
-Def::Def() {
-  name = "EMPTY DEF";
-}
-
-Def::~Def() {}
-
-void Def::visit(TreeWalker& walker) {
-  walker.visit(*this);
-}
-
-void Def::display(ostream& out) const {
-  AstNode::display(out);
-}
 
 
 // STMT ///////////////////////////////////////////////////////////////

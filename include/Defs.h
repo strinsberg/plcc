@@ -7,8 +7,24 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <vector>
 
+class Def : public AstNode {
+ public:
+  Def();
+  Def(std::shared_ptr<Id> id);
+  virtual ~Def();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return 1; }
 
+  virtual std::shared_ptr<Id> get_id() { return id; }
+
+ protected:
+  std::shared_ptr<Id> id;
+};
+
+// Now that all Defs have an id this can probably be gotten rid of
 class VarDef : public Def {
  public:
   VarDef(std::shared_ptr<Id> i);
@@ -16,11 +32,6 @@ class VarDef : public Def {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
   virtual int get_size() { return id->get_size(); }
-
-  Id& get_id() { return *id; }
-
- protected:
-  std::shared_ptr<Id> id;
 };
 
 
@@ -41,6 +52,24 @@ class DefSeq : public Def {
 };
 
 
+// To replace DefSeq eventually
+class DefPart : public Def {
+ public:
+  DefPart() : Def() {}
+  DefPart(std::shared_ptr<Def> def);
+  virtual ~DefPart();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return defs.size(); }
+
+  void add_def(std::shared_ptr<Def> def) { defs.push_back(def); }
+  std::vector<std::shared_ptr<Def>>& get_defs() { return defs; }
+
+ protected:
+  std::vector<std::shared_ptr<Def>> defs;
+};
+
+
 class ProcDef : public Def {
  public:
   ProcDef(std::shared_ptr<Expr> name, std::shared_ptr<Stmt> block);
@@ -50,7 +79,7 @@ class ProcDef : public Def {
   // Later should return the number of params. Probably stored in the name.
   virtual int get_size() { return name->get_size(); }
 
-  Expr& get_id() { return *name; }
+  Expr& get_id_expr() { return *name; }
   Stmt& get_block() { return *block; }
 
  protected:
@@ -64,13 +93,10 @@ class RecDef : public Def {
   virtual ~RecDef();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
-  virtual int get_size() { return name->get_size(); }
 
-  Id& get_id() { return *name; }
   Def& get_defs() { return *defs; }
 
  protected:
-  std::shared_ptr<Id> name;
   std::shared_ptr<Def> defs;
 };
 #endif

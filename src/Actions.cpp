@@ -16,14 +16,6 @@ Actions::~Actions() {}
 
 // Definitions ///////////////////////////////////////////////////
 
-shared_ptr<Def> Actions::def_part(shared_ptr<Def> rest, shared_ptr<Def> last) {
-  admin->debug("def part\n");
-  if (rest->is_null())
-    return last;
-  return make_shared<DefSeq>(rest, last);
-}
-
-
 shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> value) {
   admin->debug("const def");
   type.qual = symbol::CONST;
@@ -87,19 +79,12 @@ shared_ptr<Expr> Actions::proc_name(string name) {
 }
 
 
-shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<Def> def_part) {
+shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<DefPart> def_part) {
   admin->debug("record def");
   
-  // need def_part to return a def seq that can be iterated through like a vector
-  // then each of it's defs can have the id added to the types fields
-  // and the type can be added to the table
-
   vector<shared_ptr<Id>> fields;
-  /*  To actually add some fields. For now the fields will be empty.
   for (auto& def : def_part->get_defs())
     fields.push_back(def->get_id());
-
-  */
 
   // already checked for this in rec_name, but does not hurt to ensure
   // nothing has gone wrong since then.
@@ -180,7 +165,7 @@ shared_ptr<Stmt> Actions::block_stmt(shared_ptr<Stmt> block) {
   return make_shared<BlockStmt>(block);
 }
 
-shared_ptr<Stmt> Actions::block(shared_ptr<Def> defs, shared_ptr<Stmt> stmts) {
+shared_ptr<Stmt> Actions::block(shared_ptr<DefPart> defs, shared_ptr<Stmt> stmts) {
   admin->debug("block");
   table.pop_block();
   return make_shared<Block>(defs, stmts);
@@ -459,12 +444,10 @@ Operator Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 };
 
 
-shared_ptr<Def> Actions::new_block() {
+shared_ptr<DefPart> Actions::new_block() {
   admin->debug("new_block");
   table.push_block();
-  auto def = make_shared<Def>();
-  def->set_null(true);
-  return def;
+  return make_shared<DefPart>();
 }
 
 

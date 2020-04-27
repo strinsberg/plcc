@@ -31,19 +31,18 @@ class Actions {
 
 
   // definition actions
-  std::shared_ptr<Def> def_part(std::shared_ptr<Def>, std::shared_ptr<Def>);
   std::shared_ptr<Def> const_def(Type, std::string, std::shared_ptr<Expr>);
   std::shared_ptr<Def> var_def(Type, Vars);
   Vars vprime(std::vector<std::string>, std::shared_ptr<Expr> e = nullptr);
   std::shared_ptr<Def> array_def(int vars);
   std::shared_ptr<Def> proc_def(std::shared_ptr<Expr>, std::shared_ptr<Stmt>);
   std::shared_ptr<Expr> proc_name(std::string name);
-  std::shared_ptr<Def> rec_def(std::shared_ptr<Id>, std::shared_ptr<Def>);
+  std::shared_ptr<Def> rec_def(std::shared_ptr<Id>, std::shared_ptr<DefPart>);
   std::shared_ptr<Id> rec_name(std::string name);
 
   // statement actions
   std::shared_ptr<Stmt> block_stmt(std::shared_ptr<Stmt> block);
-  std::shared_ptr<Stmt> block(std::shared_ptr<Def>, std::shared_ptr<Stmt>);
+  std::shared_ptr<Stmt> block(std::shared_ptr<DefPart>, std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> stmt_part(std::shared_ptr<Stmt>, std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> io(std::vector<std::shared_ptr<Expr>>, symbol::Tag);
   std::shared_ptr<Stmt> readline(std::string);
@@ -71,7 +70,7 @@ class Actions {
   // helpers
   Type new_type(symbol::Tag, std::string="");
   Operator new_op(symbol::Tag, symbol::Tag, symbol::Tag=symbol::UNIVERSAL);
-  std::shared_ptr<Def> new_block();
+  std::shared_ptr<DefPart> new_block();
 
  private:
   BlockTable table;

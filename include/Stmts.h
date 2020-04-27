@@ -3,6 +3,7 @@
 
 #include "AstNode.h"
 #include "Exprs.h"
+#include "Defs.h"
 #include "TreeWalker.h"
 #include "Symbol.h"
 #include <string>
@@ -41,7 +42,7 @@ class BlockStmt : public Stmt {
 
 class Block : public Stmt {
  public:
-  Block(std::shared_ptr<Def> defs, std::shared_ptr<Stmt> stmts);
+  Block(std::shared_ptr<DefPart> defs, std::shared_ptr<Stmt> stmts);
   virtual ~Block();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
@@ -50,7 +51,7 @@ class Block : public Stmt {
   Stmt& get_stmts() { return *stmts; }
 
  protected:
-  std::shared_ptr<Def> defs;
+  std::shared_ptr<DefPart> defs;
   std::shared_ptr<Stmt> stmts;
 };
 
