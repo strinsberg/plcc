@@ -59,6 +59,7 @@ class Actions {
 
   // expression actions
   std::shared_ptr<Expr> access(std::string, std::shared_ptr<Expr>);
+  std::shared_ptr<Expr> rec_access(std::shared_ptr<Expr>, std::string, std::shared_ptr<Expr>);
   std::shared_ptr<Expr> binary(
     Operator, std::shared_ptr<Expr>, std::shared_ptr<Expr>
   );

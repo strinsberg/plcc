@@ -241,6 +241,7 @@ var_access_list: var_access_list COMMA var_access { $1.push_back($3); $$ = $1; }
   ;
 
 var_access: name selector { $$ = actions->access($1, $2); }
+  | var_access DOT name selector { $$ = actions->rec_access($1, $3, $4); }
   ;
 
 selector: LHSQR expr RHSQR { $$ = $2; }

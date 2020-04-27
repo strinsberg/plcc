@@ -100,6 +100,22 @@ class ArrayAccess : public Access {
 };
 
 
+class RecAccess : public Expr {
+ public:
+  RecAccess(std::shared_ptr<Expr> record, std::shared_ptr<Expr> field);
+  virtual ~RecAccess();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+
+  Expr& get_record() { return *record; }
+  Expr& get_field() { return *field; }
+
+ protected:
+  std::shared_ptr<Expr> record;
+  std::shared_ptr<Expr> field;
+};
+
+
 class Binary : public Expr {
  public:
   Binary(Operator op, std::shared_ptr<Expr> lhs, std::shared_ptr<Expr> rhs);

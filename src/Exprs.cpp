@@ -152,6 +152,26 @@ void ArrayAccess::display(ostream& out) const {
 }
 
 
+// Record Access //////////////////////////////////////////////////////
+
+RecAccess::RecAccess(shared_ptr<Expr> r, shared_ptr<Expr> f)
+    : Expr(f->get_type()), record(r), field(f) {
+  name = record->get_name() + "." + field->get_name();
+  //if (record->get_type().kind != symbol::RECORD)
+    //throw type_error("variable is not a record");
+}
+
+RecAccess::~RecAccess() {}
+
+void RecAccess::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void RecAccess::display(std::ostream& out) const {
+  out << *record << " DOT " << *field;
+}
+
+
 // Binary /////////////////////////////////////////////////////////////
 
 Binary::Binary(Operator o, shared_ptr<Expr> l, shared_ptr<Expr> r)

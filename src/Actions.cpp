@@ -245,8 +245,6 @@ shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
 }
 
 
-
-
 shared_ptr<Stmt> Actions::if_stmt(shared_ptr<Stmt> cond) {
   admin->debug("if");
   return make_shared<IfStmt>(cond);
@@ -309,7 +307,7 @@ shared_ptr<Stmt> Actions::condition(shared_ptr<Expr> expr, shared_ptr<Stmt> stmt
 // Expression methods /////////////////////////////////////////////////
 
 shared_ptr<Expr> Actions::access(string name, shared_ptr<Expr> idx) {
-  admin->debug("access");
+  admin->debug("access " + name);
 
   auto id = get_id(name);
   if (id == nullptr)
@@ -327,6 +325,21 @@ shared_ptr<Expr> Actions::access(string name, shared_ptr<Expr> idx) {
   }
 
   return acs;
+}
+
+
+shared_ptr<Expr> Actions::rec_access(
+    shared_ptr<Expr> record, string field, shared_ptr<Expr> index) {
+  admin->debug("record access " + record->get_name() + "." + field);
+  // need to check that field is in the records def part somehow
+  // then need to make an access of field using index
+  // then put these into a rec access together
+  auto size = make_shared<Constant>();
+  Type type = Type(symbol::INT, symbol::SCALAR, symbol::UNIVERSAL);
+  auto id = make_shared<Id>(field,type,size); 
+  auto second = make_shared<Access>(id);
+
+  return make_shared<RecAccess>(record, second);
 }
 
 
