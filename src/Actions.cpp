@@ -37,7 +37,7 @@ shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> valu
 }
 
 
-shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
+shared_ptr<DefPart> Actions::var_def(Type type, Vars pp) {
   admin->debug("var def");
 
   int size = type.type == symbol::FLOAT ? 2 : 1;
@@ -115,10 +115,10 @@ shared_ptr<Id> Actions::rec_name(string name) {
 
 
 // private def helpers //
-shared_ptr<Def> Actions::add_vars(vector<string> names, Type type, shared_ptr<Expr> size) {
+shared_ptr<DefPart> Actions::add_vars(vector<string> names, Type type, shared_ptr<Expr> size) {
   admin->debug("add_vars");
 
-  shared_ptr<Def> def = nullptr;
+  shared_ptr<DefPart> def_part = make_shared<DefPart>();
   for (auto it = names.rbegin(); it != names.rend(); it++) {
     string n = *it;
     try {
@@ -128,21 +128,15 @@ shared_ptr<Def> Actions::add_vars(vector<string> names, Type type, shared_ptr<Ex
       if (!added) {
         admin->error("'" + n + "' already declared");
       } else {
-        auto var = make_shared<VarDef>(id);
-        if (def == nullptr)
-          def = var;
-        else
-          def = make_shared<DefSeq>(var, def);
+        auto def = make_shared<VarDef>(id);
+        def_part->add_def(def);
       }
     } catch (const type_error& e) {
       admin->error("type error: " + string(e.what()), n);
     }
   }
 
-  if (def == nullptr)
-    def = make_shared<Def>();
-
-  return def;
+  return def_part;
 }
 
 
@@ -338,6 +332,21 @@ shared_ptr<Expr> Actions::rec_access(
   admin->debug("record access " + record->get_name() + "." + field);
 
   // need to check that field is in the records def part somehow
+  if (!table.has_type(record->get_type().name))
+    admin->error("no type for record access", record->get_name());
+
+  auto fields = table.type_info(record->get_type().name);
+  bool found = false;
+  for (auto& f : fields) {
+    if (f->get_name() == field) {
+      found = true;
+      break;
+    }
+  }
+  
+  if (not found)
+    admin->error(record->get_type().name + " has no field '" + field + "'");
+
   // then need to make an access of field using index
   // then put these into a rec access together
   auto size = make_shared<Constant>();

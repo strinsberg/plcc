@@ -55,13 +55,14 @@ class DefSeq : public Def {
 // To replace DefSeq eventually
 class DefPart : public Def {
  public:
-  DefPart() : Def() {}
+  DefPart();
   DefPart(std::shared_ptr<Def> def);
   virtual ~DefPart();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
   virtual int get_size() { return defs.size(); }
 
+  void add_defs(std::shared_ptr<DefPart> defs);
   void add_def(std::shared_ptr<Def> def) { defs.push_back(def); }
   std::vector<std::shared_ptr<Def>>& get_defs() { return defs; }
 

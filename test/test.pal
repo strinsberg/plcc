@@ -3,10 +3,6 @@ begin
     int x,y;
   end record;
 
-  record Point
-    int a, b;
-  end record;
-
   type Point p;
 
   p.x, p.y := 1, 2;

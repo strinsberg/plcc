@@ -32,7 +32,7 @@ class Actions {
 
   // definition actions
   std::shared_ptr<Def> const_def(Type, std::string, std::shared_ptr<Expr>);
-  std::shared_ptr<Def> var_def(Type, Vars);
+  std::shared_ptr<DefPart> var_def(Type, Vars);
   Vars vprime(std::vector<std::string>, std::shared_ptr<Expr> e = nullptr);
   std::shared_ptr<Def> array_def(int vars);
   std::shared_ptr<Def> proc_def(std::shared_ptr<Id>, std::shared_ptr<Stmt>);
@@ -78,7 +78,7 @@ class Actions {
   std::shared_ptr<AstNode> ast;
 
   std::shared_ptr<Id> get_id(std::string);
-  std::shared_ptr<Def> add_vars(
+  std::shared_ptr<DefPart> add_vars(
     std::vector<std::string> names, Type type, std::shared_ptr<Expr> size
   );
 };

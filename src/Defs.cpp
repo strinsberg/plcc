@@ -57,6 +57,10 @@ void DefSeq::display(ostream& out) const {
 
 
 // DefPart ////////////////////////////////////////////////////////////
+DefPart::DefPart() : Def() {
+  name = "Def Part";
+}
+
 DefPart::DefPart(std::shared_ptr<Def> def) : Def() {
   name = "Def Part";
   defs.push_back(def);
@@ -71,6 +75,11 @@ void DefPart::visit(TreeWalker& walker) {
 void DefPart::display(std::ostream& out) const {
   for (auto& def : defs)
     out << *def << endl;
+}
+
+void DefPart::add_defs(std::shared_ptr<DefPart> definitions) {
+  for (auto def : definitions->get_defs())
+    defs.push_back(def);
 }
 
 
