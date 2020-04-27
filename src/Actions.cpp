@@ -79,17 +79,22 @@ shared_ptr<Id> Actions::proc_name(string name) {
 shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<DefPart> def_part) {
   admin->debug("record def");
   
-  vector<shared_ptr<Id>> fields;
-  for (auto& def : def_part->get_defs())
+  auto & fields = table.type_info(id->get_type().name);  // Should check has name again?
+  for (auto& def : def_part->get_defs()) {
     fields.push_back(def->get_id());
-
-  // already checked for this in rec_name, but does not hurt to ensure
-  // nothing has gone wrong since then.
-  if (!table.new_type(id->get_name(), fields))
-    admin->error("invalid record: " + id->get_name());
+  }
 
   id->get_size_expr() = Constant(def_part->get_size());
-  return make_shared<RecDef>(id, def_part);
+
+  admin->debug("pop block\n");
+  table.pop_block();
+
+  try {
+    return make_shared<RecDef>(id, def_part);
+  } catch (const type_error& e) {
+    admin->error("type error: " + string(e.what()), id->get_name());
+    return make_shared<Def>();
+  }
 }
 
 shared_ptr<Id> Actions::rec_name(string name) {
@@ -105,6 +110,8 @@ shared_ptr<Id> Actions::rec_name(string name) {
     error = true;
   else if (!table.put(name, id))
     error = true;
+
+  table.new_type(name, vector<shared_ptr<Id>>());
 
   if (error)
     admin->error("type '" + name + "' was already declared");
@@ -157,7 +164,7 @@ shared_ptr<Stmt> Actions::block_stmt(shared_ptr<Stmt> block) {
 }
 
 shared_ptr<Stmt> Actions::block(shared_ptr<DefPart> defs, shared_ptr<Stmt> stmts) {
-  admin->debug("block");
+  admin->debug("block -> pops block");
   table.pop_block();
   return make_shared<Block>(defs, stmts);
 }
@@ -333,29 +340,38 @@ shared_ptr<Expr> Actions::rec_access(
 
   // need to check that field is in the records def part somehow
   if (!table.has_type(record->get_type().name))
-    admin->error("no type for record access", record->get_name());
+    admin->error("no type for record access", record->get_type().name);
 
   auto fields = table.type_info(record->get_type().name);
   bool found = false;
+  shared_ptr<Id> id = nullptr;
   for (auto& f : fields) {
     if (f->get_name() == field) {
       found = true;
+      id = f;
       break;
-    }
+    } 
   }
   
-  if (not found)
+  if (not found) {
     admin->error(record->get_type().name + " has no field '" + field + "'");
+    return empty_expr();
+  }
 
-  // then need to make an access of field using index
-  // then put these into a rec access together
-  auto size = make_shared<Constant>();
-  Type type = Type(symbol::INT, symbol::SCALAR, symbol::UNIVERSAL);
-  auto id = make_shared<Id>(field,type,size); 
-  auto second = make_shared<Access>(id);
+  shared_ptr<Access> acs = nullptr;
+  try {
+    if (index->get_type().type != symbol::EMPTY) {
+      acs = make_shared<ArrayAccess>(id, index);
+    } else {
+      acs = make_shared<Access>(id);
+    }
+  } catch (const exception& e) {
+    admin->error("type error: " + string(e.what()), field);
+    return empty_expr();
+  }
 
-  // Need to wrap in try for type errors
-  return make_shared<RecAccess>(record, second);
+
+  return make_shared<RecAccess>(record, acs);
 }
 
 

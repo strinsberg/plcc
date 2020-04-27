@@ -63,8 +63,17 @@ void Block::display(ostream& out) const {
 
 Asgn::Asgn(shared_ptr<Expr> a, shared_ptr<Expr> e) : Stmt(), acs(a), expr(e) {
 
-  if (!(acs->get_type().type == expr->get_type().type))
+  bool error = false;
+  if (acs->get_type().type == symbol::RECORD
+      and acs->get_type().name != expr->get_type().name) {
+    error = true;
+  } else if (acs->get_type().type != expr->get_type().type) {
+    error = true;
+  }
+
+  if (error) {
     throw type_error("assignment variable type does not match expression type");
+  }
 
   if (acs->get_type().qual == symbol::CONST)
     throw type_error("cannot assign to a constant");

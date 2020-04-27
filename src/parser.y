@@ -137,10 +137,10 @@ proc_def: PROC proc_name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
 proc_name: name { $$ = actions->proc_name($1); }
   ;
 
-rec_def: RECORD rec_name def_part ENDREC { $$ = actions->rec_def($2, $3); }
+rec_def: rec_name def_part ENDREC { $$ = actions->rec_def($1, $2); }
   ;
 
-rec_name: name { $$ = actions->rec_name($1); }
+rec_name: RECORD name { $$ = actions->rec_name($2); }
   ;
 
 

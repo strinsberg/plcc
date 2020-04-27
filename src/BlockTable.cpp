@@ -83,11 +83,23 @@ int BlockTable::get_level() {
 
 
 void BlockTable::print() {
+  cout << "=== Block ids ===" << endl;
   int i = 1;
   for (auto & blk : blocks) {
     cout << "Level: " << i++ << endl;
     for (auto & it : blk) {
       cout << it.first << endl;
+    }
+  }
+
+  cout << "=== Block types ===" << endl;
+  i = 1;
+  for (auto & blk : types) {
+    cout << "Level: " << i++ << endl;
+    for (auto & it : blk) {
+      cout << it.first << endl;
+      for (auto & id : it.second)
+        cout << "  " << id->get_name() << endl;
     }
   }
 }

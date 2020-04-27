@@ -3,8 +3,14 @@ begin
     int x,y;
   end record;
 
-  type Point p;
+  record PP
+    type Point p;
+  end record;
 
-  p.x, p.y := 1, 2;
-  write p.x, p.y;
+  type PP pp, bb;
+  type Point point;
+
+  pp.p := point;
+  pp.p.x, pp.p.y := 1, 2;
+  write pp.p.x, pp.p.y;
 end.
