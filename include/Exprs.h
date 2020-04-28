@@ -9,111 +9,62 @@
 #include <memory>
 
 
-class Constant : public Expr {
+class Expr : public AstNode {
  public:
-  Constant(int v = 1);
-  Constant(Type type, int value = 0, int exp = 1);
-  virtual ~Constant();
-  virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& os) const;
-  int get_size() { return value; }
-
-  int get_value() { return value; }
-  int get_exp() { return exp; }
-
- protected:
-  int value;
-  int exp;
-};
-
-
-class ConstString : public Constant {
- public:
-  ConstString(std::string);
-  virtual ~ConstString();
-  virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& os) const;
-  int get_size() { return text.size(); }
-
-  std::string& get_string() { return text; }
-
- protected:
-  std::string text;
-};
-
-
-class Id : public Expr {
- public:
-  Id(std::string lexeme, Type type, std::shared_ptr<Expr> size);
-  virtual ~Id();
-  virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& os) const;
-  int get_size() { return size->get_size(); }
-
-  Expr& get_size_expr() { return *size; }
-
- protected:
-  std::shared_ptr<Expr> size;  // is it really safe for this to be Expr?
-};
-
-
-class ConstId : public Id {
- public:
-  ConstId(std::string lexeme, Type type, std::shared_ptr<Expr> value);
-  virtual ~ConstId();
+  Expr(Type type);
+  virtual ~Expr();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
-  Expr& get_value() { return *value; }
+  Type get_type() { return type; }
 
  protected:
-  std::shared_ptr<Expr> value;
+  Type type;
 };
 
 
 class Access : public Expr {
  public:
-  Access(std::shared_ptr<Id> id);
+  Access(std::string name, int size, std::shared_ptr<Type> type);
   virtual ~Access();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
-  int get_size() { return id->get_size(); }
 
-  Id& get_id() { return *id; }
-  std::shared_ptr<Id> get_id_ptr() { return id; }
+  virtual int get_size() { return size; }
+  const std::string& get_name() { return name; }
 
  protected:
-  std::shared_ptr<Id> id;
+  std::string name;
+  int size;
 };
 
 
 class ArrayAccess : public Access {
  public:
-  ArrayAccess(std::shared_ptr<Id> id, std::shared_ptr<Expr> index);
+  ArrayAccess(std::string name, std::shared_ptr<Type> type, std::shared_ptr<Expr> index);
   virtual ~ArrayAccess();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
 
-  Expr& get_index() { return *index; }
+  std::shared_ptr<Expr> get_index() { return index; }
 
  protected:
   std::shared_ptr<Expr> index;
 };
 
 
-class RecAccess : public Expr {
+class RecAccess : public Access {
  public:
-  RecAccess(std::shared_ptr<Expr> record, std::shared_ptr<Expr> field);
+  RecAccess(std::string name, std::shared_ptr<Type> type);
   virtual ~RecAccess();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+  void add_access(std::shared_ptr<Access> access);
 
-  Expr& get_record() { return *record; }
-  Expr& get_field() { return *field; }
+  std::vector<std::shared_ptr<Access>>& get_acs() { return acs; }
 
  protected:
-  std::shared_ptr<Expr> record;
-  std::shared_ptr<Expr> field;
+  std::vector<std::shared_ptr<Access>> acs;
 };
 
 
@@ -125,8 +76,8 @@ class Binary : public Expr {
   virtual void display(std::ostream& os) const;
 
   Operator& get_op() { return op; }
-  Expr& get_lhs() { return *lhs; }
-  Expr& get_rhs() { return *rhs; }
+  std::shared_ptr<Expr> get_lhs() { return lhs; }
+  std::shared_ptr<Expr> get_rhs() { return rhs; }
 
  protected:
   Operator op;
@@ -143,7 +94,7 @@ class Unary : public Expr {
   virtual void display(std::ostream& os) const;
 
   Operator& get_op() { return op; }
-  Expr& get_expr() { return *expr; }
+  std::shared_ptr<Expr> get_expr() { return expr; }
 
  protected:
   Operator op;

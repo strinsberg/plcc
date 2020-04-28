@@ -9,6 +9,13 @@
 #include <string>
 #include <memory>
 
+class Stmt : public AstNode {
+ public:
+  Stmt();
+  virtual ~Stmt();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+};
 
 class Seq : public Stmt {
  public:

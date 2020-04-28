@@ -8,6 +8,20 @@
 #include <memory>
 using namespace std;
 
+// STMT ///////////////////////////////////////////////////////////////
+Stmt::Stmt() {
+  name = "EMPTY STMT";
+}
+
+Stmt::~Stmt() {}
+
+void Stmt::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void Stmt::display(ostream& out) const {
+  AstNode::display(out);
+}
 
 // SEQ ////////////////////////////////////////////////////////////////
 

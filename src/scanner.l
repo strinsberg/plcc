@@ -20,7 +20,6 @@ letter [a-zA-Z]
 digit [0-9]                                                                    
 number {digit}*
 name ({letter}|_)({letter}|digit|_)*
-character :.
 string \"[^\"]*\"
 
 /* might be possible to use bison for single chars to reduce rules here */

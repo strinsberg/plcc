@@ -293,20 +293,20 @@ character: CHARACTER { $$ = actions->constant(symbol::CHAR, temp_ch); }
   ;
 
 number: num DOT NUMBER { $$ = actions->constant(symbol::FLOAT, $1, yytext); }
-  | num { $$ = actions->constant(symbol::INT, $1); }
+  | num { $$ = actions->); }
   ;
 
-num: NUMBER { $$ = temp_num; }
+num: NUMBER { $$ = std::string(yytext); }
   ;
 
-bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }
-  | FALSE { $$ = actions->constant(symbol::FALSE, 0); }
+bool_sym: TRUE { $$ = make_shared<IntBased>(1); }
+  | FALSE { $$ = make_shared<IntBased>(0); }
   ;
 
-string: STRING { $$ = actions->const_string(std::string(yytext)); }
+string: STRING { $$ = make_shared<StringLiteral>(std::string(yytext)); }
   ;
 
-endl: NEWLINE { $$ = actions->constant(symbol::CHAR, '\n'); }
+endl: NEWLINE { $$ = make_shared<IntBased>('\n'); }
   ;
 
 name: NAME { $$ = std::string(yytext); }
