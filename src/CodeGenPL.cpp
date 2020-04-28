@@ -63,8 +63,11 @@ void CodeGenPL::visit(VarDef& node) {
     var_lengths.pop_back();
 
     if (node.get_id()->get_type().kind == symbol::ARRAY
-        and node.get_id()->get_type().type == symbol::FLOAT)
+        and node.get_id()->get_type().type == symbol::FLOAT) {
       size *= 2;
+    } else if (node.get_id()->get_type().kind == symbol::RECORD) {
+      size = types[node.get_id()->get_type().name].size;
+    }
 
     var_lengths.back() += size;
   }
@@ -87,11 +90,16 @@ void CodeGenPL::visit(ProcDef& node) {
 
 void CodeGenPL::visit(RecDef& node) {
   admin->debug("rec def");
+
   access = REC; 
   var_lengths.push_back(0);
   rec_types.push_back(node.get_name());
-  types[node.get_name()]; 
+
+  TypeEntry& type = types[node.get_name()]; 
   node.get_defs().visit(*this);
+  type.size = var_lengths.back();
+  cout << type.size << endl;
+
   rec_types.pop_back();
   var_lengths.pop_back();
 }
