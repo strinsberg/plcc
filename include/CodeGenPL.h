@@ -78,7 +78,7 @@ class CodeGenPL : public TreeWalker {
   std::map<std::string, TypeEntry> types;
   std::vector<std::string> rec_types;
 
-  enum Acs{DEF, VAR, VAL, SIZE, CALL, REC};
+  enum Acs{DEF, VAR, VAL, SIZE, CALL, REC, REC_DEF};
   Acs access;
 
   TableEntry table_find(std::string name);

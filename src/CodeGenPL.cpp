@@ -48,7 +48,7 @@ void CodeGenPL::visit(DefPart& node) {
 
 void CodeGenPL::visit(VarDef& node) {
   admin->debug("var def");
-  if (access != REC)
+  if (access != REC_DEF)
     access = DEF;
   node.get_id()->visit(*this);
 
@@ -91,14 +91,13 @@ void CodeGenPL::visit(ProcDef& node) {
 void CodeGenPL::visit(RecDef& node) {
   admin->debug("rec def");
 
-  access = REC; 
+  access = REC_DEF; 
   var_lengths.push_back(0);
   rec_types.push_back(node.get_name());
 
   TypeEntry& type = types[node.get_name()]; 
   node.get_defs().visit(*this);
   type.size = var_lengths.back();
-  cout << type.size << endl;
 
   rec_types.pop_back();
   var_lengths.pop_back();
@@ -128,9 +127,15 @@ void CodeGenPL::visit(Id& node) {
   } else if (access == SIZE) {
     node.get_size_expr().visit(*this);
 
+  } else if (access == REC_DEF) {
+    TypeEntry& type_ent = types[rec_types.back()];
+    type_ent.fields[node.get_name()] = {var_lengths.back() + 3, node.get_type()};
+
   } else if (access == REC) {
     TypeEntry& type_ent = types[rec_types.back()];
-    type_ent.fields[node.get_name()] = {var_lengths.back(), node.get_type()};
+    auto pp = type_ent.fields[node.get_name()];  
+    var_lengths.back() += pp.first;
+    admin->debug("===== " + node.get_name() + " " + to_string(pp.first));
 
   } else {
     TableEntry ent = table_find(name);
@@ -219,7 +224,6 @@ void CodeGenPL::visit(ConstString& node) {
 
 
 void CodeGenPL::visit(Access& node) {
-  // Has an id 
   admin->debug("access");
   node.get_id().visit(*this);
 }
@@ -227,37 +231,75 @@ void CodeGenPL::visit(Access& node) {
 void CodeGenPL::visit(ArrayAccess& node) {
   admin->debug("array access");
 
-  auto acs = access;  // save access type
+  if (access == REC) {
+    node.get_id().visit(*this);
+    node.get_index().visit(*this);
+    // Probably still need to index the array with the given value, but
+    // this changes the plan. Perhaps records need to be indexed with a value
+    // that is their displacement like an array is indexed with a value?
+  } else {
+    auto acs = access;  // save access type
 
-  access = VAR;
-  node.get_id().visit(*this);
+    access = VAR;
+    node.get_id().visit(*this);
 
-  access = VAL;
-  node.get_index().visit(*this);
+    access = VAL;
+    node.get_index().visit(*this);
 
-  if (node.get_id().get_type().type == symbol::FLOAT)
-    ops.push_back(symbol::OP_DB_INDEX);
-  else
-    ops.push_back(symbol::OP_INDEX);
+    if (node.get_id().get_type().type == symbol::FLOAT)
+      ops.push_back(symbol::OP_DB_INDEX);
+    else
+      ops.push_back(symbol::OP_INDEX);
 
-  access = SIZE;
-  var_lengths.push_back(0);
-  node.get_id().get_size_expr().visit(*this);  // To add size for bounds
-  ops.push_back(var_lengths.back());
-  ops.push_back(-2);  // Supposed to be line number for interpreter error
-  var_lengths.pop_back();
+    access = SIZE;
+    var_lengths.push_back(0);
+    node.get_id().get_size_expr().visit(*this);  // To add size for bounds
+    ops.push_back(var_lengths.back());
+    ops.push_back(-2);  // Supposed to be line number for interpreter error
+    var_lengths.pop_back();
 
-  if (acs == VAL or acs == SIZE) {  // size is for write array access
-    ops.push_back(symbol::to_op(node.get_id().get_type().type));
-    current_address++;
+    if (acs == VAL or acs == SIZE) {  // size is for write array access
+      ops.push_back(symbol::to_op(node.get_id().get_type().type));
+      current_address++;
+    }
+    current_address += 3;
   }
-  current_address += 3;
 }
 
 
 void CodeGenPL::visit(RecAccess& node) {
   admin->debug("rec access");
+  // This should just be a VARIABLE output
+  // The block offest should be for the top most id
+  // the displacement should be for the bottom most id
+  // the type if value should be for the bottom most id 
+  Acs temp = access;
+
+  if (access != REC) {
+    var_lengths.push_back(0);
+    rec_types.push_back(node.get_record().get_type().name);
+  }
+
+  node.get_record().visit(*this);
+
+  access = REC;
+  node.get_field().visit(*this);
+
+  access = temp;
+  if (access != REC) {
+    int size = var_lengths.back();
+    if (access == VAL) {
+      ops.at(ops.size() - 2) = size;
+      ops.back() = symbol::OP_INT;
+    } else {
+      ops.back() = size;
+    }
+    var_lengths.pop_back();
+    rec_types.pop_back();
+    admin->debug("end rec access: " + to_string(size));
+  }
 }
+
 
 void CodeGenPL::visit(Binary& node) {
   admin->debug("binary");
@@ -536,5 +578,6 @@ TableEntry CodeGenPL::table_find(std::string name) {
     if (entry_it != it->end())
       return entry_it->second;
   }
-  throw fatal_error("entry not found in codegen table");
+  string message = "entry not found in codegen table: " + name;
+  throw fatal_error(message.c_str());
 }

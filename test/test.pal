@@ -1,18 +1,10 @@
 begin
   record Point
     int x,y;
-    bool array[10] arr;
   end record;
 
-  record PP
-    type Point p;
-  end record;
-
-  type PP pp, bb;
   type Point point;
 
-  pp.p := point;
-  pp.p.x, pp.p.y := 1, 2;
-  write pp.p.x, pp.p.y;
-  write point.arr[pp.p.x];
+  point.x, point.y := 1, 2;
+  write point.x, endl, point.y, endl;
 end.

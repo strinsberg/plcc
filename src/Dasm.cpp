@@ -21,7 +21,7 @@ const vector<string> OPS{
   "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
   "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT",
   "STRING", "SCALAR", "ARRAY", "DB_INDEX",
-  "LEQ", "GEQ", "NEQ", "READLN",
+  "LEQ", "GEQ", "NEQ", "READLN", "RECORD",
 };
 
 

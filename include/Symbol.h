@@ -95,7 +95,7 @@ enum OpCode {
   OP_OR, OP_PROC, OP_PROG, OP_READ, OP_SUBTRACT, OP_VALUE, OP_VARIABLE,
   OP_WRITE, OP_BLOCK, OP_ENDBLOCK, OP_CHAR, OP_INT, OP_FLOAT, OP_BOOL,
   OP_DB_CONSTANT, OP_STRING, OP_SCALAR, OP_ARRAY, OP_DB_INDEX,
-  OP_LEQ, OP_GEQ, OP_NEQ, OP_READLINE
+  OP_LEQ, OP_GEQ, OP_NEQ, OP_READLINE, OP_RECORD,
 };
 
 // Messages
@@ -107,7 +107,7 @@ static const std::string op_name[] = {
  "or", "proc", "prog", "read", "subtract", "value",
  "variable", "write", "block", "endblock", "char", "int", "float", "bool",
  "db_constant", "string", "scalar", "array", "double index",
- "less equal", "greater equal", "not equal", "readline",
+ "less equal", "greater equal", "not equal", "readline", "record",
 };
 
 
@@ -134,6 +134,7 @@ const std::map<Tag, OpCode> tag_to_op{
   {FLOAT, OP_FLOAT},
   {BOOL, OP_BOOL},
   {STRING, OP_STRING},
+  {RECORD, OP_RECORD},
 };
 
 inline OpCode to_op(Tag t, bool sub = false) {
