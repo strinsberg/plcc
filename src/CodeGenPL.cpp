@@ -32,20 +32,24 @@ void CodeGenPL::walk(AstNode& node) {
 }
 
 void CodeGenPL::visit(AstNode& node) {
-  admin->debug("ASTNODE VISIT");
+  admin->debug("ASTNODE VISIT: " + node.get_name());
 }
 
 
 // Def nodes
-void CodeGenPL::visit(DefSeq& node) {
-  admin->debug("def seq");
-  node.get_first().visit(*this);
-  node.get_rest().visit(*this);
+void CodeGenPL::visit(DefPart& node) {
+  admin->debug("def part");
+  Acs temp = access; 
+  for (auto& def : node.get_defs()) {
+    def->visit(*this);
+    access = temp;
+  }
 }
 
 void CodeGenPL::visit(VarDef& node) {
   admin->debug("var def");
-  access = DEF;
+  if (access != REC)
+    access = DEF;
   node.get_id()->visit(*this);
 
   if (node.get_id()->get_type().qual != symbol::CONST) {
@@ -81,6 +85,18 @@ void CodeGenPL::visit(ProcDef& node) {
 }
 
 
+void CodeGenPL::visit(RecDef& node) {
+  admin->debug("rec def");
+  access = REC; 
+  var_lengths.push_back(0);
+  rec_types.push_back(node.get_name());
+  types[node.get_name()]; 
+  node.get_defs().visit(*this);
+  rec_types.pop_back();
+  var_lengths.pop_back();
+}
+
+
 // Expr nodes
 void CodeGenPL::visit(Id& node) {
   string name = node.get_name();
@@ -103,6 +119,10 @@ void CodeGenPL::visit(Id& node) {
     
   } else if (access == SIZE) {
     node.get_size_expr().visit(*this);
+
+  } else if (access == REC) {
+    TypeEntry& type_ent = types[rec_types.back()];
+    type_ent.fields[node.get_name()] = {var_lengths.back(), node.get_type()};
 
   } else {
     TableEntry ent = table_find(name);
@@ -227,6 +247,10 @@ void CodeGenPL::visit(ArrayAccess& node) {
 }
 
 
+void CodeGenPL::visit(RecAccess& node) {
+  admin->debug("rec access");
+}
+
 void CodeGenPL::visit(Binary& node) {
   admin->debug("binary");
   access = VAL;
@@ -276,6 +300,7 @@ void CodeGenPL::visit(Block& node) {
   ops.push_back(-2);
   ops.push_back(-2);
 
+  access = DEF;
   node.get_defs().visit(*this);
   ops.at(x) = var_lengths.back();
   ops.at(y) = current_address;
