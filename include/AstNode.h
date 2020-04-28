@@ -11,55 +11,46 @@
 
 class AstNode {
  public:
-  AstNode(std::string name);
+  AstNode();
   virtual ~AstNode();
   virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& out) const;
-
+  virtual void display(std::ostream& os) const;
+  bool is_null() { return null; }
+  void set_null(bool n) { null = n; }
   std::string get_name() { return name; }
-
+  void set_name(std::string n) { name = n; }
   friend std::ostream& operator<< (std::ostream& out, const AstNode& node);
 
  protected:
   std::string name;
+  bool null;
 };
 
 
-class DefPart : public AstNode {
+class Expr : public AstNode {
  public:
-  DefPart();
-  DefPart(std::shared_ptr<Def> def);
-  virtual ~DefPart();
+  Expr(Type type);
+  virtual ~Expr();
   virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& out) const;
-  std::shared_ptr<Def> get_def(std::string name);
-  void add_defs(std::shared_ptr<DefPart> defs);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return 1; }
 
-  void add_def(std::shared_ptr<Def> def) { defs.push_back(def); }
-  std::vector<std::shared_ptr<Def>>& get_defs() { return defs; }
-  size_t get_size() { return defs.size(); }
+  Type get_type() { return type; }
+  void set_type(Type t) { type = t; }
 
  protected:
-  std::vector<std::shared_ptr<Def>> defs;
+  Type type;
 };
 
 
-class StmtPart : public AstNode {
+
+
+class Stmt : public AstNode {
  public:
-  StmtPart();
-  StmtPart(std::shared_ptr<Stmt> stmt);
-  virtual ~StmtPart();
+  Stmt();
+  virtual ~Stmt();
   virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& out) const;
-  void add_stmts(std::shared_ptr<Stmt> stmts);
-
-  void add_stmt(std::shared_ptr<Stmt> stmt) { stmts.push_back(stmt); }
-  std::vector<std::shared_ptr<Stmt>>& get_stmts() { return stmts; }
-  size_t get_size() { return stmts.size(); }
-
- protected:
-  std::vector<std::shared_ptr<Stmt>> stmts;
+  virtual void display(std::ostream& os) const;
 };
-
 
 #endif

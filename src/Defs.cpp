@@ -5,10 +5,15 @@
 #include <memory>
 using namespace std;
 
-
 // DEF ////////////////////////////////////////////////////////////////
+Def::Def() {
+  name = "EMPTY DEF";
+  id = make_shared<Id>("null id", Type(), make_shared<Constant>());
+}
 
-Def::Def(shared_ptr<Type> t) : AstNode("Def"), type(t) {}
+Def::Def(shared_ptr<Id> i) : id(i) {
+  name = id->get_name();
+}
 
 Def::~Def() {}
 
@@ -17,53 +22,71 @@ void Def::visit(TreeWalker& walker) {
 }
 
 void Def::display(ostream& out) const {
-  out << *type << ":";
-  for (auto& n : names)
-    out << n << " ";
+  AstNode::display(out);
 }
 
-bool add_name(std::string name) {
-  if (names.count(name))
-    return false;
+// VARDEF /////////////////////////////////////////////////////////////
 
-  names.insert(name);
-  return true;
-}
+VarDef::VarDef(shared_ptr<Id> i) : Def(i) {}
 
-bool Def::has_name(std::string name) {
-  return names.count(name);
-}
+VarDef::~VarDef() {}
 
-// Const Def //////////////////////////////////////////////////////////
-
-ConstDef::ConstDef(std::string n, shared_ptr<Type> t, shared_ptr<Literal> v)
-    : Def(t), value(v) {
-  name = n;
-}
-
-~ConstDef::ConstDef() {}
-
-void ConstDef::visit(TreeWalker& walker) {
+void VarDef::visit(TreeWalker& walker) {
   walker.visit(*this);
 }
 
-void ConstDef::display(std::ostream& out) const {
-  Def::display(out);
-  out << "(" << *value << ")";
+void VarDef::display(ostream& out) const {
+  out << *id;
 }
 
-bool ConstDef::has_name(std::string n) {
-  return n == name;
+
+// DEFSEQ /////////////////////////////////////////////////////////////
+
+DefSeq::DefSeq(shared_ptr<Def> f, shared_ptr<Def> r)
+    : first(f), rest(r) {}
+
+DefSeq::~DefSeq() {}
+
+void DefSeq::visit(TreeWalker& walker) {
+  walker.visit(*this);
 }
+
+void DefSeq::display(ostream& out) const {
+  out << *first << endl << *rest;
+}
+
+
+// DefPart ////////////////////////////////////////////////////////////
+DefPart::DefPart() : Def() {
+  name = "Def Part";
+}
+
+DefPart::DefPart(std::shared_ptr<Def> def) : Def() {
+  name = "Def Part";
+  defs.push_back(def);
+}
+
+DefPart::~DefPart() {}
+
+void DefPart::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void DefPart::display(std::ostream& out) const {
+  for (auto& def : defs)
+    out << *def << endl;
+}
+
+void DefPart::add_defs(std::shared_ptr<DefPart> definitions) {
+  for (auto def : definitions->get_defs())
+    defs.push_back(def);
+}
+
 
 // PROCDEF ////////////////////////////////////////////////////////////
 
-ProcDef::ProcDef(string n, shared_ptr<Block> b)
-    : Def( make_shared<Type>() ), block(b)  {
-  // Type needs to be set to a type appropriate for a procedure
-  // Once type has been re-worked to hold the right things
-  name = n;
-}
+ProcDef::ProcDef(shared_ptr<Id> i, shared_ptr<Stmt> b)
+    : Def(i), block(b)  {}
 
 ProcDef::~ProcDef() {}
 
@@ -72,23 +95,13 @@ void ProcDef::visit(TreeWalker& walker) {
 }
 
 void ProcDef::display(ostream& out) const {
-  out << endl << "PROC" << endl;
-  out << *id << endl;
+  out << endl << "PROC" << endl << *id;
   out << *block << "ENDPROC";
 }
 
-bool ProcDef::has_name(std::string n) {
-  return n == name;
-}
+// Record Definition //////////////////////////////////////////////////
 
-
-// RECDEF /////////////////////////////////////////////////////////////
-
-RecDef::RecDef(std::string n, shared_ptr<DefPart> d)
-    : Def( make_shared<Type>() ), defs(d) {
-  // Type needs to be created appropriately for a record
-  name = n;
-}
+RecDef::RecDef(shared_ptr<Id> n, shared_ptr<Def> d) : Def(n), defs(d) {}
 
 RecDef::~RecDef() {}
 
@@ -101,9 +114,4 @@ void RecDef::display(std::ostream& out) const {
   out << *id << endl;
   out << *defs << endl << "ENDREC";
 }
-
-bool RecDef::has_name(std::string name) {
-  return defs->get_def(name) == nullptr;
-}
-
 

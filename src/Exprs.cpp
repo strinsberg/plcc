@@ -8,33 +8,111 @@
 using namespace std;
 
 
-// EXPR ///////////////////////////////////////////////////////////////
+// Constant ///////////////////////////////////////////////////////////
 
-Expr::Expr(Type t) : AstNode("ExprNode"), type(t) {}
+Constant::Constant(int v)
+    : Expr( Type(symbol::INT, symbol::UNIVERSAL, symbol::CONST) ),
+      value(v), exp(1) {}
 
-Expr::~Expr() {}
+Constant::Constant(Type t, int v, int e)
+    : Expr(t), value(v), exp(e) {}
 
-void Expr::visit(TreeWalker& walker) {
+Constant::~Constant() {}
+
+void Constant::visit(TreeWalker& walker) {
   walker.visit(*this);
 }
 
-void Expr::display(ostream& out) const {
-  out << name << "(";
-  if (type.type == symbol::RECORD)
-    out << type.name;
-  else
-    out << symbol::to_string.at(type.type);
-  out << ")";
+void Constant::display(ostream& out) const {
+  if (type.type == symbol::CHAR) {
+    out << (char)value;
+  } else if (type.type == symbol::FLOAT) {
+    out << (double)value / exp;
+
+  } else {
+    out << value;
+  }
+  Expr::display(out);
+}
+
+
+// Constant String ////////////////////////////////////////////////////
+
+ConstString::ConstString(std::string str) : Constant(str.size() - 2),
+    text(str.substr(1, str.size() - 2)) {
+  type.type = symbol::STRING;
+  type.kind = symbol::ARRAY;
+}
+
+ConstString::~ConstString() {}
+
+void ConstString::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void ConstString::display(std::ostream& out) const {
+  out << "\"" << text << "\"";
+}
+
+
+// Id /////////////////////////////////////////////////////////////////
+
+Id::Id(string l, Type type, shared_ptr<Expr> s) : Expr(type), size(s) {
+  name = l;
+
+  // array ids must have a const int size
+  if (type.kind == symbol::ARRAY) {
+    if (size->get_type().qual != symbol::CONST)
+      throw type_error("array size must be a constant");
+
+    if (size->get_type().type != symbol::INT)
+      throw type_error("array size must be int");
+  }
+}
+
+Id::~Id() {}
+
+void Id::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void Id::display(ostream& out) const {
+  out << name;
+  Expr::display(out);
+  out << "(" << symbol::str(type.kind) << ")";
+}
+
+
+// Const Id ////////////////////////////////////////////////////////////
+
+ConstId::ConstId(string l, Type t, shared_ptr<Expr> c) 
+    : Id(l, t, make_shared<Constant>()), value(c) {
+
+  if (t.type != value->get_type().type)
+    throw type_error("constant variable type does not match value type");
+
+  if (c->get_type().qual != symbol::CONST)
+    throw type_error("values assigned to constants must be constant");
+}
+
+ConstId::~ConstId() {}
+
+void ConstId::visit(TreeWalker& walker) {
+  walker.visit(*this);
+}
+
+void ConstId::display(ostream& out) const {
+  Id::display(out);
+  out << "(Const: " << *value << ")";
 }
 
 
 // Access /////////////////////////////////////////////////////////////
 
-Access::Access(string n, int s, shared_ptr<Type> t)
-    : Expr(t), name(n), size(s) {} 
+Access::Access(shared_ptr<Id> i) : Expr( i->get_type() ) , id(i) {
+  name = id->get_name();
 
   // This works as long as it is not possible to have const arrays
-  // Should this be kept????
   if (type.kind == symbol::ARRAY)
     type.qual = symbol::ARRAY;  // We are accessing the whole array
 }
@@ -46,20 +124,15 @@ void Access::visit(TreeWalker& walker) {
 }
 
 void Access::display(ostream& out) const {
-  Expr::display(out);
-  out << "(access)";
+  out << *id << "(access)";
 }
 
 
 // ArrayAccess ////////////////////////////////////////////////////////
 
-ArrayAccess::ArrayAccess(string n, shared_ptr<Type> t, shared_ptr<Expr> idx)
-    : Access(i, 1, t), index(idx) {
-
-  // If arrays can ever hold arrays or records then the size will
-  // need to be set appropriately
-
-  if (type.kind != symbol::ARRAY)
+ArrayAccess::ArrayAccess(shared_ptr<Id> i, shared_ptr<Expr> idx)
+    : Access(i), index(idx) {
+  if (i->get_type().kind != symbol::ARRAY)
     throw type_error("variable must be array");
 
   if (index->get_type().type != symbol::INT)
@@ -81,8 +154,10 @@ void ArrayAccess::display(ostream& out) const {
 
 // Record Access //////////////////////////////////////////////////////
 
-RecAccess::RecAccess(string n, shared_ptr<Type> t) : Access(n, t) {}
-  if (type.kind != symbol::RECORD) {
+RecAccess::RecAccess(shared_ptr<Expr> r, shared_ptr<Expr> f)
+    : Expr(f->get_type()), record(r), field(f) {
+  name = record->get_name() + "." + field->get_name();
+  if (record->get_type().kind != symbol::RECORD) {
     throw type_error("variable is not a record");
   }
 }
@@ -95,13 +170,6 @@ void RecAccess::visit(TreeWalker& walker) {
 
 void RecAccess::display(std::ostream& out) const {
   out << *record << " DOT " << *field;
-}
-
-void RecAccess::add_access(std::shared_ptr<Access> access) {
-  if (acs.size() and acs.back().get_type().kind != symbol::RECORD)
-    throw type_error("variable is not a record");
-
-  acs.push_back(access);
 }
 
 

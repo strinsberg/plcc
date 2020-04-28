@@ -3,12 +3,8 @@
 #include <iostream>
 using namespace std;
 
-
 // AST ////////////////////////////////////////////////////////////////
-
-AstNode::AstNode() : name("AstNode") {}
-
-AstNode::AstNode(std::string n) : name(n) {}
+AstNode::AstNode() : name("Ast Node"), null(false) {}
 
 AstNode::~AstNode() {}
 
@@ -26,64 +22,40 @@ ostream& operator<< (ostream& out, const AstNode& node) {
 }
 
 
-// DefPart ////////////////////////////////////////////////////////////
-
-DefPart::DefPart() : AstNode("DefPart") {}
-
-DefPart::DefPart(std::shared_ptr<Def> def) : DefPart() {
-  defs.push_back(def);
+// EXPR ///////////////////////////////////////////////////////////////
+Expr::Expr(Type t) : type(t) {
+  name = "Expr Node";
 }
 
-DefPart::~DefPart() {}
+Expr::~Expr() {}
 
-void DefPart::visit(TreeWalker& walker) {
+void Expr::visit(TreeWalker& walker) {
   walker.visit(*this);
 }
 
-void DefPart::display(std::ostream& out) const {
-  out << "DEF_PART" << endl;
-  for (auto& def : defs)
-    out << *def << endl;
-}
-
-std::shared_ptr<Def> DefPart::get_def(std::string name) {
-  for (auto def : defs) {
-    if (def.has_name(name))
-      return def;
-  }
-  return nullptr;
-}
-
-void DefPart::add_defs(std::shared_ptr<DefPart> definitions) {
-  for (auto def : definitions->get_defs())
-    defs.push_back(def);
+void Expr::display(ostream& out) const {
+  out << "(";
+  if (type.type == symbol::RECORD)
+    out << type.name;
+  else
+    out << symbol::to_string.at(type.type);
+  out << ")";
 }
 
 
-// STMT_PART //////////////////////////////////////////////////////////
 
-StmtPart::StmtPart() : AstNode("StmtPart") {}
 
-StmtPart::StmtPart(std::shared_ptr<Stmt> stmt) : StmtPart() {
-  stmts.push_back(stmt);
+// STMT ///////////////////////////////////////////////////////////////
+Stmt::Stmt() {
+  name = "EMPTY STMT";
 }
 
-StmtPart::~StmtPart() {}
+Stmt::~Stmt() {}
 
-void StmtPart::visit(TreeWalker& walker) {
+void Stmt::visit(TreeWalker& walker) {
   walker.visit(*this);
 }
 
-void StmtPart::display(std::ostream& out) const {
-  out << "STMT_PART" << endl;
-  for (auto& stmt : stmts)
-    out << *stmt << endl;
+void Stmt::display(ostream& out) const {
+  AstNode::display(out);
 }
-
-void StmtPart::add_stmts(std::shared_ptr<Stmt> statements) {
-  for (auto stmt : statements->get_stmts())
-    stmts.push_back(stmt);
-}
-
-
-

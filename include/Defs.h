@@ -2,77 +2,100 @@
 #define PLCC_DEFS_H
 
 #include "AstNode.h"
-#include "Type.h"
+#include "Exprs.h"
 #include "TreeWalker.h"
 #include <iostream>
 #include <string>
 #include <memory>
-#include <set>
-
+#include <vector>
 
 class Def : public AstNode {
  public:
-  Def(std::shared_ptr<Type> type);
+  Def();
+  Def(std::shared_ptr<Id> id);
   virtual ~Def();
   virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& out) const;
-  virtual bool add_name(std::string name);
-  virtual bool has_name(std::string name);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return 1; }
 
-  virtual const std::set<std::string>& get_names() { return names; }
-  virtual std::shared_ptr<Type> get_type() { return type; }
-  virtual size_t get_size() { return names.size(); }
+  virtual std::shared_ptr<Id> get_id() { return id; }
 
  protected:
-  std::shared_ptr<Type> type;
-  std::set<std::string> names;
+  std::shared_ptr<Id> id;
+};
+
+// Now that all Defs have an id this can probably be gotten rid of
+class VarDef : public Def {
+ public:
+  VarDef(std::shared_ptr<Id> i);
+  virtual ~VarDef();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return id->get_size(); }
 };
 
 
-class ConstDef : public Def {
+class DefSeq : public Def {
  public:
-  ConstDef(std::string name, std::shared_ptr<Type> type, std::shared_ptr<Literal> value);
-  virtual ~ConstDef();
+  DefSeq(std::shared_ptr<Def> first, std::shared_ptr<Def> rest);
+  virtual ~DefSeq();
   virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& out) const;
-  virtual bool has_name(std::string name);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return first->get_size() + rest->get_size(); }
 
-  std::shared_ptr<Literal> get_value() { return value; }
+  Def& get_first() { return *first; }
+  Def& get_rest() { return *rest; }
 
  protected:
-  std::shared_ptr<Literal> value;
+  std::shared_ptr<Def> first;
+  std::shared_ptr<Def> rest;
+};
+
+
+// To replace DefSeq eventually
+class DefPart : public Def {
+ public:
+  DefPart();
+  DefPart(std::shared_ptr<Def> def);
+  virtual ~DefPart();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return defs.size(); }
+
+  void add_defs(std::shared_ptr<DefPart> defs);
+  void add_def(std::shared_ptr<Def> def) { defs.push_back(def); }
+  std::vector<std::shared_ptr<Def>>& get_defs() { return defs; }
+
+ protected:
+  std::vector<std::shared_ptr<Def>> defs;
 };
 
 
 class ProcDef : public Def {
  public:
-  ProcDef(std::string name, std::shared_ptr<Block> block);
+  ProcDef(std::shared_ptr<Id> name, std::shared_ptr<Stmt> block);
   virtual ~ProcDef();
   virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& out) const;
-  virtual bool has_name(std::string name);
+  virtual void display(std::ostream& os) const;
+  // Later should return the number of params. Probably stored in the name.
+  virtual int get_size() { return id->get_size(); }
 
-  virtual int get_size() { return block->get_defs()->get_size(); }
-  virtual std::shared_ptr<Block> get_block() { return *block; }
+  Stmt& get_block() { return *block; }
 
  protected:
-  std::shared_ptr<Block> block;
+  std::shared_ptr<Stmt> block;
 };
-
 
 class RecDef : public Def {
  public:
-  RecDef(std::string name, std::shared_ptr<DefPart> defs);
+  RecDef(std::shared_ptr<Id> name, std::shared_ptr<Def> defs);
   virtual ~RecDef();
   virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& out) const;
-  virtual bool has_name(std::string name);
-  virtual bool has_field(std::string name);
+  virtual void display(std::ostream& os) const;
 
-  virtual std::shared_ptr<DefPart> get_defs() { return defs; }
+  Def& get_defs() { return *defs; }
 
  protected:
-  std::shared_ptr<DefPart> defs;
+  std::shared_ptr<Def> defs;
 };
-
 #endif
