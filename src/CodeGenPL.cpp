@@ -290,7 +290,7 @@ void CodeGenPL::visit(RecAccess& node) {
     int size = var_lengths.back();
     if (access == VAL) {
       ops.at(ops.size() - 2) = size;
-      ops.back() = symbol::OP_INT;
+      ops.back() = symbol::to_op(node.get_type().type);
     } else {
       ops.back() = size;
     }

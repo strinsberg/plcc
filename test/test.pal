@@ -1,10 +1,12 @@
 begin
   record Point
     int x,y;
+    float f;
   end record;
 
   type Point point;
+  float F;
 
-  point.x, point.y := 1, 2;
-  write point.x, endl, point.y, endl;
+  point.x, point.y, point.f := 1, 2, 3.14;
+  write point.x, endl, point.y, endl, point.f, endl;
 end.
