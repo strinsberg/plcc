@@ -137,6 +137,7 @@ void CodeGenPL::visit(Id& node) {
     auto pp = type_ent.fields[node.get_name()];  
     ops.push_back(symbol::OP_ACCESS);
     ops.push_back(pp.first);
+    current_address += 2;
     admin->debug("===== " + rec_types.back() + " " + node.get_name() + " " + to_string(pp.first));
 
   } else {
@@ -277,8 +278,10 @@ void CodeGenPL::visit(RecAccess& node) {
   node.get_field().visit(*this);
 
   access = acs;
-  if (access == VAL or access == SIZE) 
+  if (access == VAL or access == SIZE) {
     ops.push_back(symbol::to_op(node.get_type().type));
+    current_address++;
+  }
 
   if (access != REC)
     rec_types.pop_back();

@@ -1,14 +1,17 @@
 begin
+  int i;
   record Struct
-    int a, b;
-    float f;
     char array[20] name;
   end record;
 
   type Struct mine;
-  mine.a, mine.b, mine.f := 1, 3, 5.84;
-  mine.name[0], mine.name[1] := '%', '$';
 
-  write mine.a, " ", mine.b, " ", mine.f, endl;
-  write mine.name[0], " ", mine.name[1], endl;
+  mine.name := "I am steven";
+
+  i := 0;
+  while i < 12 do
+    write mine.name[i];
+    i := i + 1;
+  end while;
+  write endl;
 end.
