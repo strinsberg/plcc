@@ -8,7 +8,7 @@ begin
     if n == 0 then
       skip;
     else if n < 0 then
-        write n;
+        write n, endl;
         n := n + 1;
         call zero_neg;
     end if;
@@ -19,7 +19,7 @@ begin
     if n == 0 then
       skip;
     else if n > 0 then
-        write n;
+        write n, endl;
         n := n - 1;
         call zero;
     else if n < 0 then
@@ -28,7 +28,9 @@ begin
   end proc;
 
   -- Read number and zero it
+  write "Recursively set a number to 0... because it's fun!", endl, endl;
+  write "Enter N: ";
   read n;
   call zero;
-  write n;
+  write n, endl;
 end.
