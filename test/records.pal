@@ -1,0 +1,35 @@
+begin
+  -- Define a point type
+  record Point
+    int x, y;
+    char array[20] name;
+  end record;
+
+  -- Define a 3D point that has a 2d point as a member
+  record Point3D
+    type Point p;
+    int z;
+  end record;
+
+  -- Define variables
+  type Point3D point;
+  int i,n;
+
+  -- Ask the user how many times they would like to run the program
+  write "How many time?: ";
+  read n;
+
+  -- Loop n times each time reading in the three point numbers and printing it
+  while i < n do
+    write "Name your point (20 char max): ";
+    readln point.p.name;
+
+    write "Enter 3 integers: ";
+    read point.p.x, point.p.y, point.z;
+
+    write point.p.name, ": ";
+    write '(', point.p.x, ",", point.p.y, ",", point.z, ')', endl;
+    i := i + 1;
+  end while;
+end.
+

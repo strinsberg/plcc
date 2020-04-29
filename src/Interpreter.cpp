@@ -367,6 +367,7 @@ void Interpreter::read(int count)
       store[address + i] = str.at(i);
     }
     store[address + i] = '\0';
+    cin.ignore();  // because getline is used in readline
     return;
   }
 
@@ -402,6 +403,7 @@ void Interpreter::read(int count)
       store[ store[x] ] = y;
     }
   }
+  cin.ignore();
 }
 
 void Interpreter::readline(int size) {

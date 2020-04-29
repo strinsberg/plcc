@@ -194,7 +194,7 @@ proc_stmt: CALL name { $$ = actions->proc_stmt($2); }
 
 /* should take var access list at most. this will allow read 1 + 2; */
 read_stmt: READ var_access_list { $$ = actions->io($2, symbol::READ); }
-  | READLN name { $$ = actions->readline($2); }
+  | READLN var_access { $$ = actions->readline($2); }
   ;
 
 

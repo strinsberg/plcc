@@ -1,12 +1,16 @@
 begin
-  int i;
-  record Struct
-    char array[20] name;
+  record Point
+    int x, y;
   end record;
 
-  type Struct mine;
+  record Point3D
+    type Point p;
+    int z;
+  end record;
 
-  mine.name := "I am steven";
+  type Point3D point;
 
-  write mine.name, endl;
+  point.p.x, point.p.y, point.z := 1,2,3;
+
+  write '(', point.p.x, ",", point.p.y, ",", point.z, ')', endl;
 end.

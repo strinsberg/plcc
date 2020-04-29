@@ -19,7 +19,7 @@ extern FILE* yyin;
 letter [a-zA-Z]                                                                
 digit [0-9]                                                                    
 number {digit}*
-name ({letter}|_)({letter}|digit|_)*
+name ({letter}|_)({letter}|{digit}|_)*
 character :.
 string \"[^\"]*\"
 
@@ -85,8 +85,8 @@ true          { return yy::parser::token::TRUE; }
 false         { return yy::parser::token::FALSE; }
 endl          { return yy::parser::token::NEWLINE; }
 
-{name}        { return yy::parser::token::NAME; }
 {number}      { return yy::parser::token::NUMBER; }
+{name}        { return yy::parser::token::NAME; }
 '.'           { return yy::parser::token::CHARACTER; }
 {string}      { return yy::parser::token::STRING; }
 

@@ -1,5 +1,5 @@
 -- Should test most constructs in the language currently.
--- Maybe not every possible combination, but the general useage for now.
+-- Not every possible combination, but the general useage for now.
 
 begin
   -- Different kinds of definitions

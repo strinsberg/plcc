@@ -141,8 +141,11 @@ void IoStmt::display(ostream& out) const {
 
 ReadLine::ReadLine(std::shared_ptr<Expr> id) : Stmt(), array_id(id) {
   if (array_id->get_type().type != symbol::CHAR
-      or array_id->get_type().kind != symbol::ARRAY)
+      or array_id->get_type().kind != symbol::ARRAY) {
+    cout << id->get_name() << " " << symbol::str(id->get_type().type) << endl;
+    cout << *id << endl;
     throw type_error("readline only works with character arrays");
+  }
 }
 
 ReadLine::~ReadLine() {}
