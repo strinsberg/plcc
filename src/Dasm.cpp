@@ -21,7 +21,7 @@ const vector<string> OPS{
   "VALUE", "VARIABLE", "WRITE", "BLOCK", "ENDBLOCK",
   "CHAR", "INT", "FLOAT", "BOOL", "DB_CONSTANT",
   "STRING", "SCALAR", "ARRAY", "DB_INDEX",
-  "LEQ", "GEQ", "NEQ", "READLN", "RECORD",
+  "LEQ", "GEQ", "NEQ", "READLN", "RECORD", "ACCESS",
 };
 
 
@@ -152,6 +152,11 @@ void Dasm::disassemble() {
     } else if (op == "ASSIGN") {
       *in >> temp;
       *out << setw(20) << left << temp << "% The number of assignments being made" << endl;
+      admin->newline();
+
+    } else if (op == "ACCESS") {
+      *in >> temp;
+      *out << setw(20) << left << temp << "% The offset of the access" << endl;
       admin->newline();
 
     } else if (op == "FI") {

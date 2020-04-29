@@ -129,13 +129,15 @@ void CodeGenPL::visit(Id& node) {
 
   } else if (access == REC_DEF) {
     TypeEntry& type_ent = types[rec_types.back()];
-    type_ent.fields[node.get_name()] = {var_lengths.back() + 3, node.get_type()};
+    type_ent.fields[node.get_name()] = {var_lengths.back(), node.get_type()};
+    admin->debug("+++++ " + node.get_name() + " " + to_string(var_lengths.back()));
 
   } else if (access == REC) {
     TypeEntry& type_ent = types[rec_types.back()];
     auto pp = type_ent.fields[node.get_name()];  
-    var_lengths.back() += pp.first;
-    admin->debug("===== " + node.get_name() + " " + to_string(pp.first));
+    ops.push_back(symbol::OP_ACCESS);
+    ops.push_back(pp.first);
+    admin->debug("===== " + rec_types.back() + " " + node.get_name() + " " + to_string(pp.first));
 
   } else {
     TableEntry ent = table_find(name);
@@ -262,37 +264,24 @@ void CodeGenPL::visit(ArrayAccess& node) {
 
 void CodeGenPL::visit(RecAccess& node) {
   admin->debug("rec access");
-  Acs temp = access;
-  cout << "Access: " << access << endl;
+
+  Acs acs = access;
 
   if (access != REC) {
-    if (access == SIZE)  // This means it is a write. Ugh!
-      access = VAR;
-    var_lengths.push_back(0);
+    access = VAR;
     rec_types.push_back(node.get_record().get_type().name);
   }
-
   node.get_record().visit(*this);
 
   access = REC;
   node.get_field().visit(*this);
 
-  access = temp;
-  if (access != REC) {
-    int size = var_lengths.back();
-    if (access == VAL) {
-      ops.at(ops.size() - 2) = size;
-      ops.back() = symbol::to_op(node.get_type().type);
-    } else if (access == SIZE) {
-      ops.at(ops.size() - 7) = size;
-      ops.push_back(symbol::to_op(node.get_type().type));
-    } else {
-      ops.back() = size;
-    }
-    var_lengths.pop_back();
+  access = acs;
+  if (access == VAL or access == SIZE) 
+    ops.push_back(symbol::to_op(node.get_type().type));
+
+  if (access != REC)
     rec_types.pop_back();
-    admin->debug("end rec access: " + to_string(size));
-  }
 }
 
 
