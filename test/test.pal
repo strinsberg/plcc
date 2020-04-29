@@ -8,10 +8,5 @@ begin
 
   mine.name := "I am steven";
 
-  i := 0;
-  while i < 12 do
-    write mine.name[i];
-    i := i + 1;
-  end while;
-  write endl;
+  write mine.name, endl;
 end.

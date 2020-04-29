@@ -281,6 +281,8 @@ void CodeGenPL::visit(RecAccess& node) {
   if (access == VAL or access == SIZE) {
     ops.push_back(symbol::to_op(node.get_type().type));
     current_address++;
+    if (access == SIZE)
+      var_lengths.push_back(node.get_field().get_size());
   }
 
   if (access != REC)
