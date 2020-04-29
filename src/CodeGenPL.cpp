@@ -160,7 +160,7 @@ void CodeGenPL::visit(ConstId& node) {
   string name = node.get_name();
   admin->debug("id = " + name);
 
-  if (access == DEF) {
+  if (access == DEF or access == REC_DEF) {
     // If we are defining a scalar constant just put it in the table
     TableEntry ent;
     ent.address = current_address;
@@ -272,13 +272,16 @@ void CodeGenPL::visit(RecAccess& node) {
     access = VAR;
     rec_types.push_back(node.get_record().get_type().name);
   }
-  node.get_record().visit(*this);
+
+  if (node.get_type().qual != symbol::CONST)
+    node.get_record().visit(*this);
 
   access = REC;
   node.get_field().visit(*this);
 
   access = acs;
-  if (access == VAL or access == SIZE) {
+  if (node.get_type().qual != symbol::CONST
+      and (access == VAL or access == SIZE)) {
     ops.push_back(symbol::to_op(node.get_type().type));
     current_address++;
     if (access == SIZE)

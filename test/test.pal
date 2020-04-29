@@ -1,5 +1,6 @@
 begin
   record Point
+    const char ch = '$';
     int x, y;
   end record;
 
@@ -12,5 +13,6 @@ begin
 
   point.p.x, point.p.y, point.z := 1,2,3;
 
+  write point.p.ch;
   write '(', point.p.x, ",", point.p.y, ",", point.z, ')', endl;
 end.
