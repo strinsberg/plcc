@@ -1,12 +1,14 @@
 begin
-  record Point
-    int x,y;
-    float f;
+  record Struct
+    char array[20] name;
   end record;
 
-  type Point point;
-  float F;
+  type Struct mine;
+  char array[20] other;
 
-  point.x, point.y, point.f := 1, 2, 3.14;
-  write point.x, endl, point.y, endl, point.f, endl;
+  other[0] := '*';
+  write other[0], endl;
+
+  mine.name[0] := '$';
+  write mine.name[0], endl;
 end.

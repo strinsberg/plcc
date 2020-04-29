@@ -231,51 +231,43 @@ void CodeGenPL::visit(Access& node) {
 void CodeGenPL::visit(ArrayAccess& node) {
   admin->debug("array access");
 
-  if (access == REC) {
-    node.get_id().visit(*this);
-    node.get_index().visit(*this);
-    // Probably still need to index the array with the given value, but
-    // this changes the plan. Perhaps records need to be indexed with a value
-    // that is their displacement like an array is indexed with a value?
-  } else {
-    auto acs = access;  // save access type
+  auto acs = access;  // save access type
 
+  if (access != REC)
     access = VAR;
-    node.get_id().visit(*this);
+  node.get_id().visit(*this);
 
-    access = VAL;
-    node.get_index().visit(*this);
+  access = VAL;
+  node.get_index().visit(*this);
 
-    if (node.get_id().get_type().type == symbol::FLOAT)
-      ops.push_back(symbol::OP_DB_INDEX);
-    else
-      ops.push_back(symbol::OP_INDEX);
+  if (node.get_id().get_type().type == symbol::FLOAT)
+    ops.push_back(symbol::OP_DB_INDEX);
+  else
+    ops.push_back(symbol::OP_INDEX);
 
-    access = SIZE;
-    var_lengths.push_back(0);
-    node.get_id().get_size_expr().visit(*this);  // To add size for bounds
-    ops.push_back(var_lengths.back());
-    ops.push_back(-2);  // Supposed to be line number for interpreter error
-    var_lengths.pop_back();
+  access = SIZE;
+  var_lengths.push_back(0);
+  node.get_id().get_size_expr().visit(*this);  // To add size for bounds
+  ops.push_back(var_lengths.back());
+  ops.push_back(-2);  // Supposed to be line number for interpreter error
+  var_lengths.pop_back();
 
-    if (acs == VAL or acs == SIZE) {  // size is for write array access
-      ops.push_back(symbol::to_op(node.get_id().get_type().type));
-      current_address++;
-    }
-    current_address += 3;
+  if (acs == VAL or acs == SIZE) {  // size is for write array access
+    ops.push_back(symbol::to_op(node.get_id().get_type().type));
+    current_address++;
   }
+  current_address += 3;
 }
 
 
 void CodeGenPL::visit(RecAccess& node) {
   admin->debug("rec access");
-  // This should just be a VARIABLE output
-  // The block offest should be for the top most id
-  // the displacement should be for the bottom most id
-  // the type if value should be for the bottom most id 
   Acs temp = access;
+  cout << "Access: " << access << endl;
 
   if (access != REC) {
+    if (access == SIZE)  // This means it is a write. Ugh!
+      access = VAR;
     var_lengths.push_back(0);
     rec_types.push_back(node.get_record().get_type().name);
   }
@@ -291,6 +283,9 @@ void CodeGenPL::visit(RecAccess& node) {
     if (access == VAL) {
       ops.at(ops.size() - 2) = size;
       ops.back() = symbol::to_op(node.get_type().type);
+    } else if (access == SIZE) {
+      ops.at(ops.size() - 7) = size;
+      ops.push_back(symbol::to_op(node.get_type().type));
     } else {
       ops.back() = size;
     }

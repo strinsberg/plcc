@@ -107,6 +107,7 @@ class RecAccess : public Expr {
   virtual ~RecAccess();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
+  virtual int get_size() { return field->get_size(); }
 
   Expr& get_record() { return *record; }
   Expr& get_field() { return *field; }
