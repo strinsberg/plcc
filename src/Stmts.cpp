@@ -1,6 +1,7 @@
 #include "Stmts.h"
 #include "AstNode.h"
 #include "Exprs.h"
+#include "Defs.h"
 #include "TreeWalker.h"
 #include "exceptions.h"
 #include <iostream>
@@ -41,7 +42,7 @@ void BlockStmt::display(std::ostream& out) const {
 
 // Block //////////////////////////////////////////////////////////////
 
-Block::Block(shared_ptr<Def> d, shared_ptr<Stmt> s)
+Block::Block(shared_ptr<DefPart> d, shared_ptr<Stmt> s)
     : Stmt(), defs(d), stmts(s) {}
 
 Block::~Block() {}
@@ -52,7 +53,7 @@ void Block::visit(TreeWalker& walker) {
 
 void Block::display(ostream& out) const {
   out << endl << "BLOCK" << endl;
-  out << "==DEFS==" << endl << *defs << endl << endl;
+  out << "==DEFS==" << endl << *defs << endl;
   out << "==STMTS==" << endl << *stmts << endl;
   out << "ENDBLOCK" << endl;
 }
@@ -62,8 +63,17 @@ void Block::display(ostream& out) const {
 
 Asgn::Asgn(shared_ptr<Expr> a, shared_ptr<Expr> e) : Stmt(), acs(a), expr(e) {
 
-  if (!(acs->get_type().type == expr->get_type().type))
+  bool error = false;
+  if (acs->get_type().type == symbol::RECORD
+      and acs->get_type().name != expr->get_type().name) {
+    error = true;
+  } else if (acs->get_type().type != expr->get_type().type) {
+    error = true;
+  }
+
+  if (error) {
     throw type_error("assignment variable type does not match expression type");
+  }
 
   if (acs->get_type().qual == symbol::CONST)
     throw type_error("cannot assign to a constant");
@@ -131,8 +141,11 @@ void IoStmt::display(ostream& out) const {
 
 ReadLine::ReadLine(std::shared_ptr<Expr> id) : Stmt(), array_id(id) {
   if (array_id->get_type().type != symbol::CHAR
-      or array_id->get_type().kind != symbol::ARRAY)
+      or array_id->get_type().kind != symbol::ARRAY) {
+    cout << id->get_name() << " " << symbol::str(id->get_type().type) << endl;
+    cout << *id << endl;
     throw type_error("readline only works with character arrays");
+  }
 }
 
 ReadLine::~ReadLine() {}

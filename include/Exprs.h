@@ -53,7 +53,7 @@ class Id : public Expr {
   Expr& get_size_expr() { return *size; }
 
  protected:
-  std::shared_ptr<Expr> size;
+  std::shared_ptr<Expr> size;  // is it really safe for this to be Expr?
 };
 
 
@@ -80,6 +80,7 @@ class Access : public Expr {
   int get_size() { return id->get_size(); }
 
   Id& get_id() { return *id; }
+  std::shared_ptr<Id> get_id_ptr() { return id; }
 
  protected:
   std::shared_ptr<Id> id;
@@ -97,6 +98,23 @@ class ArrayAccess : public Access {
 
  protected:
   std::shared_ptr<Expr> index;
+};
+
+
+class RecAccess : public Expr {
+ public:
+  RecAccess(std::shared_ptr<Expr> record, std::shared_ptr<Expr> field);
+  virtual ~RecAccess();
+  virtual void visit(TreeWalker& walker);
+  virtual void display(std::ostream& os) const;
+  virtual int get_size() { return field->get_size(); }
+
+  Expr& get_record() { return *record; }
+  Expr& get_field() { return *field; }
+
+ protected:
+  std::shared_ptr<Expr> record;
+  std::shared_ptr<Expr> field;
 };
 
 

@@ -41,6 +41,7 @@ private:
     
     void variable(int, int);
     void index(int, int);
+    void access(int);
 
     void constant(int);
     void db_constant(int, int);

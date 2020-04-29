@@ -7,13 +7,17 @@
 // Declar Node Classes to avoid circular includes
 class AstNode;
 class DefSeq;
+class DefPart;
 class VarDef;
+class RecDef;
+class ProcDef;
 class Constant;
 class ConstString;
 class Id;
 class ConstId;
 class Access;
 class ArrayAccess;
+class RecAccess;
 class BlockStmt;
 class Block;
 class Seq;
@@ -41,8 +45,10 @@ class TreeWalker {
 
   // Def nodes
   virtual void visit(DefSeq& node) {}
+  virtual void visit(DefPart& node) {}
   virtual void visit(VarDef& node) {}
   virtual void visit(ProcDef& node) {}
+  virtual void visit(RecDef& node) {}
 
   // Expr nodes
   virtual void visit(Id& node) {}
@@ -51,6 +57,7 @@ class TreeWalker {
   virtual void visit(ConstString& node) {}
   virtual void visit(Access& node) {}
   virtual void visit(ArrayAccess& node) {}
+  virtual void visit(RecAccess& node) {}
   virtual void visit(Binary& node) {}
   virtual void visit(Unary& node) {}
 

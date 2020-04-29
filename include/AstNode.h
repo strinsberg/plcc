@@ -43,13 +43,6 @@ class Expr : public AstNode {
 };
 
 
-class Def : public AstNode {
- public:
-  Def();
-  virtual ~Def();
-  virtual void visit(TreeWalker& walker);
-  virtual void display(std::ostream& os) const;
-};
 
 
 class Stmt : public AstNode {

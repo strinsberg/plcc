@@ -1,11 +1,18 @@
 begin
-  char array[20] string;
-  int a;
-  bool b;
-  char c;
-  float f;
-  read a,b,c,f;
-  read string;
-  write a, " ", b, " ", c, " ", f, endl;
-  write string, endl;
+  record Point
+    const char ch = '$';
+    int x, y;
+  end record;
+
+  record Point3D
+    type Point p;
+    int z;
+  end record;
+
+  type Point3D point;
+
+  point.p.x, point.p.y, point.z := 1,2,3;
+
+  write point.p.ch;
+  write '(', point.p.x, ",", point.p.y, ",", point.z, ')', endl;
 end.

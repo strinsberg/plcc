@@ -21,7 +21,11 @@ begin
   end proc;
 
   -- read in number, call fib, write result
+  write "Calculate Fibonacci numbers", endl, endl;
+  write "Enter N: ";
   read temp;
+
+  write "Fib ", temp, " = ";
   call fib;
-  write temp;
+  write temp, endl;
 end.

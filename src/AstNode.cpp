@@ -34,24 +34,15 @@ void Expr::visit(TreeWalker& walker) {
 }
 
 void Expr::display(ostream& out) const {
-  out << "(" << symbol::to_string.at(type.type) << ")";
+  out << "(";
+  if (type.type == symbol::RECORD)
+    out << type.name;
+  else
+    out << symbol::to_string.at(type.type);
+  out << ")";
 }
 
 
-// DEF ////////////////////////////////////////////////////////////////
-Def::Def() {
-  name = "EMPTY DEF";
-}
-
-Def::~Def() {}
-
-void Def::visit(TreeWalker& walker) {
-  walker.visit(*this);
-}
-
-void Def::display(ostream& out) const {
-  AstNode::display(out);
-}
 
 
 // STMT ///////////////////////////////////////////////////////////////

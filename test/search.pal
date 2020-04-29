@@ -26,25 +26,34 @@ begin
     end while;
   end proc;
 
+  -- Statemts
+  write "Search a given table for different numbers.", endl, endl;
+
   -- Input Table
+  write "Enter 10 numbers: ";
   i := 0;
   while i < n do
     read A[i];
     i := i + 1;
   end while;
 
+  write "Table: ", A, endl, endl;
+
   -- Test Search
+  write "-1 to exit", endl;
+  write endl, "Search: ";
   read x;
 
-  while not (x == 0) do
+  while not (x == -1) do
     call Search;
 
     if found then
-      write x, i;
+      write x, " is at position ", i, endl;
     else if  not found then
-      write -1;
+      write x, " not found", endl;
     end if;
 
+    write endl, "Search: ";
     read x;
   end while;
 end.

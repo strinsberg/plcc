@@ -16,14 +16,6 @@ Actions::~Actions() {}
 
 // Definitions ///////////////////////////////////////////////////
 
-shared_ptr<Def> Actions::def_part(shared_ptr<Def> rest, shared_ptr<Def> last) {
-  admin->debug("def part\n");
-  if (rest->is_null())
-    return last;
-  return make_shared<DefSeq>(rest, last);
-}
-
-
 shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> value) {
   admin->debug("const def");
   type.qual = symbol::CONST;
@@ -45,12 +37,16 @@ shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> valu
 }
 
 
-shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
+shared_ptr<DefPart> Actions::var_def(Type type, Vars pp) {
   admin->debug("var def");
 
   int size = type.type == symbol::FLOAT ? 2 : 1;
 
-  if (pp.size == nullptr) {
+  if (type.type == symbol::RECORD) {
+    auto type_id = get_id(type.name);  // Will exist if we got this far?
+    type.kind = symbol::RECORD;
+    pp.size = make_shared<Constant>(type_id->get_size());
+  } else if (pp.size == nullptr) {
     type.kind = symbol::SCALAR;
     pp.size = make_shared<Constant>(size);
   } else {
@@ -61,33 +57,75 @@ shared_ptr<Def> Actions::var_def(Type type, Vars pp) {
 }
 
 
-shared_ptr<Def> Actions::proc_def(shared_ptr<Expr> id, shared_ptr<Stmt> block) {
+shared_ptr<Def> Actions::proc_def(shared_ptr<Id> id, shared_ptr<Stmt> block) {
   admin->debug("proc def");
   return make_shared<ProcDef>(id, block);
 }
 
 
-shared_ptr<Expr> Actions::proc_name(string name) {
+shared_ptr<Id> Actions::proc_name(string name) {
   admin->debug("proc name");
   Type type = Type(symbol::UNIVERSAL, symbol::PROC, symbol::UNIVERSAL);
   auto size = make_shared<Constant>();
   auto id = make_shared<Id>(name, type, size);
 
-  bool added = table.put(name, id);
-  if (!added) {
-    admin->error("'" + name + "' was not declared in this scope");
-    return empty_expr();
-  }
+  if (!table.put(name, id))
+    admin->error("'" + name + "' was already declared");
 
   return id;
 }
 
 
+shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<DefPart> def_part) {
+  admin->debug("record def");
+  
+  auto & fields = table.type_info(id->get_type().name);  // Should check has name again?
+  for (auto& def : def_part->get_defs()) {
+    fields.push_back(def->get_id());
+  }
+
+  id->get_size_expr() = Constant(def_part->get_size());
+
+  admin->debug("pop block\n");
+  table.pop_block();
+
+  try {
+    return make_shared<RecDef>(id, def_part);
+  } catch (const type_error& e) {
+    admin->error("type error: " + string(e.what()), id->get_name());
+    return make_shared<Def>();
+  }
+}
+
+shared_ptr<Id> Actions::rec_name(string name) {
+  admin->debug("record name " + name);
+  Type type = Type(symbol::RECORD, symbol::RECORD, symbol::UNIVERSAL, name);
+  auto size = make_shared<Constant>();
+  auto id = make_shared<Id>(name, type, size);
+
+  // If type exists we do not want to put it's name in the table
+  // type info will be added to the table in rec_def
+  bool error = false;
+  if (table.has_type(name))
+    error = true;
+  else if (!table.put(name, id))
+    error = true;
+
+  table.new_type(name, vector<shared_ptr<Id>>());
+
+  if (error)
+    admin->error("type '" + name + "' was already declared");
+
+  return id;
+}
+
+
+
 // private def helpers //
-shared_ptr<Def> Actions::add_vars(vector<string> names, Type type, shared_ptr<Expr> size) {
+shared_ptr<DefPart> Actions::add_vars(vector<string> names, Type type, shared_ptr<Expr> size) {
   admin->debug("add_vars");
 
-  shared_ptr<Def> def = nullptr;
+  shared_ptr<DefPart> def_part = make_shared<DefPart>();
   for (auto it = names.rbegin(); it != names.rend(); it++) {
     string n = *it;
     try {
@@ -97,21 +135,15 @@ shared_ptr<Def> Actions::add_vars(vector<string> names, Type type, shared_ptr<Ex
       if (!added) {
         admin->error("'" + n + "' already declared");
       } else {
-        auto var = make_shared<VarDef>(id);
-        if (def == nullptr)
-          def = var;
-        else
-          def = make_shared<DefSeq>(var, def);
+        auto def = make_shared<VarDef>(id);
+        def_part->add_def(def);
       }
     } catch (const type_error& e) {
       admin->error("type error: " + string(e.what()), n);
     }
   }
 
-  if (def == nullptr)
-    def = make_shared<Def>();
-
-  return def;
+  return def_part;
 }
 
 
@@ -131,8 +163,8 @@ shared_ptr<Stmt> Actions::block_stmt(shared_ptr<Stmt> block) {
   return make_shared<BlockStmt>(block);
 }
 
-shared_ptr<Stmt> Actions::block(shared_ptr<Def> defs, shared_ptr<Stmt> stmts) {
-  admin->debug("block");
+shared_ptr<Stmt> Actions::block(shared_ptr<DefPart> defs, shared_ptr<Stmt> stmts) {
+  admin->debug("block -> pops block");
   table.pop_block();
   return make_shared<Block>(defs, stmts);
 }
@@ -166,16 +198,13 @@ shared_ptr<Stmt> Actions::io(vector<shared_ptr<Expr>> exprs, symbol::Tag type) {
 }
 
 
-shared_ptr<Stmt> Actions::readline(string name) {
+shared_ptr<Stmt> Actions::readline(shared_ptr<Expr> var) {
   admin->debug("readline");
-  auto id = get_id(name);
-  if (id == nullptr)
-    return make_shared<Stmt>();
 
   try {
-    return make_shared<ReadLine>(id);
+    return make_shared<ReadLine>(var);
   } catch (const type_error& e) {
-    admin->error("type error: " + string(e.what()), name);
+    admin->error("type error: " + string(e.what()), var->get_name());
     return make_shared<Stmt>();
   }
 }
@@ -217,8 +246,6 @@ shared_ptr<Stmt> Actions::assign(vector<shared_ptr<Expr>> vars,
 
   return stmt;
 }
-
-
 
 
 shared_ptr<Stmt> Actions::if_stmt(shared_ptr<Stmt> cond) {
@@ -283,7 +310,7 @@ shared_ptr<Stmt> Actions::condition(shared_ptr<Expr> expr, shared_ptr<Stmt> stmt
 // Expression methods /////////////////////////////////////////////////
 
 shared_ptr<Expr> Actions::access(string name, shared_ptr<Expr> idx) {
-  admin->debug("access");
+  admin->debug("access " + name);
 
   auto id = get_id(name);
   if (id == nullptr)
@@ -301,6 +328,47 @@ shared_ptr<Expr> Actions::access(string name, shared_ptr<Expr> idx) {
   }
 
   return acs;
+}
+
+
+shared_ptr<Expr> Actions::rec_access(
+    shared_ptr<Expr> record, string field, shared_ptr<Expr> index) {
+  admin->debug("record access " + record->get_name() + "." + field);
+
+  // need to check that field is in the records def part somehow
+  if (!table.has_type(record->get_type().name))
+    admin->error("no type for record access", record->get_type().name);
+
+  auto fields = table.type_info(record->get_type().name);
+  bool found = false;
+  shared_ptr<Id> id = nullptr;
+  for (auto& f : fields) {
+    if (f->get_name() == field) {
+      found = true;
+      id = f;
+      break;
+    } 
+  }
+  
+  if (not found) {
+    admin->error(record->get_type().name + " has no field '" + field + "'");
+    return empty_expr();
+  }
+
+  shared_ptr<Access> acs = nullptr;
+  try {
+    if (index->get_type().type != symbol::EMPTY) {
+      acs = make_shared<ArrayAccess>(id, index);
+    } else {
+      acs = make_shared<Access>(id);
+    }
+  } catch (const exception& e) {
+    admin->error("type error: " + string(e.what()), field);
+    return empty_expr();
+  }
+
+
+  return make_shared<RecAccess>(record, acs);
 }
 
 
@@ -375,10 +443,15 @@ std::shared_ptr<Expr> Actions::const_string(std::string str) {
 
 // Helpers ////////////////////////////////////////////////////////////
 
-Type Actions::new_type(symbol::Tag type) {
-  admin->debug("type: " + symbol::str(type));
+Type Actions::new_type(symbol::Tag type, string type_name) {
+  admin->debug("type: " + symbol::str(type) + " " + type_name);
+  if (type_name != "")
+    auto type_id = get_id(type_name);  // just to check if the type was declared
+
   Type t;
   t.type = type;
+  t.name = type_name;
+
   return t;
 };
 
@@ -390,12 +463,10 @@ Operator Actions::new_op(symbol::Tag op, symbol::Tag type, symbol::Tag qual) {
 };
 
 
-shared_ptr<Def> Actions::new_block() {
+shared_ptr<DefPart> Actions::new_block() {
   admin->debug("new_block");
   table.push_block();
-  auto def = make_shared<Def>();
-  def->set_null(true);
-  return def;
+  return make_shared<DefPart>();
 }
 
 

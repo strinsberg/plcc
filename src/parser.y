@@ -26,10 +26,13 @@ bool set_file(std::string);
 %type <std::vector<std::string>> var_list
 
 %type <Vars> vprime
-%type <std::shared_ptr<Def>> def_part def const_def var_def proc_def
+%type <std::shared_ptr<DefPart>> def_part var_def
+%type <std::shared_ptr<Def>> def const_def proc_def rec_def
+
+%type <std::shared_ptr<Id>> rec_name proc_name
 
 %type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
-%type <std::shared_ptr<Expr>> factor var_access selector proc_name endl
+%type <std::shared_ptr<Expr>> factor var_access selector endl
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
@@ -39,7 +42,7 @@ bool set_file(std::string);
 %type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
 
 %type <Operator> prim_op rel_op add_op mult_op
-%type <Type> type_sym
+%type <Type> type_sym type
 
 
 /* Token definitions */
@@ -103,20 +106,25 @@ bprime: def_part stmt_part { $$ = actions->block($1, $2); }
 
 
 /* Definitions */
-def_part: def_part def SEMI { $$ = actions->def_part($1, $2); }
+def_part: def_part def SEMI { $1->add_def($2); $$ = $1; }
+  | def_part var_def SEMI { $1->add_defs($2); $$ = $1; }
   | def_part error SEMI { $$ = $1; yyerrok; }
   | /* epsilon */ { $$ = actions->new_block(); }
   ;
 
 def: const_def { $$ = $1; }
-  | var_def { $$ = $1; }
   | proc_def { $$ = $1; }
+  | rec_def { $$ = $1; }
   ;
 
 const_def: CONST type_sym name INIT constant { $$ = actions->const_def($2, $3, $5); }
   ;
 
-var_def: type_sym vprime { $$ = actions->var_def($1, $2); }
+var_def: type vprime { $$ = actions->var_def($1, $2); }
+  ;
+
+type: type_sym { $$ = $1; }
+  | TYPE name { $$ = actions->new_type(symbol::RECORD, $2); }
   ;
 
 vprime: var_list { $$ = actions->vprime($1); }
@@ -127,6 +135,12 @@ proc_def: PROC proc_name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
   ;
 
 proc_name: name { $$ = actions->proc_name($1); }
+  ;
+
+rec_def: rec_name def_part ENDREC { $$ = actions->rec_def($1, $2); }
+  ;
+
+rec_name: RECORD name { $$ = actions->rec_name($2); }
   ;
 
 
@@ -180,7 +194,7 @@ proc_stmt: CALL name { $$ = actions->proc_stmt($2); }
 
 /* should take var access list at most. this will allow read 1 + 2; */
 read_stmt: READ var_access_list { $$ = actions->io($2, symbol::READ); }
-  | READLN name { $$ = actions->readline($2); }
+  | READLN var_access { $$ = actions->readline($2); }
   ;
 
 
@@ -228,6 +242,7 @@ var_access_list: var_access_list COMMA var_access { $1.push_back($3); $$ = $1; }
   ;
 
 var_access: name selector { $$ = actions->access($1, $2); }
+  | var_access DOT name selector { $$ = actions->rec_access($1, $3, $4); }
   ;
 
 selector: LHSQR expr RHSQR { $$ = $2; }

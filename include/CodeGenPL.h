@@ -19,6 +19,12 @@ struct TableEntry {
   int block = 0;
   int displace = 0;
   symbol::Tag type = symbol::EMPTY;
+  Type full_type = Type();
+};
+
+struct TypeEntry {
+  int size;
+  std::map<std::string,std::pair<int,Type>> fields;
 };
 
 
@@ -30,9 +36,10 @@ class CodeGenPL : public TreeWalker {
   void visit(AstNode& node);
 
   // Def nodes
-  void visit(DefSeq& node);
+  void visit(DefPart& node);
   void visit(VarDef& node);
   void visit(ProcDef& node);
+  void visit(RecDef& node);
 
   // Expr nodes
   void visit(Id& node);
@@ -41,6 +48,7 @@ class CodeGenPL : public TreeWalker {
   void visit(ConstString& node);
   void visit(Access& node);
   void visit(ArrayAccess& node);
+  void visit(RecAccess& node);
   void visit(Binary& node);
   void visit(Unary& node);
 
@@ -67,8 +75,10 @@ class CodeGenPL : public TreeWalker {
   std::vector<int> jumps;
   std::vector<int> var_lengths;
   std::vector< std::map<std::string, TableEntry> > table;
+  std::map<std::string, TypeEntry> types;
+  std::vector<std::string> rec_types;
 
-  enum Acs{DEF, VAR, VAL, SIZE, CALL};
+  enum Acs{DEF, VAR, VAL, SIZE, CALL, REC, REC_DEF};
   Acs access;
 
   TableEntry table_find(std::string name);

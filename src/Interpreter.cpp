@@ -88,6 +88,11 @@ void Interpreter::index( int bound, int line_number)
   program_register += 3;
 }
 
+void Interpreter::access(int offset) {
+  store[stack_register] += offset; 
+  program_register += 2;
+}
+
 //----------------------------------------
 // factor = "constant" | variable_access "value" |
 //          expression | factor "not".
@@ -362,6 +367,7 @@ void Interpreter::read(int count)
       store[address + i] = str.at(i);
     }
     store[address + i] = '\0';
+    cin.ignore();  // because getline is used in readline
     return;
   }
 
@@ -397,6 +403,7 @@ void Interpreter::read(int count)
       store[ store[x] ] = y;
     }
   }
+  cin.ignore();
 }
 
 void Interpreter::readline(int size) {
@@ -746,6 +753,9 @@ void Interpreter::run_program()
          // deliberate fallthrough to OP_INDEX
       case symbol::OP_INDEX:
          index( store[program_register + 1], store[program_register + 2]);
+         break;
+      case symbol::OP_ACCESS:
+         access( store[program_register + 1] );
          break;
       case symbol::OP_LESS:
          less();

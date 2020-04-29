@@ -18,11 +18,21 @@ begin
  
   -- Calculate factorial of n
   ans := 0;
+  write "Calculate factorials", endl;
+  write "-1 will exit", endl, endl;
+
+  write "Enter N: ";
   read n;
+
   while n > -1 do
+    write "Factorial ", n, " = ";
+
     call fact;
-    write ans;
+
+    write  ans, endl, endl;
     ans := 0;
+
+    write "Enter N: ";
     read n;
   end while;
 end.
