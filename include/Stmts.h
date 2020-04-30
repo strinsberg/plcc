@@ -177,7 +177,7 @@ class Proc : public Stmt {
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
-  ProcDef& get_id() { return *proc; }
+  ProcDef& get_proc() { return *proc; }
   std::vector<std::shared_ptr<Expr>>& get_args() { return args; };
 
  protected:

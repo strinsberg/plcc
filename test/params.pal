@@ -1,0 +1,10 @@
+begin
+  proc P (val int a)
+    write a, endl;
+  end proc;
+
+  int i;
+  i := 33;
+
+  call P(i);
+end.

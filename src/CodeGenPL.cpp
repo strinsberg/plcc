@@ -82,6 +82,8 @@ void CodeGenPL::visit(ProcDef& node) {
   ops.push_back(symbol::OP_PROC);
   current_address += 1;
 
+  node.get_params().visit(*this);
+
   node.get_block().visit(*this);
   ops.push_back(symbol::OP_ENDPROC);
   current_address++;
@@ -555,8 +557,21 @@ void CodeGenPL::visit(CondSeq& node) {
 
 void CodeGenPL::visit(Proc& node) {
   admin->debug("call proc");
+  auto params = node.get_proc().get_params().get_defs();
+  auto args = node.get_args();
+  for (size_t i = 0; i < params.size(); i++) {
+    access = VAR;
+    params.at(i)->get_id()->visit(*this);
+    access = VAL;
+    args.at(i)->visit(*this);
+    ops.push_back(symbol::OP_ASSIGN);
+    ops.push_back(1);
+    current_address += 2;
+  }
+
   access = CALL;
-  node.get_id().visit(*this);
+  node.get_proc().get_id()->visit(*this);
+  // need to completely change this for procs with params
   ops.at(ops.size() - 3) = symbol::OP_CALL;
   current_address += 3;
 }
