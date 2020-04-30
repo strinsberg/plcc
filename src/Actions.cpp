@@ -57,10 +57,20 @@ shared_ptr<DefPart> Actions::var_def(Type type, Vars pp) {
 }
 
 
-shared_ptr<Def> Actions::proc_def(shared_ptr<Id> id,
-    shared_ptr<DefPart>, shared_ptr<Block> block) {
+shared_ptr<Def> Actions::proc_def(shared_ptr<Id> id, shared_ptr<Block> block) {
   admin->debug("proc def");
+
+  table.pop_block();  // pop the block the params are in
   return make_shared<ProcDef>(id, block);
+}
+
+shared_ptr<Block> Actions::proc_block(shared_ptr<DefPart> params,
+    shared_ptr<DefPart> defs, shared_ptr<Stmt> stmts) {
+  admin->debug("proc block");
+
+  // for now
+  params->add_defs(defs);
+  return make_shared<Block>(params, stmts);
 }
 
 

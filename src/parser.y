@@ -26,8 +26,8 @@ bool set_file(std::string);
 %type <std::vector<std::string>> var_list
 
 %type <Vars> vprime
-%type <std::shared_ptr<DefPart>> def_part var_def params param_list
-%type <std::shared_ptr<Def>> def const_def proc_def rec_def param
+%type <std::shared_ptr<DefPart>> def_part var_def params param_list param
+%type <std::shared_ptr<Def>> def const_def proc_def rec_def
 
 %type <std::shared_ptr<Id>> rec_name proc_name
 
@@ -36,7 +36,7 @@ bool set_file(std::string);
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <std::shared_ptr<Block>> bprime block
+%type <std::shared_ptr<Block>> bprime block proc_block
 %type <std::shared_ptr<BlockStmt>> block_stmt
 %type <std::shared_ptr<Stmt>> program stmt_part stmt
 %type <std::shared_ptr<Stmt>> write_stmt read_stmt empty_stmt
@@ -133,22 +133,26 @@ vprime: var_list { $$ = actions->vprime($1); }
   | ARRAY LHSQR constant RHSQR var_list { $$ = actions->vprime($5, $3); }
   ;
 
-proc_def: PROC proc_name params bprime ENDPROC { $$ = actions->proc_def($2, $3, $4); }
+proc_def: PROC proc_name proc_block ENDPROC { $$ = actions->proc_def($2, $3); }
   ;
 
 proc_name: name { $$ = actions->proc_name($1); }
+  ;
+
+/* probably a shift reduce conflict with bprime.*/
+proc_block: params def_part stmt_part { $$ = actions->proc_block($1, $2, $3); }
   ;
 
 params: LHRND param_list RHRND { $$ = $2; }
   | /* epsilon */ { $$ = std::make_shared<DefPart>(); }
   ;
 
-param_list: param_list COMMA param { $1->add_def($3); $$ = $1; }
-  | param { $$ = std::make_shared<DefPart>($1); }
+param_list: param_list SEMI param { $1->add_defs($3); $$ = $1; }
+  | param { auto defs = actions->new_block(); defs->add_def($1); $$ = defs; }
   ;
 
-param: REF type name { $$ = std::make_shared<Def>(); }
-  | type name { $$ = std::make_shared<Def>(); }
+param: CONST type vprime { $2.qual = symbol::IN_PARAM; $$ = actions->var_def($2, $3); }
+  | REF type vprime { $2.qual = symbol::REF_PARAM; $$ = actions->var_def($2, $3); }
   ;
 
 rec_def: rec_name def_part ENDREC { $$ = actions->rec_def($1, $2); }

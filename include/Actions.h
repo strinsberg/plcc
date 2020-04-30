@@ -35,12 +35,11 @@ class Actions {
   std::shared_ptr<DefPart> var_def(Type, Vars);
   Vars vprime(std::vector<std::string>, std::shared_ptr<Expr> e = nullptr);
   std::shared_ptr<Def> array_def(int vars);
-  std::shared_ptr<Def> proc_def(
-    std::shared_ptr<Id>, std::shared_ptr<DefPart>, std::shared_ptr<Block>
-  );
+  std::shared_ptr<Def> proc_def(std::shared_ptr<Id>, std::shared_ptr<Block>);
   std::shared_ptr<Id> proc_name(std::string name);
   std::shared_ptr<Def> rec_def(std::shared_ptr<Id>, std::shared_ptr<DefPart>);
   std::shared_ptr<Id> rec_name(std::string name);
+  std::shared_ptr<Block> proc_block(std::shared_ptr<DefPart>, std::shared_ptr<DefPart>, std::shared_ptr<Stmt>);
 
   // statement actions
   std::shared_ptr<BlockStmt> block_stmt(std::shared_ptr<Block> block);
