@@ -800,6 +800,7 @@ void Interpreter::run_program()
       case symbol::OP_SUBTRACT:
          subtract();
          break;
+      case symbol::OP_REF:
       case symbol::OP_CHAR:
       case symbol::OP_INT:
       case symbol::OP_FLOAT:

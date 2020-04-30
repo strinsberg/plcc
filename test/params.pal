@@ -1,10 +1,12 @@
 begin
-  proc P (val int a)
+  proc P (val float a)
     write a, endl;
+    a := 9.24;
   end proc;
 
-  int i;
-  i := 33;
+  float i;
+  i := 3.14;
 
   call P(i);
+  write i, endl;
 end.

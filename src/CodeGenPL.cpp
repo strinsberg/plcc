@@ -117,6 +117,7 @@ void CodeGenPL::visit(Id& node) {
     ent.block = table.size() - 1;
     ent.displace = var_lengths.back() + 3;
     ent.type = node.get_type().type;
+    ent.full_type = node.get_type();
 
     table.back()[name] = ent;  
   } else if (access == CALL) {
@@ -132,7 +133,6 @@ void CodeGenPL::visit(Id& node) {
   } else if (access == REC_DEF) {
     TypeEntry& type_ent = types[rec_types.back()];
     type_ent.fields[node.get_name()] = {var_lengths.back(), node.get_type()};
-    admin->debug("+++++ " + node.get_name() + " " + to_string(var_lengths.back()));
 
   } else if (access == REC) {
     TypeEntry& type_ent = types[rec_types.back()];
@@ -140,7 +140,6 @@ void CodeGenPL::visit(Id& node) {
     ops.push_back(symbol::OP_ACCESS);
     ops.push_back(pp.first);
     current_address += 2;
-    admin->debug("===== " + rec_types.back() + " " + node.get_name() + " " + to_string(pp.first));
 
   } else {
     TableEntry ent = table_find(name);
@@ -149,6 +148,12 @@ void CodeGenPL::visit(Id& node) {
     ops.push_back(table.size() - 1 - ent.block);
     ops.push_back(ent.displace);
     current_address += 3;
+
+    cout << name << ": " << symbol::str(ent.full_type.qual) << " " << access << endl;
+    if (access != REF and ent.full_type.qual == symbol::REF_PARAM) {
+      ops.push_back(symbol::OP_REF);
+      current_address++;
+    }
 
     if (access == VAL) {
       symbol::OpCode code = symbol::to_op(ent.type);
@@ -557,13 +562,24 @@ void CodeGenPL::visit(CondSeq& node) {
 
 void CodeGenPL::visit(Proc& node) {
   admin->debug("call proc");
+
   auto params = node.get_proc().get_params().get_defs();
   auto args = node.get_args();
+
   for (size_t i = 0; i < params.size(); i++) {
+    auto param = params.at(i)->get_id();
+    auto arg = args.at(i);
+
     access = VAR;
-    params.at(i)->get_id()->visit(*this);
-    access = VAL;
-    args.at(i)->visit(*this);
+    if (param->get_type().qual == symbol::REF_PARAM)
+      access = REF;
+    param->visit(*this);
+
+    access = VAR;
+    if (param->get_type().qual == symbol::VAL_PARAM)
+      access = VAL;
+    arg->visit(*this);
+
     ops.push_back(symbol::OP_ASSIGN);
     ops.push_back(1);
     current_address += 2;

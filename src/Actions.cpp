@@ -138,7 +138,7 @@ shared_ptr<DefPart> Actions::add_vars(vector<string> names, Type type, shared_pt
   shared_ptr<DefPart> def_part = make_shared<DefPart>();
   for (auto it = names.rbegin(); it != names.rend(); it++) {
     string n = *it;
-    admin->debug("  add: " + n);
+    admin->debug("  add: " + n + "  qual:" + symbol::str(type.qual));
     try {
       auto id = make_shared<Id>(n, type, size);
       bool added = table.put(n, id);
