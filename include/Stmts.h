@@ -172,16 +172,16 @@ class IfStmt : public Stmt {
 
 class Proc : public Stmt {
  public:
-  Proc(std::shared_ptr<Id> id, std::vector<std::shared_ptr<Expr>> args);
+  Proc(std::shared_ptr<ProcDef> proc, std::vector<std::shared_ptr<Expr>> args);
   virtual ~Proc();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
-  Expr& get_id() { return *id; }
+  ProcDef& get_id() { return *proc; }
   std::vector<std::shared_ptr<Expr>>& get_args() { return args; };
 
  protected:
-  std::shared_ptr<Id> id;
+  std::shared_ptr<ProcDef> proc;
   std::vector<std::shared_ptr<Expr>> args;
 };
 #endif

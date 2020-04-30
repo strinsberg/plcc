@@ -5,7 +5,6 @@ begin
 
   proc copy (const int a, b)
     write a, b;
-    a, b := 99, 88;
   end proc;
 
   proc refs (ref int b; ref int c)
@@ -13,12 +12,13 @@ begin
     b, c := 333, 555;
   end proc;
 
+  const int c = 11111;
   int i, j;
   i, j := 1, 2;
 
   call no_params;
 
-  call copy (i, j);
+  call copy (i, c);
   write i, " ", j, endl;
 
   call refs (i, j);

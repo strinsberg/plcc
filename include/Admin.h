@@ -14,6 +14,7 @@ class Admin {
   void newline();
   int get_line();
   int get_errors();
+  bool get_debug() { return is_debug; }
 
  private:
   int line;

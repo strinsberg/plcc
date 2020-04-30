@@ -144,10 +144,10 @@ params: LHRND param_list RHRND { $$ = $2; }
   ;
 
 param_list: param_list SEMI param { $1->add_defs($3); $$ = $1; }
-  | param { $$ = std::make_shared<DefPart>($1); }
+  | param { $$ = $1; }
   ;
 
-param: CONST type vprime { $2.qual = symbol::IN_PARAM; $$ = actions->var_def($2, $3); }
+param: CONST type vprime { $2.qual = symbol::CONST; $$ = actions->var_def($2, $3); }
   | REF type vprime { $2.qual = symbol::REF_PARAM; $$ = actions->var_def($2, $3); }
   ;
 

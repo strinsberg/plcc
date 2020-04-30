@@ -223,13 +223,23 @@ void IfStmt::display(ostream& out) const {
 
 // PROC ///////////////////////////////////////////////////////////////
 
-Proc::Proc(shared_ptr<Id> i, vector<shared_ptr<Expr>> a)
-    : Stmt(), id(i), args(a) {
-  if (i->get_type().kind != symbol::PROC)
-    throw type_error("variable is not a procedure");
+Proc::Proc(shared_ptr<ProcDef> p, vector<shared_ptr<Expr>> a)
+    : Stmt(), proc(p), args(a) {
 
-  // type check args against params
-  // maybe keep params in a proc def and explicitly pass one to this constructor
+  auto params = p->get_params().get_defs();
+
+  if (params.size() != args.size())
+    throw type_error("number of arguments does not match number of proc params");
+
+  for (size_t i = 0; i < params.size(); i++) {
+    auto p_type = params.at(i)->get_id()->get_type();
+    auto a_type = args.at(i)->get_type();
+    if (p_type.type != a_type.type or p_type.kind != a_type.kind)
+      throw type_error("argument type does not match parameter type");
+
+    if (p_type.qual != symbol::CONST and a_type.qual == symbol::CONST)
+      throw type_error("cannot pass const argument as non-const param");
+  }
 }
 
 Proc::~Proc() {}
@@ -239,7 +249,7 @@ void Proc::visit(TreeWalker& walker) {
 }
 
 void Proc::display(ostream& out) const {
-  out << "Call: " << *id << (args.size() ? " $$" : "");
+  out << "Call: " << *(proc->get_id()) << (args.size() ? " $$" : "");
   for (auto& a : args)
     out << " " << *a;
 }

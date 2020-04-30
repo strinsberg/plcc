@@ -18,6 +18,7 @@ Actions::~Actions() {}
 
 shared_ptr<Def> Actions::const_def(Type type, string name, shared_ptr<Expr> value) {
   admin->debug("const def");
+  type.kind = symbol::SCALAR;  // so far only single value types can be const
   type.qual = symbol::CONST;
 
   auto def = make_shared<Def>();
@@ -283,9 +284,25 @@ shared_ptr<Stmt> Actions::proc_stmt(string name, vector<shared_ptr<Expr>> args) 
   if (id == nullptr)
     return make_shared<Stmt>();
 
+  auto proc_def = table.get_proc(name);
+  if (proc_def == nullptr)
+    admin->error("type error: variable is not a procedure", name);
+
+  // Debug code... remove when done with params
+  auto params = proc_def->get_params().get_defs();
+  if (admin->get_debug()) {
+    cout << "  params: " << params.size() << endl;
+    for (auto& p : params)
+      cout << "    " << *p << endl;
+
+    cout << "  args: " << args.size() << endl;
+    for (auto& a : args)
+      cout << "    " << *a << endl; 
+  }
+
   auto stmt = make_shared<Stmt>();
   try {
-    stmt = make_shared<Proc>(id, args);
+    stmt = make_shared<Proc>(proc_def, args);
   } catch (const exception& e) {
     admin->error("type error: " + string(e.what()), name);
   }
