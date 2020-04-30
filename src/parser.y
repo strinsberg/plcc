@@ -55,7 +55,7 @@ bool set_file(std::string);
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
-%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR REF
+%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR REF VAL
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
 %token EMPTY NEWLINE STRING
@@ -149,6 +149,7 @@ param_list: param_list SEMI param { $1->add_defs($3); $$ = $1; }
 
 param: CONST type vprime { $2.qual = symbol::CONST; $$ = actions->var_def($2, $3); }
   | REF type vprime { $2.qual = symbol::REF_PARAM; $$ = actions->var_def($2, $3); }
+  | VAL type vprime { $2.qual = symbol::VAL_PARAM; $$ = actions->var_def($2, $3); }
   ;
 
 rec_def: rec_name def_part ENDREC { $$ = actions->rec_def($1, $2); }

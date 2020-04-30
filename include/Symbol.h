@@ -18,7 +18,7 @@ enum Tag {
   INT, BOOL, FLOAT, CHAR, CONST, STRING,
   NUMBER, TRUE, FALSE, NAME, CHARACTER,
   EMPTY, CALL, READ, UNIVERSAL, OPERATOR,
-  IN_PARAM, REF_PARAM,
+  IN_PARAM, REF_PARAM, VAL_PARAM,
 };
 
 
@@ -81,6 +81,7 @@ static const std::map<Tag, std::string> to_string {
   {OPERATOR, "OPERATOR"},
   {IN_PARAM, "IN_PARAM"},
   {REF_PARAM, "REF_PARAM"},
+  {VAL_PARAM, "VAL_PARAM"},
 };
 
 
