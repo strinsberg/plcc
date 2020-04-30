@@ -26,7 +26,7 @@ void Seq::display(ostream& out) const {
 
 // Block Stmt /////////////////////////////////////////////////////////
 
-BlockStmt::BlockStmt(std::shared_ptr<Stmt> b) : block(b) {}
+BlockStmt::BlockStmt(std::shared_ptr<Block> b) : Stmt(), block(b) {}
 
 BlockStmt::~BlockStmt() {}
 
@@ -227,9 +227,7 @@ Proc::Proc(shared_ptr<Id> i) : Stmt(), id(i) {
     throw type_error("variable is not a procedure");
 }
 
-Proc::~Proc() {
-  // The id is owned by a def node. Do Not Delete it!
-}
+Proc::~Proc() {}
 
 void Proc::visit(TreeWalker& walker) {
   walker.visit(*this);

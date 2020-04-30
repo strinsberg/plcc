@@ -3,6 +3,7 @@
 
 #include "AstNode.h"
 #include "Exprs.h"
+#include "Stmts.h"
 #include "TreeWalker.h"
 #include <iostream>
 #include <string>
@@ -73,17 +74,17 @@ class DefPart : public Def {
 
 class ProcDef : public Def {
  public:
-  ProcDef(std::shared_ptr<Id> name, std::shared_ptr<Stmt> block);
+  ProcDef(std::shared_ptr<Id> name, std::shared_ptr<Block> block);
   virtual ~ProcDef();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
   // Later should return the number of params. Probably stored in the name.
   virtual int get_size() { return id->get_size(); }
 
-  Stmt& get_block() { return *block; }
+  Block& get_block() { return *block; }
 
  protected:
-  std::shared_ptr<Stmt> block;
+  std::shared_ptr<Block> block;
 };
 
 class RecDef : public Def {

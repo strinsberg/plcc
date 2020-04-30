@@ -26,8 +26,8 @@ bool set_file(std::string);
 %type <std::vector<std::string>> var_list
 
 %type <Vars> vprime
-%type <std::shared_ptr<DefPart>> def_part var_def
-%type <std::shared_ptr<Def>> def const_def proc_def rec_def
+%type <std::shared_ptr<DefPart>> def_part var_def params param_list
+%type <std::shared_ptr<Def>> def const_def proc_def rec_def param
 
 %type <std::shared_ptr<Id>> rec_name proc_name
 
@@ -36,9 +36,11 @@ bool set_file(std::string);
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <std::shared_ptr<Stmt>> program block bprime stmt_part stmt
+%type <std::shared_ptr<Block>> bprime block
+%type <std::shared_ptr<BlockStmt>> block_stmt
+%type <std::shared_ptr<Stmt>> program stmt_part stmt
 %type <std::shared_ptr<Stmt>> write_stmt read_stmt empty_stmt
-%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt block_stmt
+%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt
 %type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
 
 %type <Operator> prim_op rel_op add_op mult_op
@@ -131,22 +133,22 @@ vprime: var_list { $$ = actions->vprime($1); }
   | ARRAY LHSQR constant RHSQR var_list { $$ = actions->vprime($5, $3); }
   ;
 
-proc_def: PROC proc_name params bprime ENDPROC { $$ = actions->proc_def($2, $4); }
+proc_def: PROC proc_name params bprime ENDPROC { $$ = actions->proc_def($2, $3, $4); }
   ;
 
 proc_name: name { $$ = actions->proc_name($1); }
   ;
 
-params: LHRND param_list RHRND { printf("params\n"); }
-  | /* epsilon */ { printf("empty params\n"); }
+params: LHRND param_list RHRND { $$ = $2; }
+  | /* epsilon */ { $$ = std::make_shared<DefPart>(); }
   ;
 
-param_list: param_list COMMA param { printf("param list\n"); }
-  | param { printf("param list\n"); }
+param_list: param_list COMMA param { $1->add_def($3); $$ = $1; }
+  | param { $$ = std::make_shared<DefPart>($1); }
   ;
 
-param: REF type name { printf("ref param\n"); }
-  | type name { printf("copy param\n"); }
+param: REF type name { $$ = std::make_shared<Def>(); }
+  | type name { $$ = std::make_shared<Def>(); }
   ;
 
 rec_def: rec_name def_part ENDREC { $$ = actions->rec_def($1, $2); }

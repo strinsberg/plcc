@@ -28,15 +28,15 @@ class Seq : public Stmt {
 
 class BlockStmt : public Stmt {
  public:
-  BlockStmt(std::shared_ptr<Stmt> block);
+  BlockStmt(std::shared_ptr<Block> block);
   virtual ~BlockStmt();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
-  Stmt& get_block() { return *block; }
+  Block& get_block() { return *block; }
 
  protected:
-  std::shared_ptr<Stmt> block;
+  std::shared_ptr<Block> block;
 
 };
 

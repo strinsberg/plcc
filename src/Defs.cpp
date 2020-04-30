@@ -1,5 +1,6 @@
 #include "Defs.h"
 #include "Exprs.h"
+#include "Stmts.h"
 #include "TreeWalker.h"
 #include <iostream>
 #include <memory>
@@ -85,7 +86,7 @@ void DefPart::add_defs(std::shared_ptr<DefPart> definitions) {
 
 // PROCDEF ////////////////////////////////////////////////////////////
 
-ProcDef::ProcDef(shared_ptr<Id> i, shared_ptr<Stmt> b)
+ProcDef::ProcDef(shared_ptr<Id> i, shared_ptr<Block> b)
     : Def(i), block(b)  {}
 
 ProcDef::~ProcDef() {}

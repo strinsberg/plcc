@@ -57,7 +57,8 @@ shared_ptr<DefPart> Actions::var_def(Type type, Vars pp) {
 }
 
 
-shared_ptr<Def> Actions::proc_def(shared_ptr<Id> id, shared_ptr<Stmt> block) {
+shared_ptr<Def> Actions::proc_def(shared_ptr<Id> id,
+    shared_ptr<DefPart>, shared_ptr<Block> block) {
   admin->debug("proc def");
   return make_shared<ProcDef>(id, block);
 }
@@ -158,12 +159,12 @@ Vars Actions::vprime(vector<string> names, shared_ptr<Expr> size) {
 
 // Statement methods //////////////////////////////////////////////////
 
-shared_ptr<Stmt> Actions::block_stmt(shared_ptr<Stmt> block) {
+shared_ptr<BlockStmt> Actions::block_stmt(shared_ptr<Block> block) {
   admin->debug("block stmt");
   return make_shared<BlockStmt>(block);
 }
 
-shared_ptr<Stmt> Actions::block(shared_ptr<DefPart> defs, shared_ptr<Stmt> stmts) {
+shared_ptr<Block> Actions::block(shared_ptr<DefPart> defs, shared_ptr<Stmt> stmts) {
   admin->debug("block -> pops block");
   table.pop_block();
   return make_shared<Block>(defs, stmts);
