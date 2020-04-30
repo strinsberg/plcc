@@ -1,18 +1,25 @@
 begin
-  record Point
-    const char ch = '$';
-    int x, y;
-  end record;
+  proc no_params
+    write "no params", endl;
+  end proc;
 
-  record Point3D
-    type Point p;
-    int z;
-  end record;
+  proc copy (int a)
+    write a;
+    a := 99;
+  end proc;
 
-  type Point3D point;
+  proc refs (ref int b)
+    write b;
+    b := 333;
+  end proc;
 
-  point.p.x, point.p.y, point.z := 1,2,3;
+  int i, j;
+  i, j := 1, 2;
 
-  write point.p.ch;
-  write '(', point.p.x, ",", point.p.y, ",", point.z, ')', endl;
+  call no_params;
+  call copy (i);
+  call refs (j);
+
+  write i;
+  write j;
 end.

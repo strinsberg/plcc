@@ -80,6 +80,7 @@ proc          { return yy::parser::token::PROC; }
 record        { return yy::parser::token::RECORD; }
 "end record"  { return yy::parser::token::ENDREC; }
 type          { return yy::parser::token::TYPE; }
+ref           { return yy::parser::token::REF; }
 
 true          { return yy::parser::token::TRUE; }
 false         { return yy::parser::token::FALSE; }

@@ -53,7 +53,7 @@ bool set_file(std::string);
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
-%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR
+%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR REF
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
 %token EMPTY NEWLINE STRING
@@ -131,10 +131,22 @@ vprime: var_list { $$ = actions->vprime($1); }
   | ARRAY LHSQR constant RHSQR var_list { $$ = actions->vprime($5, $3); }
   ;
 
-proc_def: PROC proc_name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
+proc_def: PROC proc_name params bprime ENDPROC { $$ = actions->proc_def($2, $4); }
   ;
 
 proc_name: name { $$ = actions->proc_name($1); }
+  ;
+
+params: LHRND param_list RHRND { printf("params\n"); }
+  | /* epsilon */ { printf("empty params\n"); }
+  ;
+
+param_list: param_list COMMA param { printf("param list\n"); }
+  | param { printf("param list\n"); }
+  ;
+
+param: REF type name { printf("ref param\n"); }
+  | type name { printf("copy param\n"); }
   ;
 
 rec_def: rec_name def_part ENDREC { $$ = actions->rec_def($1, $2); }
@@ -189,7 +201,11 @@ empty_stmt: SKIP { $$ = actions->empty_stmt(); }
 block_stmt: block { $$ = actions->block_stmt($1); }
   ;
 
-proc_stmt: CALL name { $$ = actions->proc_stmt($2); }
+proc_stmt: CALL name proc_args { $$ = actions->proc_stmt($2); }
+  ;
+
+proc_args: LHRND var_access_list RHRND { printf("proc args\n"); }
+  | /* epsilon */ { printf("empty proc args\n"); }
   ;
 
 /* should take var access list at most. this will allow read 1 + 2; */
