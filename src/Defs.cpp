@@ -86,8 +86,8 @@ void DefPart::add_defs(std::shared_ptr<DefPart> definitions) {
 
 // PROCDEF ////////////////////////////////////////////////////////////
 
-ProcDef::ProcDef(shared_ptr<Id> i, shared_ptr<Block> b)
-    : Def(i), block(b)  {}
+ProcDef::ProcDef(shared_ptr<Id> i, shared_ptr<DefPart> p, shared_ptr<Block> b)
+    : Def(i), params(p), block(b)  {}
 
 ProcDef::~ProcDef() {}
 
@@ -97,7 +97,7 @@ void ProcDef::visit(TreeWalker& walker) {
 
 void ProcDef::display(ostream& out) const {
   out << endl << "PROC" << endl << *id;
-  out << *block << "ENDPROC";
+  out << endl << *params << *block << "ENDPROC";
 }
 
 // Record Definition //////////////////////////////////////////////////

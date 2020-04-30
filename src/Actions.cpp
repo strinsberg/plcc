@@ -57,25 +57,18 @@ shared_ptr<DefPart> Actions::var_def(Type type, Vars pp) {
 }
 
 
-shared_ptr<Def> Actions::proc_def(shared_ptr<Id> id, shared_ptr<Block> block) {
-  admin->debug("proc def");
+shared_ptr<Def> Actions::proc_def(
+    shared_ptr<Id> id, shared_ptr<DefPart> params, shared_ptr<Block> block) {
+  admin->debug("proc def: " + id->get_name());
 
   table.pop_block();  // pop the block the params are in
-  return make_shared<ProcDef>(id, block);
-}
-
-shared_ptr<Block> Actions::proc_block(shared_ptr<DefPart> params,
-    shared_ptr<DefPart> defs, shared_ptr<Stmt> stmts) {
-  admin->debug("proc block");
-
-  // for now
-  params->add_defs(defs);
-  return make_shared<Block>(params, stmts);
+  admin->debug("  pops block\n");
+  return make_shared<ProcDef>(id, params, block);
 }
 
 
 shared_ptr<Id> Actions::proc_name(string name) {
-  admin->debug("proc name");
+  admin->debug("proc name: " + name);
   Type type = Type(symbol::UNIVERSAL, symbol::PROC, symbol::UNIVERSAL);
   auto size = make_shared<Constant>();
   auto id = make_shared<Id>(name, type, size);
@@ -83,6 +76,8 @@ shared_ptr<Id> Actions::proc_name(string name) {
   if (!table.put(name, id))
     admin->error("'" + name + "' was already declared");
 
+  admin->debug("  new block");
+  table.push_block();
   return id;
 }
 
@@ -97,7 +92,7 @@ shared_ptr<Def> Actions::rec_def(shared_ptr<Id> id, shared_ptr<DefPart> def_part
 
   id->get_size_expr() = Constant(def_part->get_size());
 
-  admin->debug("pop block\n");
+  admin->debug("  pops block\n");
   table.pop_block();
 
   try {
@@ -139,6 +134,7 @@ shared_ptr<DefPart> Actions::add_vars(vector<string> names, Type type, shared_pt
   shared_ptr<DefPart> def_part = make_shared<DefPart>();
   for (auto it = names.rbegin(); it != names.rend(); it++) {
     string n = *it;
+    admin->debug("  add: " + n);
     try {
       auto id = make_shared<Id>(n, type, size);
       bool added = table.put(n, id);

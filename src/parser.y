@@ -36,7 +36,7 @@ bool set_file(std::string);
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <std::shared_ptr<Block>> bprime block proc_block
+%type <std::shared_ptr<Block>> bprime block
 %type <std::shared_ptr<BlockStmt>> block_stmt
 %type <std::shared_ptr<Stmt>> program stmt_part stmt
 %type <std::shared_ptr<Stmt>> write_stmt read_stmt empty_stmt
@@ -133,14 +133,10 @@ vprime: var_list { $$ = actions->vprime($1); }
   | ARRAY LHSQR constant RHSQR var_list { $$ = actions->vprime($5, $3); }
   ;
 
-proc_def: PROC proc_name proc_block ENDPROC { $$ = actions->proc_def($2, $3); }
+proc_def: PROC proc_name params bprime ENDPROC { $$ = actions->proc_def($2, $3, $4); }
   ;
 
 proc_name: name { $$ = actions->proc_name($1); }
-  ;
-
-/* probably a shift reduce conflict with bprime.*/
-proc_block: params def_part stmt_part { $$ = actions->proc_block($1, $2, $3); }
   ;
 
 params: LHRND param_list RHRND { $$ = $2; }
@@ -148,7 +144,7 @@ params: LHRND param_list RHRND { $$ = $2; }
   ;
 
 param_list: param_list SEMI param { $1->add_defs($3); $$ = $1; }
-  | param { auto defs = actions->new_block(); defs->add_def($1); $$ = defs; }
+  | param { $$ = std::make_shared<DefPart>($1); }
   ;
 
 param: CONST type vprime { $2.qual = symbol::IN_PARAM; $$ = actions->var_def($2, $3); }
