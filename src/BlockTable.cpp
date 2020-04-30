@@ -62,10 +62,29 @@ vector<shared_ptr<Id>>& BlockTable::type_info(std::string type_name) {
   throw invalid_argument("type does not exist");
 }
 
+bool BlockTable::new_proc(string proc_name, shared_ptr<ProcDef> proc) {
+  auto it = procs.back().find(proc_name);
+  if ( it != procs.back().end() )
+    return false;
+
+  procs.back()[proc_name] = proc;
+  return true;
+}
+
+std::shared_ptr<ProcDef> BlockTable::get_proc(string proc_name) {
+  for (auto it = procs.rbegin(); it != procs.rend(); ++it) {
+    auto item = it->find(proc_name);
+    if ( item != it->end() )
+      return item->second;
+  }
+  return nullptr;
+}
+
 
 void BlockTable::push_block() {
   blocks.push_back( map<string, shared_ptr<Id>>() );
   types.push_back( map<string, vector<shared_ptr<Id>>>() );
+  procs.push_back( map<string, shared_ptr<ProcDef>>() );
   level++;
 }
 
@@ -73,6 +92,7 @@ void BlockTable::push_block() {
 void BlockTable::pop_block() {
   blocks.pop_back();
   types.pop_back();
+  procs.pop_back();
   level--;
 }
 
@@ -100,6 +120,15 @@ void BlockTable::print() {
       cout << it.first << endl;
       for (auto & id : it.second)
         cout << "  " << id->get_name() << endl;
+    }
+  }
+
+  cout << "=== Block proc defs ===" << endl;
+  i = 1;
+  for (auto & blk : procs) {
+    cout << "Level: " << i++ << endl;
+    for (auto & it : blk) {
+      cout << it.first << endl;
     }
   }
 }

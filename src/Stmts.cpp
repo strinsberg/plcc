@@ -6,6 +6,7 @@
 #include "exceptions.h"
 #include <iostream>
 #include <memory>
+#include <vector>
 using namespace std;
 
 
@@ -222,9 +223,13 @@ void IfStmt::display(ostream& out) const {
 
 // PROC ///////////////////////////////////////////////////////////////
 
-Proc::Proc(shared_ptr<Id> i) : Stmt(), id(i) {
+Proc::Proc(shared_ptr<Id> i, vector<shared_ptr<Expr>> a)
+    : Stmt(), id(i), args(a) {
   if (i->get_type().kind != symbol::PROC)
     throw type_error("variable is not a procedure");
+
+  // type check args against params
+  // maybe keep params in a proc def and explicitly pass one to this constructor
 }
 
 Proc::~Proc() {}
@@ -234,5 +239,7 @@ void Proc::visit(TreeWalker& walker) {
 }
 
 void Proc::display(ostream& out) const {
-  out << "Call: " << *id;
+  out << "Call: " << *id << (args.size() ? " $$" : "");
+  for (auto& a : args)
+    out << " " << *a;
 }

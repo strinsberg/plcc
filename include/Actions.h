@@ -54,7 +54,7 @@ class Actions {
   std::shared_ptr<Stmt> if_stmt(std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> loop(std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> empty_stmt();
-  std::shared_ptr<Stmt> proc_stmt(std::string);
+  std::shared_ptr<Stmt> proc_stmt(std::string, std::vector<std::shared_ptr<Expr>>);
   std::shared_ptr<Stmt> conditions(std::shared_ptr<Stmt>, std::shared_ptr<Stmt>);
   std::shared_ptr<Stmt> condition(std::shared_ptr<Expr>, std::shared_ptr<Stmt>);
 

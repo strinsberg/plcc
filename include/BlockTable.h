@@ -17,6 +17,8 @@ class BlockTable {
   std::shared_ptr<Id> get(std::string lexeme);
   bool new_type(std::string type_name, std::vector<std::shared_ptr<Id>> fields);
   bool has_type(std::string type_name);
+  bool new_proc(std::string proc_name, std::shared_ptr<ProcDef> proc);
+  std::shared_ptr<ProcDef> get_proc(std::string proc_name);
   std::vector<std::shared_ptr<Id>>& type_info(std::string type_name);
   void push_block();
   void pop_block();
@@ -27,6 +29,7 @@ class BlockTable {
  private:
   std::vector<std::map<std::string, std::shared_ptr<Id>>> blocks;
   std::vector<std::map<std::string, std::vector<std::shared_ptr<Id>>>> types;
+  std::vector<std::map<std::string, std::shared_ptr<ProcDef>>> procs;
   int level;
 };
 

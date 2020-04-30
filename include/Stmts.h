@@ -6,8 +6,10 @@
 #include "Defs.h"
 #include "TreeWalker.h"
 #include "Symbol.h"
+#include <iostream>
 #include <string>
 #include <memory>
+#include <vector>
 
 
 class Seq : public Stmt {
@@ -170,15 +172,17 @@ class IfStmt : public Stmt {
 
 class Proc : public Stmt {
  public:
-  Proc(std::shared_ptr<Id> id);
+  Proc(std::shared_ptr<Id> id, std::vector<std::shared_ptr<Expr>> args);
   virtual ~Proc();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& out) const;
 
   Expr& get_id() { return *id; }
+  std::vector<std::shared_ptr<Expr>>& get_args() { return args; };
 
  protected:
   std::shared_ptr<Id> id;
+  std::vector<std::shared_ptr<Expr>> args;
 };
 #endif
 

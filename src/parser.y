@@ -34,7 +34,7 @@ bool set_file(std::string);
 %type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
 %type <std::shared_ptr<Expr>> factor var_access selector endl
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
-%type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
+%type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list proc_args
 
 %type <std::shared_ptr<Block>> bprime block
 %type <std::shared_ptr<BlockStmt>> block_stmt
@@ -203,11 +203,11 @@ empty_stmt: SKIP { $$ = actions->empty_stmt(); }
 block_stmt: block { $$ = actions->block_stmt($1); }
   ;
 
-proc_stmt: CALL name proc_args { $$ = actions->proc_stmt($2); }
+proc_stmt: CALL name proc_args { $$ = actions->proc_stmt($2, $3); }
   ;
 
-proc_args: LHRND var_access_list RHRND { printf("proc args\n"); }
-  | /* epsilon */ { printf("empty proc args\n"); }
+proc_args: LHRND var_access_list RHRND { $$ = $2; }
+  | /* epsilon */ { $$ = std::vector<std::shared_ptr<Expr>>(); }
   ;
 
 /* should take var access list at most. this will allow read 1 + 2; */

@@ -102,7 +102,10 @@ void ProcDef::display(ostream& out) const {
 
 // Record Definition //////////////////////////////////////////////////
 
-RecDef::RecDef(shared_ptr<Id> n, shared_ptr<Def> d) : Def(n), defs(d) {}
+RecDef::RecDef(shared_ptr<Id> n, shared_ptr<Def> d) : Def(n), defs(d) {
+  // check to make sure no member has the same type as the record
+  // without pointers there can be no recursive structure definitions
+}
 
 RecDef::~RecDef() {}
 

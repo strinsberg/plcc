@@ -79,7 +79,6 @@ class ProcDef : public Def {
   virtual ~ProcDef();
   virtual void visit(TreeWalker& walker);
   virtual void display(std::ostream& os) const;
-  // Later should return the number of params. Probably stored in the name.
   virtual int get_size() { return id->get_size(); }
 
   DefPart& get_params() { return *params; }

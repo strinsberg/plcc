@@ -63,7 +63,10 @@ shared_ptr<Def> Actions::proc_def(
 
   table.pop_block();  // pop the block the params are in
   admin->debug("  pops block\n");
-  return make_shared<ProcDef>(id, params, block);
+
+  auto proc = make_shared<ProcDef>(id, params, block);
+  table.new_proc(id->get_name(), proc);
+  return proc;
 }
 
 
@@ -273,7 +276,7 @@ shared_ptr<Stmt> Actions::empty_stmt() {
 }
 
 
-shared_ptr<Stmt> Actions::proc_stmt(string name) {
+shared_ptr<Stmt> Actions::proc_stmt(string name, vector<shared_ptr<Expr>> args) {
   admin->debug("call");
 
   auto id = get_id(name);
@@ -282,7 +285,7 @@ shared_ptr<Stmt> Actions::proc_stmt(string name) {
 
   auto stmt = make_shared<Stmt>();
   try {
-    stmt = make_shared<Proc>(id);
+    stmt = make_shared<Proc>(id, args);
   } catch (const exception& e) {
     admin->error("type error: " + string(e.what()), name);
   }
