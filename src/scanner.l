@@ -1,12 +1,6 @@
 %{
-#include <string>
-#include <iostream>
-#include <vector>
 #include <memory>
 #include "Actions.h"
-#include "AstNode.h"
-#include "Symbol.h"
-#include "Types.h"
 #include "parser.tab.hh"
 
 // From parser.tab.h for admin::error() and admin::newline()
@@ -23,7 +17,7 @@ name ({letter}|_)({letter}|{digit}|_)*
 character :.
 string \"[^\"]*\"
 
-/* might be possible to use bison for single chars to reduce rules here */
+
 %%
 begin         { return yy::parser::token::BEG; }
 end           { return yy::parser::token::END; }

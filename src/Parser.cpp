@@ -12,7 +12,7 @@ using namespace std;
 // knows anything about them. It would be better if I could encapsulate it
 // better and not mix C and C++, but this works ok.
 
-// Pointer in the bison parser to the actions object
+// Pointer for the bison parser to the actions object
 extern shared_ptr<Actions> actions;
 
 // The file to use with the flex scanner
