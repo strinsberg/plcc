@@ -2,6 +2,7 @@
 #include "Exprs.h"
 #include "Stmts.h"
 #include "TreeWalker.h"
+#include "exceptions.h"
 #include <iostream>
 #include <memory>
 using namespace std;
@@ -87,7 +88,20 @@ void DefPart::add_defs(std::shared_ptr<DefPart> definitions) {
 // PROCDEF ////////////////////////////////////////////////////////////
 
 ProcDef::ProcDef(shared_ptr<Id> i, shared_ptr<DefPart> p, shared_ptr<Block> b)
-    : Def(i), params(p), block(b)  {}
+    : Def(i), params(p), block(b)  {
+
+  for (auto& param : params->get_defs()) {
+    auto p_type = param->get_id()->get_type();
+
+    if (p_type.qual == symbol::REF_PARAM) {
+      if (p_type.type == symbol::FLOAT)
+        throw type_error("float cannot be passed by reference. my bad.");
+    } else if (p_type.qual == symbol::VAL_PARAM) {
+      if (p_type.kind == symbol::ARRAY or p_type.kind == symbol::RECORD)
+        throw type_error("References and Arrays cannot be passed by value.");
+    }
+  }
+}
 
 ProcDef::~ProcDef() {}
 

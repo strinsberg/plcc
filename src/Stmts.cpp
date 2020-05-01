@@ -234,11 +234,9 @@ Proc::Proc(shared_ptr<ProcDef> p, vector<shared_ptr<Expr>> a)
   for (size_t i = 0; i < params.size(); i++) {
     auto p_type = params.at(i)->get_id()->get_type();
     auto a_type = args.at(i)->get_type();
+
     if (p_type.type != a_type.type or p_type.kind != a_type.kind)
       throw type_error("argument type does not match parameter type");
-
-    if (p_type.qual != symbol::CONST and a_type.qual == symbol::CONST)
-      throw type_error("cannot pass const argument as non-const param");
   }
 }
 

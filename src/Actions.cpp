@@ -65,9 +65,14 @@ shared_ptr<Def> Actions::proc_def(
   table.pop_block();  // pop the block the params are in
   admin->debug("  pops block\n");
 
-  auto proc = make_shared<ProcDef>(id, params, block);
-  table.new_proc(id->get_name(), proc);
-  return proc;
+  try {
+    auto proc = make_shared<ProcDef>(id, params, block);
+    table.new_proc(id->get_name(), proc);
+    return proc;
+  } catch (const type_error& e) {
+    admin->error("type error: " + string(e.what()), id->get_name());
+    return make_shared<Def>();
+  }
 }
 
 
@@ -285,19 +290,9 @@ shared_ptr<Stmt> Actions::proc_stmt(string name, vector<shared_ptr<Expr>> args) 
     return make_shared<Stmt>();
 
   auto proc_def = table.get_proc(name);
-  if (proc_def == nullptr)
+  if (proc_def == nullptr) {
     admin->error("type error: variable is not a procedure", name);
-
-  // Debug code... remove when done with params
-  auto params = proc_def->get_params().get_defs();
-  if (admin->get_debug()) {
-    cout << "  params: " << params.size() << endl;
-    for (auto& p : params)
-      cout << "    " << *p << endl;
-
-    cout << "  args: " << args.size() << endl;
-    for (auto& a : args)
-      cout << "    " << *a << endl; 
+    return make_shared<Stmt>();
   }
 
   auto stmt = make_shared<Stmt>();

@@ -1,22 +1,12 @@
 begin
-  int array[2] F;
-
-  proc P (val int f)
-    f := 3;
-    write f, endl;
+  proc copy (val int a, b)
+    write "copy: ", a, " ", b, endl;
+    a, b := 333, 555;
   end proc;
 
-  proc P2 (ref int f)
-    f := 3;
-    write f, endl;
-  end proc;
+  int i, j;
+  i, j := 1, 2;
 
-  F[0], F[1] := 1, 2;
-
-  write F, endl;
-
-  call P2(F[0]);
-  call P2(F[1]);
-
-  write F, endl;
+  call copy (i, j);
+  write "i,j: ", i, " ", j, endl;
 end.
