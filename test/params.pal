@@ -1,12 +1,22 @@
 begin
-  proc P (val float a)
-    write a, endl;
-    a := 9.24;
+  record Point
+    int x, y;
+  end record;
+
+  proc P (ref type Point a; ref int array[10] A)
+    write a.x, " ", a.y, endl;
+    a.x, a.y := 33, 99;
+    write A, endl;
+    A[0], A[1] := 44, 55;
   end proc;
 
-  float i;
-  i := 3.14;
+  int array[10] I;
 
-  call P(i);
-  write i, endl;
+  type Point p;
+  p.x, p.y := 1, 2;
+
+
+  call P(p, I);
+  write p.x, " ", p.y, endl;
+  write I, endl;
 end.
