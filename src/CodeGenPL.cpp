@@ -149,7 +149,6 @@ void CodeGenPL::visit(Id& node) {
     ops.push_back(ent.displace);
     current_address += 3;
 
-    cout << name << ": " << symbol::str(ent.full_type.qual) << " " << access << endl;
     if (access != REF and ent.full_type.qual == symbol::REF_PARAM) {
       ops.push_back(symbol::OP_REF);
       current_address++;

@@ -1,26 +1,22 @@
 begin
-  proc no_params
-    write "no params", endl;
+  int array[2] F;
+
+  proc P (val int f)
+    f := 3;
+    write f, endl;
   end proc;
 
-  proc copy (const int a, b)
-    write a, b;
+  proc P2 (ref int f)
+    f := 3;
+    write f, endl;
   end proc;
 
-  proc refs (ref int b; ref int c)
-    write b, c;
-    b, c := 333, 555;
-  end proc;
+  F[0], F[1] := 1, 2;
 
-  const int c = 11111;
-  int i, j;
-  i, j := 1, 2;
+  write F, endl;
 
-  call no_params;
+  call P2(F[0]);
+  call P2(F[1]);
 
-  call copy (i, c);
-  write i, " ", j, endl;
-
-  call refs (i, j);
-  write i, " ", j, endl;
+  write F, endl;
 end.

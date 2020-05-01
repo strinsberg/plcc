@@ -138,6 +138,7 @@ ArrayAccess::ArrayAccess(shared_ptr<Id> i, shared_ptr<Expr> idx)
   if (index->get_type().type != symbol::INT)
     throw type_error("array index must be type int");
 
+  type.kind = symbol::SCALAR;
   type.qual = symbol::SCALAR;  // we are accessing only one value
 }
 
