@@ -34,6 +34,7 @@ as            { return yy::parser::token::AS; }
 ","           { return yy::parser::token::COMMA; }
 ";"           { return yy::parser::token::SEMI; }
 ":"           { return yy::parser::token::COLON; }
+"->"          { return yy::parser::token::ARROW; }
 
 "("           { return yy::parser::token::LHRND; }
 ")"           { return yy::parser::token::RHRND; }

@@ -1,22 +1,18 @@
 #includes
 "my_lib.pal" as ml;
 "some_lib.pal" as sl;
+"lib_with_name.pal";
 
 
 #constants
--- Basic type constants
--- In this section the const should be optional
 const int INT = 5;
 const bool POINTLESS = true;
 const float PI = 3.14;
 const char SEMI = ';';
 
--- Container constants
--- These expose that there could be no constants for custom types if types
--- are declared after constants, unless made in a module.
-const int array ARR = [1, 2, 3, 4, 5];
+const int array ARR = [INT, 2, 3, 4, 5];
 const bool vector VEC = [true, false, true];
-const char map int MAP = {'a': 1, 'b': 2, 'c': 3};
+const char -> int map MAP = {'a': 1, 'b': 2, 'c': 3};
 
 
 #types

@@ -44,7 +44,7 @@ bool set_file(std::string);
 
 /* Token definitions */
 %token BEG END PROCEDURES CONSTANTS INCLUDES TYPES MAIN MODULE
-%token COMMA DOT SEMI COLON
+%token COMMA DOT SEMI COLON ARROW
 %token LHRND RHRND LHSQR RHSQR LHCUR RHCUR
 %token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ READLN
 %token AND OR NOT
@@ -128,6 +128,7 @@ include_stmts: include_stmts include {}
   ;
 
 include: string AS name SEMI {}
+  | string SEMI {}
   ;
 
 /* Constant Definitions *****************************************************/
@@ -135,12 +136,23 @@ const_defs: const_defs const_def SEMI {}
   | const_def SEMI {}
   ;
 
-const_def: CONST const_type name INIT literal { }
+const_def: CONST const_type name INIT constant { }
   ;
 
-const_type: type container_type {}
+const_type: type ARRAY {}
+  | type VECTOR {}
+  | type ARROW type MAP {}
   | type {}
   ;
+
+constant_list: constant_list COMMA constant {}
+  | constant {}
+  ;
+
+constant: name { }
+  | literal { }
+  ;
+
 
 /* Type Definitions *********************************************************/
 type_defs: type_defs type_def SEMI {}
@@ -170,18 +182,6 @@ body: body var_def SEMI {}
   | stmt SEMI {}
   ;
 
-
-
-
-container_type: ARRAY {}
-  | VECTOR {}
-  | MAP type {}
-  ;
-
-literals: literals COMMA literal {}
-  | literal {}
-  ;
-
 literal: array_lit {}
   | map_lit {}
   | number {}
@@ -189,18 +189,17 @@ literal: array_lit {}
   | character {}
   ;
 
-array_lit: LHSQR literals RHSQR {}
+array_lit: LHSQR constant_list RHSQR {}
   ;
 
-
-map_lit: LHCUR map_literals RHCUR {}
+map_lit: LHCUR const_mapping_list RHCUR {}
   ;
 
-map_literals: map_literals COMMA const_mapping {}
+const_mapping_list: const_mapping_list COMMA const_mapping {}
   | const_mapping {}
   ;
 
-const_mapping: literal COLON literal {}
+const_mapping: constant COLON constant {}
   ; 
 
 /* OLD PL RULES **********************************************************/
@@ -343,13 +342,6 @@ type_sym: INT { }
   | CHAR { }
   ;
 
-constant: number { }
-  | bool_sym  { }
-  | character { }
-  | name { }
-  | string { }
-  | endl { }
-  ;
 
 character: CHARACTER { }
   ;
