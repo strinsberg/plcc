@@ -24,6 +24,7 @@ string \"[^\"]*\"
 #types        { return yy::parser::token::TYPES; }
 #procedures   { return yy::parser::token::PROCEDURES; }
 #main         { return yy::parser::token::MAIN; }
+#module       { return yy::parser::token::MODULE; }
 
 begin         { return yy::parser::token::BEG; }
 end           { return yy::parser::token::END; }
@@ -32,10 +33,14 @@ as            { return yy::parser::token::AS; }
 "."           { return yy::parser::token::DOT; }
 ","           { return yy::parser::token::COMMA; }
 ";"           { return yy::parser::token::SEMI; }
+":"           { return yy::parser::token::COLON; }
+
 "("           { return yy::parser::token::LHRND; }
 ")"           { return yy::parser::token::RHRND; }
 "["           { return yy::parser::token::LHSQR; }
 "]"           { return yy::parser::token::RHSQR; }
+"{"           { return yy::parser::token::LHCUR; }
+"}"           { return yy::parser::token::RHCUR; }
 
 "+"           { return yy::parser::token::PLUS; }
 "-"           { return yy::parser::token::MINUS; }
@@ -76,6 +81,9 @@ float         { return yy::parser::token::FLOAT; }
 char          { return yy::parser::token::CHAR; }
 
 array         { return yy::parser::token::ARRAY; }
+vector        { return yy::parser::token::VECTOR; }
+map           { return yy::parser::token::MAP; }
+
 proc          { return yy::parser::token::PROC; }
 "end proc"    { return yy::parser::token::ENDPROC; }
 record        { return yy::parser::token::RECORD; }

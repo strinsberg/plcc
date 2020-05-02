@@ -33,7 +33,7 @@ bool set_file(std::string);
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <std::shared_ptr<Stmt>> program stmt
+%type <std::shared_ptr<Stmt>> stmt
 %type <std::shared_ptr<Stmt>> write_stmt read_stmt empty_stmt
 %type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt
 %type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
@@ -43,14 +43,14 @@ bool set_file(std::string);
 
 
 /* Token definitions */
-%token BEG END PROCEDURES CONSTANTS INCLUDES TYPES MAIN
-%token COMMA DOT SEMI
-%token LHRND RHRND LHSQR RHSQR
+%token BEG END PROCEDURES CONSTANTS INCLUDES TYPES MAIN MODULE
+%token COMMA DOT SEMI COLON
+%token LHRND RHRND LHSQR RHSQR LHCUR RHCUR
 %token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ READLN
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
-%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR
+%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR VECTOR MAP
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
 %token EMPTY NEWLINE STRING AS
@@ -92,7 +92,14 @@ namespace yy {
 
 
 %%
-program: includes constants types procedures main { printf("\nprogram\n"); }
+
+/* Main Program Structure ***************************************************/
+
+module: MODULE name definitions { printf("\nend module\n"); }
+  | definitions main { printf("\nend program\n"); }
+  ;
+
+definitions: includes constants types procedures {}
   ;
 
 includes: INCLUDES include_stmts { printf("\nincludes\n"); }
@@ -115,6 +122,7 @@ main: MAIN body { printf("\nmain body\n"); }
   ;
 
 
+/* Includes *****************************************************************/
 include_stmts: include_stmts include {}
   | include {} 
   ;
@@ -122,10 +130,19 @@ include_stmts: include_stmts include {}
 include: string AS name SEMI {}
   ;
 
+/* Constant Definitions *****************************************************/
 const_defs: const_defs const_def SEMI {}
   | const_def SEMI {}
   ;
 
+const_def: CONST const_type name INIT literal { }
+  ;
+
+const_type: type container_type {}
+  | type {}
+  ;
+
+/* Type Definitions *********************************************************/
 type_defs: type_defs type_def SEMI {}
   | type_def SEMI {}
   ;
@@ -133,10 +150,12 @@ type_defs: type_defs type_def SEMI {}
 type_def: name var_defs END name {}
   ;
 
+/* Variable Definitions *****************************************************/
 var_defs: var_defs var_def SEMI {}
   | var_def SEMI {}
   ;
 
+/* Procedure Definitions ****************************************************/
 proc_defs: proc_defs proc_def SEMI {}
   | proc_def SEMI {}
   ;
@@ -144,6 +163,7 @@ proc_defs: proc_defs proc_def SEMI {}
 proc_def: name body END name {}
   ;
 
+/* Program Body *************************************************************/
 body: body var_def SEMI {}
   | body stmt SEMI {}
   | var_def SEMI {}
@@ -153,10 +173,37 @@ body: body var_def SEMI {}
 
 
 
+container_type: ARRAY {}
+  | VECTOR {}
+  | MAP type {}
+  ;
+
+literals: literals COMMA literal {}
+  | literal {}
+  ;
+
+literal: array_lit {}
+  | map_lit {}
+  | number {}
+  | bool_sym {}
+  | character {}
+  ;
+
+array_lit: LHSQR literals RHSQR {}
+  ;
+
+
+map_lit: LHCUR map_literals RHCUR {}
+  ;
+
+map_literals: map_literals COMMA const_mapping {}
+  | const_mapping {}
+  ;
+
+const_mapping: literal COLON literal {}
+  ; 
 
 /* OLD PL RULES **********************************************************/
-const_def: CONST type_sym name INIT constant { }
-  ;
 
 var_def: type vprime { }
   ;

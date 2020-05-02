@@ -1,0 +1,32 @@
+#module some_module_name
+
+#includes
+"my_lib.pal" as ml;
+"some_lib.pal" as sl;
+
+
+#constants
+const float PI = 3.14;
+const float ZERO = 0.0;
+
+
+#types
+Point
+  int x, y;
+end Point;
+
+Point3D
+  Point p;
+  int z;
+end Point3D;
+
+
+#procedures
+my_proc
+  int x, y;
+  write x;
+end my_proc;
+
+other_proc
+  call my_proc;
+end other_proc;
