@@ -20,7 +20,6 @@ bool set_file(std::string);
 
 /* Non-terminal type definitions */
 %define api.value.type variant
-%type <int> num
 %type <std::string> name
 %type <std::vector<std::string>> var_list
 
@@ -39,7 +38,7 @@ bool set_file(std::string);
 %type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
 
 %type <Operator> prim_op rel_op add_op mult_op
-%type <Type> type_sym type
+%type <Type> type
 
 
 /* Token definitions */
@@ -136,6 +135,21 @@ type_def: RECORD name var_defs ENDREC {}
 proc_def: PROC name params body ENDPROC {}
   ;
 
+
+/* Program Body *************************************************************/
+main: MAIN body END_MAIN { printf("\nmain body\n"); }
+  ;
+
+body: body body_stmt SEMI {}
+  | body_stmt SEMI {}
+  ;
+
+body_stmt: var_def {}
+  | stmt {}
+  ;
+
+
+/* Procedures ***************************************************************/
 params: LHRND param_list RHRND {}
   | /* epsilon */
   ;
@@ -148,18 +162,6 @@ param: pass_by var_def {}
   ;
 
 pass_by: REF | CONST | /* epsilon */ {}
-  ;
-
-/* Program Body *************************************************************/
-main: MAIN body END_MAIN { printf("\nmain body\n"); }
-  ;
-
-body: body body_stmt SEMI {}
-  | body_stmt SEMI {}
-  ;
-
-body_stmt: var_def {}
-  | stmt {}
   ;
 
 
@@ -199,8 +201,7 @@ const_mapping: constant COLON constant {}
   ; 
 
 
-
-/* Variable Definitions *****************************************************/
+/* Variables ****************************************************************/
 var_defs: var_defs var_def SEMI {}
   | var_def SEMI {}
   ;
@@ -209,16 +210,28 @@ var_def: type vprime { }
   | type vprime INIT expr_list {}
   ;
 
-type: type_sym { }
-  | name { }
-  ;
-
 vprime: var_list { }
   | ARRAY LHSQR constant RHSQR var_list { }
   ;
 
+var_list: var_list COMMA name { }
+  | name { }
+  ;
 
-/* Statements */
+var_access_list: var_access_list COMMA var_access { }
+  | var_access { }
+  ;
+
+var_access: name selector { }
+  | var_access DOT name selector { }
+  ;
+
+selector: LHSQR expr RHSQR { }
+  | /* epsilon */ { }
+  ;
+
+
+/* Statements ***************************************************************/
 stmt: write_stmt { }
   | asn_stmt { }
   | if_stmt { }
@@ -267,7 +280,7 @@ read_stmt: READ var_access_list { }
   ;
 
 
-/* Expressions */
+/* Expressions **************************************************************/
 expr_list: expr_list COMMA expr { }
   | expr { }
   | error { }
@@ -301,26 +314,7 @@ factor: number { }
   ;
 
 
-/* Variables */
-var_list: var_list COMMA name { }
-  | name { }
-  ;
-
-var_access_list: var_access_list COMMA var_access { }
-  | var_access { }
-  ;
-
-var_access: name selector { }
-  | var_access DOT name selector { }
-  ;
-
-selector: LHSQR expr RHSQR { }
-  | /* epsilon */
-    { }
-  ;
-
-
-/* Operators Terminals */
+/* Operators ****************************************************************/
 prim_op: AND { }
   | OR { }
   ;
@@ -343,22 +337,21 @@ mult_op: MULT { }
   ;
 
 
-/* Value Based Terminals */
-type_sym: INT { }
+/* Types ********************************************************************/
+type: INT { }
   | FLOAT { }
   | BOOL { }
   | CHAR { }
+  | name { }
   ;
 
 
+/* Values *******************************************************************/
 character: CHARACTER { }
   ;
 
-number: num DOT NUMBER { }
-  | num { }
-  ;
-
-num: NUMBER { }
+number: FLOAT { }
+  | NUMBER { }
   ;
 
 bool_sym: TRUE { }

@@ -10,12 +10,11 @@ extern FILE* yyin;
 
 %option nounput noyywrap noinput batch
 
-letter [a-zA-Z]                                                                
-digit [0-9]                                                                    
-number {digit}*
-name ({letter}|_)({letter}|{digit}|_)*
-character :.
-string \"[^\"]*\"
+letter        [a-zA-Z]                                                                
+digit         [0-9]                                                                    
+num           {digit}*
+name          ({letter}|_)({letter}|{digit}|_)*
+string        \"[^\"]*\"
 
 
 %%
@@ -96,7 +95,8 @@ true          { return yy::parser::token::TRUE; }
 false         { return yy::parser::token::FALSE; }
 endl          { return yy::parser::token::NEWLINE; }
 
-{number}      { return yy::parser::token::NUMBER; }
+{num}      { return yy::parser::token::NUMBER; }
+{num}\.{num}  {return yy::parser::token::FLOAT; }
 {name}        { return yy::parser::token::NAME; }
 '.'           { return yy::parser::token::CHARACTER; }
 {string}      { return yy::parser::token::STRING; }
