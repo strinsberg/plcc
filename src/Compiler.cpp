@@ -18,8 +18,10 @@ Compiler::Compiler(string in, string out, bool v, bool debug)
 bool Compiler::compile_to_pl() {
   shared_ptr<AstNode> ast = build_ast();
 
+  /* Disable this for now while working on language and AST
   if (ast != nullptr)
     pl_code_gen(ast);
+  */
 
   return admin->get_errors() == 0;
 }

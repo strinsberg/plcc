@@ -19,8 +19,15 @@ string \"[^\"]*\"
 
 
 %%
+#includes     { return yy::parser::token::INCLUDES; }
+#constants    { return yy::parser::token::CONSTANTS; }
+#types        { return yy::parser::token::TYPES; }
+#procedures   { return yy::parser::token::PROCEDURES; }
+#main         { return yy::parser::token::MAIN; }
+
 begin         { return yy::parser::token::BEG; }
 end           { return yy::parser::token::END; }
+as            { return yy::parser::token::AS; }
 
 "."           { return yy::parser::token::DOT; }
 ","           { return yy::parser::token::COMMA; }

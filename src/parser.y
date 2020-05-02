@@ -1,4 +1,5 @@
 %{
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <memory>
@@ -24,19 +25,17 @@ bool set_file(std::string);
 %type <std::vector<std::string>> var_list
 
 %type <Vars> vprime
-%type <std::shared_ptr<DefPart>> def_part var_def
-%type <std::shared_ptr<Def>> def const_def proc_def rec_def
-
-%type <std::shared_ptr<Id>> rec_name proc_name
+%type <std::shared_ptr<DefPart>> var_def
+%type <std::shared_ptr<Def>> const_def proc_def
 
 %type <std::shared_ptr<Expr>> expr prime_expr simple_expr term 
 %type <std::shared_ptr<Expr>> factor var_access selector endl
 %type <std::shared_ptr<Expr>> constant character number bool_sym string
 %type <std::vector<std::shared_ptr<Expr>>> expr_list var_access_list
 
-%type <std::shared_ptr<Stmt>> program block bprime stmt_part stmt
+%type <std::shared_ptr<Stmt>> program stmt
 %type <std::shared_ptr<Stmt>> write_stmt read_stmt empty_stmt
-%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt block_stmt
+%type <std::shared_ptr<Stmt>> if_stmt loop_stmt proc_stmt
 %type <std::shared_ptr<Stmt>> asn_stmt conditions then_cond do_cond
 
 %type <Operator> prim_op rel_op add_op mult_op
@@ -44,7 +43,7 @@ bool set_file(std::string);
 
 
 /* Token definitions */
-%token BEG END
+%token BEG END PROCEDURES CONSTANTS INCLUDES TYPES MAIN
 %token COMMA DOT SEMI
 %token LHRND RHRND LHSQR RHSQR
 %token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ READLN
@@ -54,7 +53,7 @@ bool set_file(std::string);
 %token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
-%token EMPTY NEWLINE STRING
+%token EMPTY NEWLINE STRING AS
 
 
 /* Code for C++ yylex and yyerror definitions */
@@ -93,221 +92,239 @@ namespace yy {
 
 
 %%
-program: block DOT { actions->set_ast($1); }
+program: includes constants types procedures main { printf("\nprogram\n"); }
   ;
 
-block: BEG bprime END { $$ = $2; }
+includes: INCLUDES include_stmts { printf("\nincludes\n"); }
+  | /* epsilon */ { printf("\nempty includes\n"); }
   ;
 
-bprime: def_part stmt_part { $$ = actions->block($1, $2); }
+constants: CONSTANTS const_defs { printf("\nconstant definitions\n"); }
+  | /* epsilon */ { printf("\nempty constants\n"); }
+  ;
+
+types: TYPES type_defs { printf("\ntype definitions\n"); }
+  | /* epsilon */ { printf("\nempty types\n"); }
+  ;
+
+procedures: PROCEDURES proc_defs { printf("\nprocedure definitions\n"); }
+  | /* epsilon */ { printf("\nempty procedures\n"); }
+  ;
+
+main: MAIN body { printf("\nmain body\n"); }
   ;
 
 
-/* Definitions */
-def_part: def_part def SEMI { $1->add_def($2); $$ = $1; }
-  | def_part var_def SEMI { $1->add_defs($2); $$ = $1; }
-  | def_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */ { $$ = actions->new_block(); }
+include_stmts: include_stmts include {}
+  | include {} 
   ;
 
-def: const_def { $$ = $1; }
-  | proc_def { $$ = $1; }
-  | rec_def { $$ = $1; }
+include: string AS name SEMI {}
   ;
 
-const_def: CONST type_sym name INIT constant { $$ = actions->const_def($2, $3, $5); }
+const_defs: const_defs const_def SEMI {}
+  | const_def SEMI {}
   ;
 
-var_def: type vprime { $$ = actions->var_def($1, $2); }
+type_defs: type_defs type_def SEMI {}
+  | type_def SEMI {}
   ;
 
-type: type_sym { $$ = $1; }
-  | TYPE name { $$ = actions->new_type(symbol::RECORD, $2); }
+type_def: name var_defs END name {}
   ;
 
-vprime: var_list { $$ = actions->vprime($1); }
-  | ARRAY LHSQR constant RHSQR var_list { $$ = actions->vprime($5, $3); }
+var_defs: var_defs var_def SEMI {}
+  | var_def SEMI {}
   ;
 
-proc_def: PROC proc_name bprime ENDPROC { $$ = actions->proc_def($2, $3); }
+proc_defs: proc_defs proc_def SEMI {}
+  | proc_def SEMI {}
   ;
 
-proc_name: name { $$ = actions->proc_name($1); }
+proc_def: name body END name {}
   ;
 
-rec_def: rec_name def_part ENDREC { $$ = actions->rec_def($1, $2); }
+body: body var_def SEMI {}
+  | body stmt SEMI {}
+  | var_def SEMI {}
+  | stmt SEMI {}
   ;
 
-rec_name: RECORD name { $$ = actions->rec_name($2); }
+
+
+
+
+/* OLD PL RULES **********************************************************/
+const_def: CONST type_sym name INIT constant { }
+  ;
+
+var_def: type vprime { }
+  ;
+
+type: type_sym { }
+  | name { }
+  ;
+
+vprime: var_list { }
+  | ARRAY LHSQR constant RHSQR var_list { }
   ;
 
 
 /* Statements */
-stmt_part: stmt_part stmt SEMI { $$ = actions->stmt_part($1, $2); }
-  | stmt_part error SEMI { $$ = $1; yyerrok; }
-  | /* epsilon */
-    { auto stmt = actions->empty_stmt(); stmt->set_null(true); $$ = stmt; }
+stmt: write_stmt { }
+  | asn_stmt { }
+  | if_stmt { }
+  | loop_stmt { }
+  | empty_stmt { }
+  | proc_stmt { }
+  | read_stmt { }
   ;
 
-stmt: write_stmt { $$ = $1; }
-  | asn_stmt { $$ = $1; }
-  | if_stmt { $$ = $1; }
-  | loop_stmt { $$ = $1; }
-  | empty_stmt { $$ = $1; }
-  | block_stmt { $$ = $1; }
-  | proc_stmt { $$ = $1; }
-  | read_stmt { $$ = $1; }
+write_stmt: WRITE expr_list { }
   ;
 
-write_stmt: WRITE expr_list { $$ = actions->io($2, symbol::WRITE); }
+asn_stmt: var_access_list ASGN expr_list { }
   ;
 
-asn_stmt: var_access_list ASGN expr_list { $$ = actions->assign($1, $3); }
+if_stmt: IF conditions ENDIF { }
   ;
 
-if_stmt: IF conditions ENDIF { $$ = actions->if_stmt($2); }
+conditions: conditions ELIF then_cond { }
+  | then_cond { }
   ;
 
-conditions: conditions ELIF then_cond { $$ = actions->conditions($1, $3); }
-  | then_cond { $$ = $1; }
+then_cond: expr THEN body { }
   ;
 
-then_cond: expr THEN stmt_part { $$ = actions->condition($1, $3); }
+loop_stmt: LOOP do_cond ENDLOOP { }
   ;
 
-loop_stmt: LOOP do_cond ENDLOOP { $$ = actions->loop($2); }
+do_cond: expr DO body { }
   ;
 
-do_cond: expr DO stmt_part { $$ = actions->condition($1, $3); }
+empty_stmt: SKIP { }
   ;
 
-empty_stmt: SKIP { $$ = actions->empty_stmt(); }
+proc_stmt: CALL name { }
   ;
 
-block_stmt: block { $$ = actions->block_stmt($1); }
-  ;
-
-proc_stmt: CALL name { $$ = actions->proc_stmt($2); }
-  ;
-
-/* should take var access list at most. this will allow read 1 + 2; */
-read_stmt: READ var_access_list { $$ = actions->io($2, symbol::READ); }
-  | READLN var_access { $$ = actions->readline($2); }
+read_stmt: READ var_access_list { }
+  | READLN var_access { }
   ;
 
 
 /* Expressions */
-expr_list: expr_list COMMA expr { $1.push_back($3); $$ = $1; }
-  | expr { $$ = std::vector<std::shared_ptr<Expr>>{$1}; }
-  | error { $$ = std::vector<std::shared_ptr<Expr>>(); yyerrok; }
+expr_list: expr_list COMMA expr { }
+  | expr { }
+  | error { }
   ;
 
-expr: expr prim_op prime_expr { $$ = actions->binary($2, $1, $3); }
-  | prime_expr { $$ = $1; }
+expr: expr prim_op prime_expr { }
+  | prime_expr { }
   ;
 
-prime_expr: prime_expr rel_op simple_expr { $$ = actions->binary($2, $1, $3); }
-  | simple_expr { $$ = $1; }
+prime_expr: prime_expr rel_op simple_expr { }
+  | simple_expr { }
   ;
 
-simple_expr: simple_expr add_op term { $$ = actions->binary($2, $1, $3); }
-  | term { $$ = $1; }
+simple_expr: simple_expr add_op term { }
+  | term { }
   ;
 
-term: factor mult_op factor { $$ = actions->binary($2, $1, $3); }
-  | factor { $$ = $1; }
+term: factor mult_op factor { }
+  | factor { }
   ;
 
-factor: number { $$ = $1; }
-  | character  { $$ = $1; }
-  | bool_sym  { $$ = $1; }
-  | string { $$ = $1; }
-  | endl { $$ = $1; }
-  | var_access  { $$ = $1; }
-  | LHRND expr RHRND { $$ = $2; }
-  | NOT factor { $$ = actions->unary(symbol::NOT, $2); }
-  | MINUS factor { $$ = actions->unary(symbol::MINUS, $2); }
+factor: number { }
+  | character  { }
+  | bool_sym  { }
+  | string { }
+  | endl { }
+  | var_access  { }
+  | LHRND expr RHRND { }
+  | NOT factor { }
+  | MINUS factor { }
   ;
 
 
 /* Variables */
-var_list: var_list COMMA name { $1.push_back($3); $$ = $1; }
-  | name { $$ = std::vector<std::string>{$1}; }
+var_list: var_list COMMA name { }
+  | name { }
   ;
 
-var_access_list: var_access_list COMMA var_access { $1.push_back($3); $$ = $1; }
-  | var_access { $$ = std::vector<std::shared_ptr<Expr>>{$1}; }
+var_access_list: var_access_list COMMA var_access { }
+  | var_access { }
   ;
 
-var_access: name selector { $$ = actions->access($1, $2); }
-  | var_access DOT name selector { $$ = actions->rec_access($1, $3, $4); }
+var_access: name selector { }
+  | var_access DOT name selector { }
   ;
 
-selector: LHSQR expr RHSQR { $$ = $2; }
+selector: LHSQR expr RHSQR { }
   | /* epsilon */
-    { auto expr = actions->empty_expr(); expr->set_null(true); $$ = expr; }
+    { }
   ;
 
 
 /* Operators Terminals */
-prim_op: AND { $$ = actions->new_op(symbol::AND, symbol::BOOL, symbol::BOOL); }
-  | OR { $$ = actions->new_op(symbol::OR, symbol::BOOL, symbol::BOOL); }
+prim_op: AND { }
+  | OR { }
   ;
 
-rel_op: EQ { $$ = actions->new_op(symbol::EQ, symbol::UNIVERSAL, symbol::BOOL); }
-  | NEQ { $$ = actions->new_op(symbol::NEQ, symbol::UNIVERSAL, symbol::BOOL); }
-  | LESS { $$ = actions->new_op(symbol::LESS, symbol::NUMBER, symbol::BOOL); }
-  | GREATER { $$ = actions->new_op(symbol::GREATER, symbol::NUMBER, symbol::BOOL); }
-  | LEQ { $$ = actions->new_op(symbol::LEQ, symbol::NUMBER, symbol::BOOL); }
-  | GEQ { $$ = actions->new_op(symbol::GEQ, symbol::NUMBER, symbol::BOOL); }
+rel_op: EQ { }
+  | NEQ { }
+  | LESS { }
+  | GREATER { }
+  | LEQ { }
+  | GEQ { }
   ;
 
-add_op: PLUS { $$ = actions->new_op(symbol::PLUS, symbol::NUMBER); }
-  | MINUS { $$ = actions->new_op(symbol::MINUS, symbol::NUMBER); }
+add_op: PLUS { }
+  | MINUS { }
   ;
 
-mult_op: MULT { $$ = actions->new_op(symbol::MULT, symbol::NUMBER); }
-  | DIV { $$ = actions->new_op(symbol::DIV, symbol::NUMBER); }
-  | MOD { $$ = actions->new_op(symbol::MOD, symbol::INT); }
+mult_op: MULT { }
+  | DIV { }
+  | MOD { }
   ;
 
 
 /* Value Based Terminals */
-type_sym: INT { $$ = actions->new_type(symbol::INT); }
-  | FLOAT { $$ = actions->new_type(symbol::FLOAT); }
-  | BOOL { $$ = actions->new_type(symbol::BOOL); }
-  | CHAR { $$ = actions->new_type(symbol::CHAR); }
+type_sym: INT { }
+  | FLOAT { }
+  | BOOL { }
+  | CHAR { }
   ;
 
-constant: number { $$ = $1; }
-  | bool_sym  { $$ = $1; }
-  | character { $$ = $1; }
-  | name { $$ = actions->access($1, actions->empty_expr()); }
-  | string { $$ = $1; }
-  | endl { $$ = $1; }
+constant: number { }
+  | bool_sym  { }
+  | character { }
+  | name { }
+  | string { }
+  | endl { }
   ;
 
-character: CHARACTER { $$ = actions->constant(symbol::CHAR, temp_ch); }
+character: CHARACTER { }
   ;
 
-number: num DOT NUMBER { $$ = actions->constant(symbol::FLOAT, $1, yytext); }
-  | num { $$ = actions->constant(symbol::INT, $1); }
+number: num DOT NUMBER { }
+  | num { }
   ;
 
-num: NUMBER { $$ = temp_num; }
+num: NUMBER { }
   ;
 
-bool_sym: TRUE { $$ = actions->constant(symbol::TRUE, 1); }
-  | FALSE { $$ = actions->constant(symbol::FALSE, 0); }
+bool_sym: TRUE { }
+  | FALSE { }
   ;
 
-string: STRING { $$ = actions->const_string(std::string(yytext)); }
+string: STRING { }
   ;
 
-endl: NEWLINE { $$ = actions->constant(symbol::CHAR, '\n'); }
+endl: NEWLINE { }
   ;
 
-name: NAME { $$ = std::string(yytext); }
+name: NAME { }
   ;
 %%
 
