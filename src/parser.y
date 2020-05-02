@@ -43,14 +43,14 @@ bool set_file(std::string);
 
 
 /* Token definitions */
-%token BEG END PROCEDURES CONSTANTS INCLUDES TYPES MAIN MODULE
-%token COMMA DOT SEMI COLON ARROW
+%token BEG END INCLUDES MAIN MODULE END_MAIN END_INC
+%token COMMA DOT SEMI COLON DB_COLON ARROW
 %token LHRND RHRND LHSQR RHSQR LHCUR RHCUR
 %token WRITE ASGN IF THEN ELIF ENDIF LOOP DO ENDLOOP SKIP CALL READ READLN
 %token AND OR NOT
 %token INIT EQ NEQ LESS GREATER LEQ GEQ
 %token PLUS MINUS MULT DIV MOD
-%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR VECTOR MAP
+%token ARRAY PROC ENDPROC RECORD ENDREC TYPE SCALAR VECTOR MAP REF
 %token INT BOOL FLOAT CHAR CONST
 %token NUMBER TRUE FALSE NAME CHARACTER
 %token EMPTY NEWLINE STRING AS
@@ -93,36 +93,21 @@ namespace yy {
 
 %%
 
-/* Main Program Structure ***************************************************/
-
-module: MODULE name definitions { printf("\nend module\n"); }
-  | definitions main { printf("\nend program\n"); }
+/* Module *******************************************************************/
+module: MODULE name includes mod_defs { printf("\nend module\n"); }
+  | program {}
   ;
 
-definitions: includes constants types procedures {}
-  ;
-
-includes: INCLUDES include_stmts { printf("\nincludes\n"); }
-  | /* epsilon */ { printf("\nempty includes\n"); }
-  ;
-
-constants: CONSTANTS const_defs { printf("\nconstant definitions\n"); }
-  | /* epsilon */ { printf("\nempty constants\n"); }
-  ;
-
-types: TYPES type_defs { printf("\ntype definitions\n"); }
-  | /* epsilon */ { printf("\nempty types\n"); }
-  ;
-
-procedures: PROCEDURES proc_defs { printf("\nprocedure definitions\n"); }
-  | /* epsilon */ { printf("\nempty procedures\n"); }
-  ;
-
-main: MAIN body { printf("\nmain body\n"); }
+program: includes main { printf("\nend no defs program\n"); }
+  | includes mod_defs main { printf("\nend program\n"); }
   ;
 
 
 /* Includes *****************************************************************/
+includes: INCLUDES include_stmts END_INC { printf("\nincludes\n"); }
+  | /* epsilon */ { printf("\nempty includes\n"); }
+  ;
+
 include_stmts: include_stmts include {}
   | include {} 
   ;
@@ -131,14 +116,54 @@ include: string AS name SEMI {}
   | string SEMI {}
   ;
 
-/* Constant Definitions *****************************************************/
-const_defs: const_defs const_def SEMI {}
-  | const_def SEMI {}
+
+/* Module Definitions *******************************************************/
+mod_defs: mod_defs mod_def SEMI { }
+  | mod_def SEMI {}
+  ;
+
+mod_def: const_def {}
+  | type_def {}
+  | proc_def {}
   ;
 
 const_def: CONST const_type name INIT constant { }
   ;
 
+type_def: RECORD name var_defs ENDREC {}
+  ;
+
+proc_def: PROC name params body ENDPROC {}
+  ;
+
+params: LHRND param_list RHRND {}
+  | /* epsilon */
+  ;
+
+param_list: param_list SEMI param {}
+  | param {}
+  ;
+
+param: pass_by var_def {}
+  ;
+
+pass_by: REF | CONST | /* epsilon */ {}
+  ;
+
+/* Program Body *************************************************************/
+main: MAIN body END_MAIN { printf("\nmain body\n"); }
+  ;
+
+body: body body_stmt SEMI {}
+  | body_stmt SEMI {}
+  ;
+
+body_stmt: var_def {}
+  | stmt {}
+  ;
+
+
+/* Constants ****************************************************************/
 const_type: type ARRAY {}
   | type VECTOR {}
   | type ARROW type MAP {}
@@ -151,35 +176,6 @@ constant_list: constant_list COMMA constant {}
 
 constant: name { }
   | literal { }
-  ;
-
-
-/* Type Definitions *********************************************************/
-type_defs: type_defs type_def SEMI {}
-  | type_def SEMI {}
-  ;
-
-type_def: name var_defs END name {}
-  ;
-
-/* Variable Definitions *****************************************************/
-var_defs: var_defs var_def SEMI {}
-  | var_def SEMI {}
-  ;
-
-/* Procedure Definitions ****************************************************/
-proc_defs: proc_defs proc_def SEMI {}
-  | proc_def SEMI {}
-  ;
-
-proc_def: name body END name {}
-  ;
-
-/* Program Body *************************************************************/
-body: body var_def SEMI {}
-  | body stmt SEMI {}
-  | var_def SEMI {}
-  | stmt SEMI {}
   ;
 
 literal: array_lit {}
@@ -202,9 +198,15 @@ const_mapping_list: const_mapping_list COMMA const_mapping {}
 const_mapping: constant COLON constant {}
   ; 
 
-/* OLD PL RULES **********************************************************/
+
+
+/* Variable Definitions *****************************************************/
+var_defs: var_defs var_def SEMI {}
+  | var_def SEMI {}
+  ;
 
 var_def: type vprime { }
+  | type vprime INIT expr_list {}
   ;
 
 type: type_sym { }
@@ -251,7 +253,13 @@ do_cond: expr DO body { }
 empty_stmt: SKIP { }
   ;
 
-proc_stmt: CALL name { }
+proc_stmt: CALL name args { }
+  | name DB_COLON name args {}
+  ;
+
+args: LHRND expr_list RHRND {}
+  | LHRND RHRND {}
+  | /* epsilon */
   ;
 
 read_stmt: READ var_access_list { }

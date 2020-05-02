@@ -2,44 +2,53 @@
 "my_lib.pal" as ml;
 "some_lib.pal" as sl;
 "lib_with_name.pal";
+#endinc
 
 
-#constants
-const int INT = 5;
-const bool POINTLESS = true;
-const float PI = 3.14;
-const char SEMI = ';';
-
-const int array ARR = [INT, 2, 3, 4, 5];
-const bool vector VEC = [true, false, true];
-const char -> int map MAP = {'a': 1, 'b': 2, 'c': 3};
+const int INT := 5;
+const bool POINTLESS := true;
+const float PI := 3.14;
+const char SEMI := '$';
 
 
-#types
-Point
+
+record Point
   int x, y;
-end Point;
+endrec;
 
-Point3D
+proc init_point (ref Point p; int a, b)
+  p.x = a;
+  p.y = b;
+endproc;
+
+
+record Point3D
   Point p;
   int z;
-end Point3D;
+endrec;
+
+proc init_point3D (ref Point3D p3; int a, b, c)
+  p3.p.x = a;
+  p3.p.y = b;
+  p3.z = c;
+endproc;
 
 
-#procedures
-my_proc
-  int x, y;
-  write x;
-end my_proc;
-
-other_proc
-  call my_proc;
-end other_proc;
+const int array ARR := [INT, 2, 3, 4, 5];
+const bool vector VEC := [true, false, true];
+const char -> int map MAP := {'a': 1, 'b': 2, 'c': 3};
 
 
 #main
-int a, b;
-call my_proc;
-int array[10] A;
+int a,b;
+a, b = 1, 2;
+
 Point p;
-write p;
+p::init_point (a, b);
+
+Point p3;
+p3::init_point3D (a, b, c);
+
+call init_point(p, a, b);
+
+#endmain

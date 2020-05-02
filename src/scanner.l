@@ -20,10 +20,9 @@ string \"[^\"]*\"
 
 %%
 #includes     { return yy::parser::token::INCLUDES; }
-#constants    { return yy::parser::token::CONSTANTS; }
-#types        { return yy::parser::token::TYPES; }
-#procedures   { return yy::parser::token::PROCEDURES; }
+#endinc       { return yy::parser::token::END_INC; }
 #main         { return yy::parser::token::MAIN; }
+#endmain      { return yy::parser::token::END_MAIN; }
 #module       { return yy::parser::token::MODULE; }
 
 begin         { return yy::parser::token::BEG; }
@@ -34,6 +33,7 @@ as            { return yy::parser::token::AS; }
 ","           { return yy::parser::token::COMMA; }
 ";"           { return yy::parser::token::SEMI; }
 ":"           { return yy::parser::token::COLON; }
+"::"          { return yy::parser::token::DB_COLON; }
 "->"          { return yy::parser::token::ARROW; }
 
 "("           { return yy::parser::token::LHRND; }
@@ -59,17 +59,17 @@ not           { return yy::parser::token::NOT; }
 ">"           { return yy::parser::token::GREATER; }
 "<="          { return yy::parser::token::LEQ; }
 ">="          { return yy::parser::token::GEQ; }
+"="           { return yy::parser::token::ASGN; }
+":="          { return yy::parser::token::INIT; }
 
 write         { return yy::parser::token::WRITE;}
 if            { return yy::parser::token::IF; }
 then          { return yy::parser::token::THEN; }
 do            { return yy::parser::token::DO; }
-"end if"      { return yy::parser::token::ENDIF; }
-"else if"     { return yy::parser::token::ELIF; }
+endif         { return yy::parser::token::ENDIF; }
+elif          { return yy::parser::token::ELIF; }
 while         { return yy::parser::token::LOOP; }
-"end while"   { return yy::parser::token::ENDLOOP; }
-"="           { return yy::parser::token::INIT; }
-":="          { return yy::parser::token::ASGN; }
+endwhile      { return yy::parser::token::ENDLOOP; }
 skip          { return yy::parser::token::SKIP; }
 call          { return yy::parser::token::CALL; }
 read          { return yy::parser::token::READ; }
@@ -86,9 +86,10 @@ vector        { return yy::parser::token::VECTOR; }
 map           { return yy::parser::token::MAP; }
 
 proc          { return yy::parser::token::PROC; }
-"end proc"    { return yy::parser::token::ENDPROC; }
+endproc       { return yy::parser::token::ENDPROC; }
+ref           { return yy::parser::token::REF; }
 record        { return yy::parser::token::RECORD; }
-"end record"  { return yy::parser::token::ENDREC; }
+endrec        { return yy::parser::token::ENDREC; }
 type          { return yy::parser::token::TYPE; }
 
 true          { return yy::parser::token::TRUE; }

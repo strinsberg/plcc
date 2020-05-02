@@ -3,30 +3,30 @@
 #includes
 "my_lib.pal" as ml;
 "some_lib.pal" as sl;
+#endinc
 
 
-#constants
-const float PI = 3.14;
-const float ZERO = 0.0;
+const float PI := 3.14;
+const float ZERO := 0.0;
 
 
-#types
-Point
+record Point
   int x, y;
-end Point;
+endrec;
 
-Point3D
+record Point3D
   Point p;
   int z;
-end Point3D;
+endrec;
 
 
-#procedures
-my_proc
+proc my_proc
   int x, y;
   write x;
-end my_proc;
+endproc;
 
-other_proc
+proc other_proc
+  int i := 4;
   call my_proc;
-end other_proc;
+  i = i - 1;
+endproc;
